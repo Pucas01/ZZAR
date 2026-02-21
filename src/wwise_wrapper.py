@@ -8,6 +8,9 @@ import sys
 import platform
 from pathlib import Path
 
+_is_windows = platform.system() == "Windows"
+_subprocess_kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if _is_windows else {}
+
 if os.environ.get('ZZAR_FLATPAK'):
     _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
 elif hasattr(sys, '_MEIPASS'):
@@ -112,7 +115,7 @@ class WwiseConsole:
             else:
                 cmd = self.wine_cmd + [str(self.wwise_console), "migrate", str(self.project_path)]
 
-            subprocess.run(cmd, capture_output=True, check=False)
+            subprocess.run(cmd, capture_output=True, check=False, **_subprocess_kwargs)
         except Exception as e:
             print(f"Migration warning: {e}")
 
@@ -193,7 +196,7 @@ class WwiseConsole:
             ]
 
         print(f"[WwiseConsole] Running: {' '.join(cmd)}")
-        process = subprocess.run(cmd, capture_output=True, text=True)
+        process = subprocess.run(cmd, capture_output=True, text=True, **_subprocess_kwargs)
 
         if process.returncode != 0:
             error_detail = (process.stdout + process.stderr).strip()
@@ -280,7 +283,7 @@ class WwiseConsole:
                 output_wine_path
             ]
 
-        process = subprocess.run(cmd, capture_output=True, text=True)
+        process = subprocess.run(cmd, capture_output=True, text=True, **_subprocess_kwargs)
 
         if process.returncode != 0:
             print(f"❌ Batch conversion failed: {process.stdout + process.stderr}")

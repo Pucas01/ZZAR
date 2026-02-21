@@ -18,6 +18,7 @@ else:
     _BASE_DIR = Path(__file__).resolve().parent.parent
 
 _is_windows = platform.system() == "Windows"
+_subprocess_kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if _is_windows else {}
 
 if not _is_windows:
     from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
@@ -97,7 +98,7 @@ class AudioPlayer(QObject):
                     '-of', 'default=noprint_wrappers=1:nokey=1',
                     str(filepath)
                 ],
-                capture_output=True, text=True, timeout=5
+                capture_output=True, text=True, timeout=5, **_subprocess_kwargs
             )
             if result.returncode == 0 and result.stdout.strip():
                 return int(float(result.stdout.strip()) * 1000)
@@ -144,6 +145,7 @@ class AudioPlayer(QObject):
             cmd,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            **_subprocess_kwargs,
         )
         self._pause_elapsed_ms = position_ms
         self._paused = False

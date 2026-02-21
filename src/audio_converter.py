@@ -7,6 +7,9 @@ import platform
 from pathlib import Path
 import shutil
 
+_is_windows = platform.system() == "Windows"
+_subprocess_kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if _is_windows else {}
+
 if os.environ.get('ZZAR_FLATPAK'):
     _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
 elif hasattr(sys, '_MEIPASS'):
@@ -92,7 +95,7 @@ class AudioConverter:
                     self.vgmstream_path,
                     '-o', str(output_file),
                     str(wem_file)
-                ], check=True, capture_output=True)
+                ], check=True, capture_output=True, **_subprocess_kwargs)
                 print(f"Converted (vgmstream): {wem_file.name} -> {output_file.name}")
                 return output_file
             except subprocess.CalledProcessError as e:
@@ -107,7 +110,7 @@ class AudioConverter:
                     '-ar', '48000',
                     '-y',
                     str(output_file)
-                ], check=True, capture_output=True, text=True)
+                ], check=True, capture_output=True, text=True, **_subprocess_kwargs)
                 print(f"Converted (ffmpeg): {wem_file.name} -> {output_file.name}")
                 return output_file
             except subprocess.CalledProcessError as e:
@@ -167,7 +170,7 @@ class AudioConverter:
                 str(output_file)
             ])
 
-            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **_subprocess_kwargs)
             norm_msg = " (normalized to -9 LUFS)" if normalize else ""
             print(f"Converted: {input_file.name} -> {output_file.name}{norm_msg}")
             return output_file

@@ -1,6 +1,7 @@
 
 
 import numpy as np
+import platform
 from pathlib import Path
 from scipy import signal
 from scipy.fft import fft
@@ -8,6 +9,9 @@ import subprocess
 import tempfile
 from multiprocessing import Pool, cpu_count
 from functools import partial
+
+_is_windows = platform.system() == "Windows"
+_subprocess_kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if _is_windows else {}
 
 class AudioMatcher:
 
@@ -31,7 +35,8 @@ class AudioMatcher:
                     ['vgmstream-cli', '-o', str(intermediate_wav), str(audio_path)],
                     capture_output=True,
                     check=True,
-                    timeout=10
+                    timeout=10,
+                    **_subprocess_kwargs
                 )
                 input_file = intermediate_wav
             except:
@@ -57,7 +62,7 @@ class AudioMatcher:
         cmd.extend(['-y', str(temp_wav)])
 
         try:
-            subprocess.run(cmd, capture_output=True, check=True, timeout=15)
+            subprocess.run(cmd, capture_output=True, check=True, timeout=15, **_subprocess_kwargs)
         except subprocess.CalledProcessError as e:
 
             if intermediate_wav and intermediate_wav.exists():
@@ -111,7 +116,7 @@ class AudioMatcher:
                 '-f', 's16le',
                 '-acodec', 'pcm_s16le',
                 '-'
-            ], capture_output=True, check=True)
+            ], capture_output=True, check=True, **_subprocess_kwargs)
 
             audio_data = np.frombuffer(result.stdout, dtype=np.int16)
 
