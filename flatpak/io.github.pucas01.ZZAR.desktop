@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=ZZAR
+GenericName=Audio Mod Manager
+Comment=Zenless Zone Zero Audio Replacer - Replace any sound in ZZZ with your own audio
+Exec=zzar
+Icon=io.github.pucas01.ZZAR
+Terminal=false
+Categories=AudioVideo;Audio;Game;Utility;
+Keywords=zenless;zone;zero;audio;mod;wem;wwise;pck;soundbank;
+StartupWMClass=ZZAR
+MimeType=application/x-zzar;

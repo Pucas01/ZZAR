@@ -1,0 +1,122 @@
+# ZZAR - Zenless Zone Zero Audio Replacer
+# Flatpak manifest — wraps PyInstaller binary with system dependencies
+#
+# Build:   flatpak-builder --force-clean build-dir flatpak/io.github.pucas01.ZZAR.yml
+# Install: flatpak-builder --user --install --force-clean build-dir flatpak/io.github.pucas01.ZZAR.yml
+# Run:     flatpak run io.github.pucas01.ZZAR
+
+id: io.github.pucas01.ZZAR
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: zzar
+
+add-extensions:
+  org.freedesktop.Platform.ffmpeg-full:
+    directory: lib/ffmpeg
+    version: '24.08'
+    add-ld-path: lib
+    no-autodownload: false
+    autodelete: false
+
+finish-args:
+  # Display
+  - --socket=wayland
+  - --socket=x11
+  - --socket=fallback-x11
+  - --share=ipc
+
+  # Audio
+  - --socket=pulseaudio
+
+  # GPU (QtGraphicalEffects needs hardware rendering)
+  - --device=dri
+
+  # Network (Wwise download, update checks)
+  - --share=network
+
+  # Filesystem (game files, mod files, audio files)
+  - --filesystem=home
+
+  # Host access for Wine (Wwise runs via host system's Wine)
+  - --talk-name=org.freedesktop.Flatpak
+
+  # Environment
+  - --env=QT_QPA_PLATFORM=wayland;xcb
+  - --env=GST_PLUGIN_SYSTEM_PATH=/usr/lib/x86_64-linux-gnu/gstreamer-1.0
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /lib/cmake
+  - /share/man
+  - /share/doc
+  - '*.a'
+  - '*.la'
+
+modules:
+  # ── vgmstream-cli: WEM audio decoder ──
+  # Only WEM (Vorbis) decoding is needed for ZZAR. Disable optional codecs
+  # that require git fetching at build time (g719, atrac9, celt, speex)
+  # since flatpak-builder sandboxes builds without network access.
+  - name: vgmstream
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_CLI=ON
+      - -DBUILD_V123=OFF
+      - -DBUILD_AUDACIOUS=OFF
+      - -DUSE_VORBIS=ON
+      - -DUSE_MPEG=ON
+      - -DUSE_FFMPEG=OFF
+      - -DUSE_G719=OFF
+      - -DUSE_ATRAC9=OFF
+      - -DUSE_CELT=OFF
+      - -DUSE_SPEEX=OFF
+    sources:
+      - type: git
+        url: https://github.com/vgmstream/vgmstream.git
+        tag: r2083
+    post-install:
+      - install -Dm755 cli/vgmstream-cli /app/bin/vgmstream-cli
+
+  # ── ffmpeg extension mount point ──
+  - name: extension-setup
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/ffmpeg
+
+  # ── ZZAR application ──
+  - name: zzar
+    buildsystem: simple
+    build-commands:
+      # PyInstaller binary
+      - install -Dm755 ZZAR /app/bin/ZZAR.bin
+
+      # Wrapper script (entry point)
+      - install -Dm755 zzar-wrapper.sh /app/bin/zzar
+
+      # Desktop entry
+      - install -Dm644 io.github.pucas01.ZZAR.desktop /app/share/applications/io.github.pucas01.ZZAR.desktop
+
+      # Icon
+      - install -Dm644 ZZAR-Logo2-256.png /app/share/icons/hicolor/256x256/apps/io.github.pucas01.ZZAR.png
+
+      # AppStream metainfo
+      - install -Dm644 io.github.pucas01.ZZAR.metainfo.xml /app/share/metainfo/io.github.pucas01.ZZAR.metainfo.xml
+
+    sources:
+      - type: file
+        path: ../dist/ZZAR
+
+      - type: file
+        path: zzar-wrapper.sh
+
+      - type: file
+        path: io.github.pucas01.ZZAR.desktop
+
+      - type: file
+        path: ../src/gui/assets/ZZAR-Logo2-256.png
+
+      - type: file
+        path: io.github.pucas01.ZZAR.metainfo.xml

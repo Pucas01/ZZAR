@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ProjectInfo>
+	<Project Name="WAVtoWEM" GUID="{0C16427F-C622-4996-8504-97E3DC477F34}" Generator="2023.1.1.8417"/>
+	<CacheRoot>../.cache</CacheRoot>
+	<Platforms>
+		<Platform Name="Windows" GUID="{14D77470-2961-4668-827C-5B4D66EFD863}" BasePlatform="Windows" BasePlatformGUID="{6E0CB257-C6C8-4C5C-8366-2740DFC441EB}" Path="Windows"/>
+	</Platforms>
+	<Languages>
+		<Language Name="English(US)" Id="684519430" GUID="{B9942426-D375-4C91-97F9-8FB2FE8B949D}" Default="true" UseAsStandIn="true"/>
+	</Languages>
+	<FileHash>{CD1ABBAA-39F7-EDEB-4D9D-EA974F900653}</FileHash>
+</ProjectInfo>

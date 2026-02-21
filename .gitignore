@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Output files
+*.pck
+*.bnk
+*.wem
+extracted*/
+output/
+temp*/
+test*/
+verify*/
+tools*/
+# OS
+.DS_Store
+Thumbs.db

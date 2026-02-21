@@ -1,0 +1,16 @@
+# ZZZ Audio Mod Tool Dependencies
+
+# Core dependencies
+requests>=2.31.0
+
+# Audio processing
+pydub>=0.25.1
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Image processing
+Pillow>=10.0.0
+
+# GUI
+PyQt5>=5.15.0
+
