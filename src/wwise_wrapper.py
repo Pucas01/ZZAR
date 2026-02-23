@@ -9,7 +9,21 @@ import platform
 from pathlib import Path
 
 _is_windows = platform.system() == "Windows"
-_subprocess_kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if _is_windows else {}
+
+if _is_windows:
+    _si = subprocess.STARTUPINFO()
+    _si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    _subprocess_kwargs = {"startupinfo": _si}
+    if hasattr(sys, '_MEIPASS'):
+        _clean_env = os.environ.copy()
+        _meipass = sys._MEIPASS
+        _clean_env["PATH"] = os.pathsep.join(
+            p for p in _clean_env.get("PATH", "").split(os.pathsep)
+            if not p.startswith(_meipass)
+        )
+        _subprocess_kwargs["env"] = _clean_env
+else:
+    _subprocess_kwargs = {}
 
 if os.environ.get('ZZAR_FLATPAK'):
     _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
