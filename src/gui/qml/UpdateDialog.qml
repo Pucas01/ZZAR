@@ -88,7 +88,7 @@ Item {
             }
 
             Text {
-                text: "Update Available!"
+                text: qsTr("Update Available!")
                 color: "#d8fa00"
                 font.family: "Alatsi"
                 font.pixelSize: 24
@@ -97,7 +97,7 @@ Item {
             }
 
             Text {
-                text: "Version " + root.version + " is ready to download."
+                text: qsTr("Version %1 is ready to download.").arg(root.version)
                 color: "#ffffff"
                 font.family: "Alatsi"
                 font.pixelSize: 16
@@ -111,7 +111,7 @@ Item {
                 visible: root.changelog.length > 0
 
                 Text {
-                    text: "What's New"
+                    text: qsTr("What's New")
                     color: "#d8fa00"
                     font.family: "Alatsi"
                     font.pixelSize: 16
@@ -179,7 +179,7 @@ Item {
                 }
 
                 Text {
-                    text: "Downloading... " + root.downloadPercent + "%"
+                    text: qsTr("Downloading... %1%").arg(root.downloadPercent)
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 13
@@ -204,7 +204,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "Later"
+                        text: qsTr("Later")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -265,7 +265,7 @@ Item {
                         }
 
                         Text {
-                            text: root.isDownloading ? "Updating..." : "Update Now"
+                            text: root.isDownloading ? qsTr("Updating...") : qsTr("Update Now")
                             color: Theme.textOnAccent
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeNormal

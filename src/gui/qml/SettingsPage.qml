@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtGraphicalEffects 1.15
 
 Item {
     id: settingsPage
@@ -22,8 +23,10 @@ Item {
     signal githubTokenSaved(string token)
     signal testUpdateDialogClicked()
     signal redoTutorialClicked()
+    signal languageChanged(string langCode)
 
     property string gameDirectory: ""
+    property string currentLanguage: "en"
     property string modsDirectory: ""
     property string defaultModsDirectory: ""
     property bool modCreationEnabled: false
@@ -42,45 +45,7 @@ Item {
     property bool devMode: false
     property string githubToken: ""
 
-    property bool showScrollHint: false
-
-    Component.onCompleted: {
-        scrollHintTimer.start()
-    }
-
-    Timer {
-        id: scrollHintTimer
-        interval: 500
-        onTriggered: {
-            if (scrollArea.contentHeight > scrollArea.height) {
-                showScrollHint = true
-                scrollHintAnimation.start()
-            }
-        }
-    }
-
-    SequentialAnimation {
-        id: scrollHintAnimation
-        running: false
-        loops: 2
-
-        NumberAnimation {
-            target: scrollArea
-            property: "contentY"
-            to: 50
-            duration: 400
-            easing.type: Easing.OutQuad
-        }
-        PauseAnimation { duration: 200 }
-        NumberAnimation {
-            target: scrollArea
-            property: "contentY"
-            to: 0
-            duration: 400
-            easing.type: Easing.OutQuad
-        }
-        PauseAnimation { duration: 800 }
-    }
+    property int currentCategory: 0
 
     Rectangle {
         id: outerFrame
@@ -96,12 +61,64 @@ Item {
             color: "#252525"
             radius: 36.44
 
+            Row {
+                id: categoryBar
+                anchors.top: parent.top
+                anchors.topMargin: 20
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 8
+
+                Repeater {
+                    model: ["General", "Mod Creation", "App"]
+
+                    Item {
+                        width: tabLabel.implicitWidth + 48
+                        height: 44
+
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 22
+                            color: {
+                                if (currentCategory === index) return "#d8fa00"
+                                if (tabMouse.containsMouse) return "#555555"
+                                return "transparent"
+                            }
+                            Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        }
+
+                        Text {
+                            id: tabLabel
+                            anchors.centerIn: parent
+                            text: modelData
+                            color: currentCategory === index ? "#000000" : "#ffffff"
+                            font.family: "Alatsi"
+                            font.pixelSize: 18
+                            Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        }
+
+                        MouseArea {
+                            id: tabMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                currentCategory = index
+                                scrollArea.contentY = 0
+                            }
+                        }
+                    }
+                }
+            }
+
             Flickable {
                 id: scrollArea
-                anchors.fill: parent
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: categoryBar.bottom
+                anchors.bottom: parent.bottom
                 anchors.leftMargin: 30
                 anchors.rightMargin: 30
-                anchors.topMargin: 30
+                anchors.topMargin: 15
                 anchors.bottomMargin: 30
                 contentHeight: settingsContent.height
                 clip: true
@@ -140,9 +157,162 @@ Item {
 
                     Rectangle {
                         width: parent.width
+                        height: languageContent.height + 40
+                        color: "#333333"
+                        radius: 20
+                        visible: currentCategory === 0
+
+                        Column {
+                            id: languageContent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 20
+                            spacing: 15
+
+                            Text {
+                                text: qsTr("Language")
+                                color: "#d8fa00"
+                                font.family: "Alatsi"
+                                font.pixelSize: 24
+                                font.weight: Font.Normal
+                            }
+
+                            Text {
+                                text: qsTr("Select the display language for ZZAR.")
+                                color: "#888888"
+                                font.family: "Alatsi"
+                                font.pixelSize: 14
+                                wrapMode: Text.WordWrap
+                                width: parent.width
+                            }
+
+                            ComboBox {
+                                id: languageCombo
+                                width: 250
+                                height: Theme.buttonHeight
+                                model: translationManager.availableLanguages
+                                textRole: "name"
+
+                                currentIndex: {
+                                    var langs = translationManager.availableLanguages
+                                    for (var i = 0; i < langs.length; i++) {
+                                        if (langs[i].code === settingsPage.currentLanguage) return i
+                                    }
+                                    return 0
+                                }
+
+                                onActivated: {
+                                    var selectedLang = translationManager.availableLanguages[index]
+                                    settingsPage.currentLanguage = selectedLang.code
+                                    languageChanged(selectedLang.code)
+                                }
+
+                                background: Rectangle {
+                                    color: languageCombo.pressed ? Qt.darker(Theme.cardBackground, 1.2)
+                                         : languageCombo.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                                         : Theme.cardBackground
+                                    radius: Theme.radiusMedium
+                                    border.color: "transparent"
+                                    border.width: 0
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                    Behavior on border.color { ColorAnimation { duration: 150 } }
+                                }
+
+                                contentItem: Text {
+                                    text: languageCombo.displayText
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    verticalAlignment: Text.AlignVCenter
+                                    leftPadding: 14
+                                    rightPadding: 40
+                                }
+
+                                indicator: Rectangle {
+                                    x: languageCombo.width - width - 10
+                                    y: (languageCombo.height - height) / 2
+                                    width: 20
+                                    height: 20
+                                    color: "transparent"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u25BC"
+                                        color: Theme.textPrimary
+                                        font.pixelSize: 10
+                                    }
+                                }
+
+                                delegate: ItemDelegate {
+                                    width: languageCombo.width - 8
+                                    height: Theme.buttonHeight
+                                    highlighted: languageCombo.highlightedIndex === index
+
+                                    background: Rectangle {
+                                        color: {
+                                            if (parent.highlighted) return Theme.primaryAccent
+                                            if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                            return Theme.surfaceDark
+                                        }
+                                        radius: Theme.radiusSmall
+                                        Behavior on color { ColorAnimation { duration: 100 } }
+                                    }
+
+                                    contentItem: Text {
+                                        text: modelData.name
+                                        color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        verticalAlignment: Text.AlignVCenter
+                                        leftPadding: 14
+                                    }
+                                }
+
+                                popup: Popup {
+                                    y: languageCombo.height + 4
+                                    width: languageCombo.width
+                                    padding: 4
+
+                                    background: Rectangle {
+                                        color: Theme.surfaceDark
+                                        radius: Theme.radiusMedium
+                                        border.color: Qt.rgba(1, 1, 1, 0.1)
+                                        border.width: 1
+
+                                        layer.enabled: true
+                                        layer.effect: DropShadow {
+                                            transparentBorder: true
+                                            horizontalOffset: 0
+                                            verticalOffset: 4
+                                            radius: 8
+                                            samples: 16
+                                            color: "#80000000"
+                                        }
+                                    }
+
+                                    contentItem: ListView {
+                                        clip: true
+                                        implicitHeight: contentHeight
+                                        model: languageCombo.popup.visible ? languageCombo.delegateModel : null
+                                        currentIndex: languageCombo.highlightedIndex
+                                        spacing: 2
+
+                                        ScrollIndicator.vertical: ScrollIndicator {
+                                            active: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
                         height: gameDirContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 0
 
                         Column {
                             id: gameDirContent
@@ -153,7 +323,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Game Directory"
+                                text: qsTr("Game Directory")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -161,7 +331,7 @@ Item {
                             }
 
                             Text {
-                                text: "Select the ZenlessZoneZero_Data folder from your game installation."
+                                text: qsTr("Select the ZenlessZoneZero_Data folder from your game installation.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -199,7 +369,7 @@ Item {
                                         Text {
                                             anchors.fill: parent
                                             verticalAlignment: Text.AlignVCenter
-                                            text: "Path to ZenlessZoneZero_Data folder..."
+                                            text: qsTr("Path to ZenlessZoneZero_Data folder...")
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -223,7 +393,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Browse"
+                                        text: qsTr("Browse")
                                         color: Theme.textOnAccent
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeMedium
@@ -288,7 +458,7 @@ Item {
 
                                         Text {
                                             anchors.verticalCenter: parent.verticalCenter
-                                            text: settingsPage.isAutoDetecting ? "Searching..." : "Auto-Detect"
+                                            text: settingsPage.isAutoDetecting ? qsTr("Searching...") : qsTr("Auto-Detect")
                                             color: Theme.textOnAccent
                                             font.family: Theme.fontFamily
                                             font.pixelSize: Theme.fontSizeMedium
@@ -311,7 +481,7 @@ Item {
 
                             Text {
                                 id: statusText
-                                text: gameDirectory.length > 0 ? "Game directory set" : "No game directory configured"
+                                text: gameDirectory.length > 0 ? qsTr("Game directory set") : qsTr("No game directory configured")
                                 color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
@@ -324,6 +494,7 @@ Item {
                         height: modsDirContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 0
 
                         Column {
                             id: modsDirContent
@@ -334,7 +505,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Mods Directory"
+                                text: qsTr("Mods Directory")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -342,7 +513,7 @@ Item {
                             }
 
                             Text {
-                                text: "Choose where mod files are stored. Leave empty to use the default location."
+                                text: qsTr("Choose where mod files are stored. Leave empty to use the default location.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -380,7 +551,7 @@ Item {
                                         Text {
                                             anchors.fill: parent
                                             verticalAlignment: Text.AlignVCenter
-                                            text: defaultModsDirectory.length > 0 ? defaultModsDirectory : "Default mods directory..."
+                                            text: defaultModsDirectory.length > 0 ? defaultModsDirectory : qsTr("Default mods directory...")
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -404,7 +575,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Browse"
+                                        text: qsTr("Browse")
                                         color: Theme.textOnAccent
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeMedium
@@ -434,7 +605,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Reset"
+                                        text: qsTr("Reset")
                                         color: "#ffffff"
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeMedium
@@ -451,7 +622,7 @@ Item {
                             }
 
                             Text {
-                                text: modsDirectory.length > 0 ? "Custom mods directory set" : "Using default: " + defaultModsDirectory
+                                text: modsDirectory.length > 0 ? qsTr("Custom mods directory set") : qsTr("Using default: ") + defaultModsDirectory
                                 color: modsDirectory.length > 0 ? "#92fa00" : "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
@@ -464,6 +635,7 @@ Item {
                         height: modCreationContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 1
 
                         Column {
                             id: modCreationContent
@@ -482,7 +654,7 @@ Item {
                                     spacing: 5
 
                                     Text {
-                                        text: "Mod Creation Mode"
+                                        text: qsTr("Mod Creation Mode")
                                         color: "#d8fa00"
                                         font.family: "Alatsi"
                                         font.pixelSize: 24
@@ -490,7 +662,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: "Enable tools for creating new mods (requires Wwise)."
+                                        text: qsTr("Enable tools for creating new mods (requires Wwise).")
                                         color: "#888888"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -538,6 +710,7 @@ Item {
                         height: tutorialContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 2
 
                         Column {
                             id: tutorialContent
@@ -548,7 +721,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Tutorial"
+                                text: qsTr("Tutorial")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -556,7 +729,7 @@ Item {
                             }
 
                             Text {
-                                text: "Walk through the main features of ZZAR with a guided tutorial."
+                                text: qsTr("Walk through the main features of ZZAR with a guided tutorial.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -577,7 +750,7 @@ Item {
 
                                 Text {
                                     anchors.centerIn: parent
-                                    text: "Redo Tutorial"
+                                    text: qsTr("Redo Tutorial")
                                     color: "#000000"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -600,7 +773,7 @@ Item {
                         height: wwiseContent.height + 40
                         color: "#333333"
                         radius: 20
-                        visible: settingsPage.modCreationEnabled
+                        visible: currentCategory === 1 && settingsPage.modCreationEnabled
 
                         Column {
                             id: wwiseContent
@@ -611,7 +784,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Wwise Setup"
+                                text: qsTr("Wwise Setup")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -619,7 +792,7 @@ Item {
                             }
 
                             Text {
-                                text: "Wwise is required to convert audio files for Zenless Zone Zero."
+                                text: qsTr("Wwise is required to convert audio files for Zenless Zone Zero.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -631,14 +804,14 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: "Status:"
+                                    text: qsTr("Status:")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                 }
 
                                 Text {
-                                    text: settingsPage.wwiseInstalled ? "INSTALLED" : "NOT INSTALLED"
+                                    text: settingsPage.wwiseInstalled ? qsTr("INSTALLED") : qsTr("NOT INSTALLED")
                                     color: settingsPage.wwiseInstalled ? "#92fa00" : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -660,7 +833,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Check"
+                                        text: qsTr("Check")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -721,7 +894,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: settingsPage.isInstallingWwise ? "Installing..." : "Run Automated Setup"
+                                        text: settingsPage.isInstallingWwise ? qsTr("Installing...") : qsTr("Run Automated Setup")
                                         color: "#000000"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -750,7 +923,7 @@ Item {
                         height: audioToolsContent.height + 40
                         color: "#333333"
                         radius: 20
-                        visible: Qt.platform.os === "windows"
+                        visible: currentCategory === 1 && Qt.platform.os === "windows"
 
                         Column {
                             id: audioToolsContent
@@ -761,7 +934,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Windows Audio Tools"
+                                text: qsTr("Windows Audio Tools")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -769,7 +942,7 @@ Item {
                             }
 
                             Text {
-                                text: "FFmpeg and vgmstream are required to convert audio files."
+                                text: qsTr("FFmpeg and vgmstream are required to convert audio files.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -781,14 +954,14 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: "Status:"
+                                    text: qsTr("Status:")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                 }
 
                                 Text {
-                                    text: settingsPage.audioToolsInstalled ? "INSTALLED" : "NOT INSTALLED"
+                                    text: settingsPage.audioToolsInstalled ? qsTr("INSTALLED") : qsTr("NOT INSTALLED")
                                     color: settingsPage.audioToolsInstalled ? "#92fa00" : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -810,7 +983,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Check"
+                                        text: qsTr("Check")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -871,7 +1044,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: settingsPage.isInstallingAudioTools ? "Installing..." : "Install Audio Tools"
+                                        text: settingsPage.isInstallingAudioTools ? qsTr("Installing...") : qsTr("Install Audio Tools")
                                         color: "#000000"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -900,6 +1073,7 @@ Item {
                         height: updatesContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 2
 
                         Column {
                             id: updatesContent
@@ -910,7 +1084,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Updates"
+                                text: qsTr("Updates")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -918,7 +1092,7 @@ Item {
                             }
 
                             Text {
-                                text: "Check for new versions of ZZAR."
+                                text: qsTr("Check for new versions of ZZAR.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -930,7 +1104,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: "Current Version:"
+                                    text: qsTr("Current Version:")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -958,7 +1132,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Check for Updates"
+                                        text: qsTr("Check for Updates")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -1017,7 +1191,7 @@ Item {
                                         }
 
                                         Text {
-                                            text: "Checking..."
+                                            text: qsTr("Checking...")
                                             color: "#ffffff"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -1039,7 +1213,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "Test Dialog"
+                                        text: qsTr("Test Dialog")
                                         color: "#000000"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -1067,7 +1241,7 @@ Item {
                                     spacing: 10
 
                                     Text {
-                                        text: "Version " + settingsPage.latestVersion + " is available!"
+                                        text: qsTr("Version %1 is available!").arg(settingsPage.latestVersion)
                                         color: "#92fa00"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -1117,7 +1291,7 @@ Item {
                                             }
 
                                             Text {
-                                                text: settingsPage.isDownloadingUpdate ? ("Downloading... " + settingsPage.downloadPercent + "%") : "Download & Install"
+                                                text: settingsPage.isDownloadingUpdate ? qsTr("Downloading... %1%").arg(settingsPage.downloadPercent) : qsTr("Download & Install")
                                                 color: "#000000"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 16
@@ -1153,7 +1327,7 @@ Item {
                                     spacing: 10
 
                                     Text {
-                                        text: "Update downloaded! Restart to apply."
+                                        text: qsTr("Update downloaded! Restart to apply.")
                                         color: "#92fa00"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -1172,7 +1346,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "Restart Now"
+                                            text: qsTr("Restart Now")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
@@ -1196,14 +1370,14 @@ Item {
                                 visible: settingsPage.devMode
 
                                 Text {
-                                    text: "GitHub Token (Dev Mode)"
+                                    text: qsTr("GitHub Token (Dev Mode)")
                                     color: "#d8fa00"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                 }
 
                                 Text {
-                                    text: "Required for private repos. Leave empty for public repos."
+                                    text: qsTr("Required for private repos. Leave empty for public repos.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 12
@@ -1261,7 +1435,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "Save"
+                                            text: qsTr("Save")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -1285,6 +1459,7 @@ Item {
                         height: aboutContent.height + 40
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 2
 
                         Column {
                             id: aboutContent
@@ -1295,7 +1470,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "About ZZAR"
+                                text: qsTr("About ZZAR")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -1303,14 +1478,14 @@ Item {
                             }
 
                             Text {
-                                text: "Zenless Zone Zero Audio Replacer"
+                                text: qsTr("Zenless Zone Zero Audio Replacer")
                                 color: "#ffffff"
                                 font.family: "Alatsi"
                                 font.pixelSize: 16
                             }
 
                             Text {
-                                text: "A tool for managing, making and applying audio mods to Zenless Zone Zero."
+                                text: qsTr("A tool for managing, making and applying audio mods to Zenless Zone Zero.")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -1322,7 +1497,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: "Version:"
+                                    text: qsTr("Version:")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1340,7 +1515,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: "Author:"
+                                    text: qsTr("Author:")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1361,6 +1536,7 @@ Item {
                         height: creditContent.height + 105
                         color: "#333333"
                         radius: 20
+                        visible: currentCategory === 2
 
                         Column {
                             id: creditContent
@@ -1371,7 +1547,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: "Credits"
+                                text: qsTr("Credits")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -1379,7 +1555,7 @@ Item {
                             }
 
                             Text {
-                                    text: "Some of the awsesome people who made this posible"
+                                    text: qsTr("Some of the awsesome people who made this posible")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -1397,7 +1573,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For making the original audio modding scripts"
+                                    text: qsTr("For making the original audio modding scripts")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1418,7 +1594,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For making PCK extraction and packing scripts which have been used as refrence."
+                                    text: qsTr("For making PCK extraction and packing scripts which have been used as refrence.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1439,7 +1615,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For improving on failsafe65's PCK extraction and packing scripts which have been used as reference."
+                                    text: qsTr("For improving on failsafe65's PCK extraction and packing scripts which have been used as reference.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1460,7 +1636,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For making a free concept ZZZ design which this programs design is based on."
+                                    text: qsTr("For making a free concept ZZZ design which this programs design is based on.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1480,7 +1656,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For making the first ZZAR logo design."
+                                    text: qsTr("For making the first ZZAR logo design.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1501,7 +1677,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "Maker of Zenless Tools, for making the Chat generator which assets of it where used."
+                                    text: qsTr("Maker of Zenless Tools, for making the Chat generator which assets of it where used.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1511,7 +1687,7 @@ Item {
                             }
 
                             Text {
-                                text: "Testers"
+                                text: qsTr("Testers")
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -1530,7 +1706,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For helping me out the most during development."
+                                    text: qsTr("For helping me out the most during development.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1551,7 +1727,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For helping me to do some testing and providing feedback."
+                                    text: qsTr("For helping me to do some testing and providing feedback.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1572,7 +1748,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: "For helping me test the linux build."
+                                    text: qsTr("For helping me test the linux build.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -1590,6 +1766,40 @@ Item {
                 }
             }
 
+            Rectangle {
+                id: topFade
+                anchors.left: scrollArea.left
+                anchors.right: scrollArea.right
+                anchors.top: scrollArea.top
+                height: 30
+                opacity: Math.min(scrollArea.contentY / 5, 1.0)
+                z: 1
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#252525" }
+                    GradientStop { position: 1.0; color: "transparent" }
+                }
+
+                Behavior on opacity { NumberAnimation { duration: 80 } }
+            }
+
+            Rectangle {
+                id: bottomFade
+                anchors.left: scrollArea.left
+                anchors.right: scrollArea.right
+                anchors.bottom: scrollArea.bottom
+                height: 30
+                opacity: Math.min((scrollArea.contentHeight - scrollArea.height - scrollArea.contentY) / 5, 1.0)
+                z: 1
+
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "transparent" }
+                    GradientStop { position: 1.0; color: "#252525" }
+                }
+
+                Behavior on opacity { NumberAnimation { duration: 80 } }
+            }
+
             Item {
                 id: saveButton
                 anchors.right: parent.right
@@ -1597,6 +1807,7 @@ Item {
                 anchors.margins: 20
                 height: 60
                 width: 220
+                z: 2
 
                 Rectangle {
                     anchors.fill: parent
@@ -1632,7 +1843,7 @@ Item {
                     spacing: 10
 
                     Text {
-                        text: "Save Settings"
+                        text: qsTr("Save Settings")
                         color: "#000000"
                         font.family: "Alatsi"
                         font.pixelSize: 20

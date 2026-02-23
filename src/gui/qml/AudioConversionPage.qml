@@ -43,7 +43,7 @@ Item {
                 spacing: Theme.spacingMedium
 
                 Text {
-                    text: "Conversion Mode"
+                    text: qsTr("Conversion Mode")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -56,9 +56,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightLarge
                     model: [
-                        "WEM → WAV",
-                        "MP3/FLAC/OGG → WAV",
-                        "WAV → WEM"
+                        qsTr("WEM → WAV"),
+                        qsTr("MP3/FLAC/OGG → WAV"),
+                        qsTr("WAV → WEM")
                     ]
                     currentIndex: currentMode
                     onCurrentIndexChanged: {
@@ -196,7 +196,7 @@ Item {
                     }
 
                     Text {
-                        text: "Normalize Audio"
+                        text: qsTr("Normalize Audio")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -214,7 +214,7 @@ Item {
                 }
 
                 Text {
-                    text: "Input"
+                    text: qsTr("Input")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -247,7 +247,7 @@ Item {
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "Select file or directory"
+                            text: qsTr("Select file or directory")
                             visible: !inputField.text && !inputField.activeFocus
                         }
                     }
@@ -259,18 +259,18 @@ Item {
                     spacing: Theme.spacingSmall
 
                     ZZARButton {
-                        text: "Browse File"
+                        text: qsTr("Browse File")
                         onClicked: browseInputFileClicked()
                     }
 
                     ZZARButton {
-                        text: "Browse Directory"
+                        text: qsTr("Browse Directory")
                         onClicked: browseInputDirectoryClicked()
                     }
                 }
 
                 Text {
-                    text: "Output Settings"
+                    text: qsTr("Output Settings")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -279,7 +279,7 @@ Item {
                 }
 
                 Text {
-                    text: "Output Directory:"
+                    text: qsTr("Output Directory:")
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -314,14 +314,14 @@ Item {
                                 color: Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
-                                text: "Auto (same as input)"
+                                text: qsTr("Auto (same as input)")
                                 visible: !outputField.text && !outputField.activeFocus
                             }
                         }
                     }
 
                     ZZARButton {
-                        text: "Browse"
+                        text: qsTr("Browse")
                         onClicked: browseOutputDirectoryClicked()
                     }
                 }
@@ -331,7 +331,7 @@ Item {
                     spacing: Theme.spacingSmall
 
                     Text {
-                        text: "Sample Rate (Hz):"
+                        text: qsTr("Sample Rate (Hz):")
                         color: Theme.textSecondary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -449,7 +449,7 @@ Item {
                     objectName: "tutorialConvertBtn"
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightLarge
-                    text: converting ? "Converting..." : "Convert Audio"
+                    text: converting ? qsTr("Converting...") : qsTr("Convert Audio")
                     enabled: !converting && inputPath !== ""
                     buttonColor: enabled ? Theme.primaryAccent : Theme.disabledAccent
                     fontSize: Theme.fontSizeNormal
@@ -494,7 +494,7 @@ Item {
                 }
 
                 Text {
-                    text: "Log:"
+                    text: qsTr("Log:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -529,7 +529,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Conversion log will appear here..."
+                                text: qsTr("Conversion log will appear here...")
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall

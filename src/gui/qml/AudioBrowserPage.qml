@@ -50,8 +50,8 @@ Item {
     property real contextMenuX: 0
     property real contextMenuY: 0
     property string gameDirectory: ""
-    property string statusText: "Select a game audio directory to start"
-    property string nowPlayingText: "Not playing"
+    property string statusText: qsTr("Select a game audio directory to start")
+    property string nowPlayingText: qsTr("Not playing")
     property real playbackProgress: 0.0
     property string timeText: "00:00 / 00:00"
     property int volume: 50
@@ -153,7 +153,7 @@ Item {
                         implicitWidth: findMatchingSoundBtn.width
                         Layout.preferredHeight: Theme.buttonHeight
                         model: ["StreamingAssets", "Persistent"]
-                        displayText: "Open Game Folder"
+                        displayText: qsTr("Open Game Folder")
                         z: 100
 
                         onActivated: {
@@ -298,18 +298,18 @@ Item {
                                 color: Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
-                                text: "Search by ID, name, or tag"
+                                text: qsTr("Search by ID, name, or tag")
                                 visible: !searchInput.text && !searchInput.activeFocus
                             }
                         }
                     }
 
                     ZZARButton {
-                        text: "Search"
+                        text: qsTr("Search")
                         onClicked: searchRequested(searchInput.text)
                     }
                     ZZARButton {
-                        text: "Clear"
+                        text: qsTr("Clear")
                         onClicked: {
                             searchInput.text = ""
                             clearSearchClicked()
@@ -317,7 +317,7 @@ Item {
                     }
                     ZZARButton {
                         id: findMatchingSoundBtn
-                        text: "Find Matching Sound"
+                        text: qsTr("Find Matching Sound")
                         buttonColor: Theme.secondaryAccent
                         onClicked: wipDialogRequested()
                     }
@@ -359,7 +359,7 @@ Item {
                         }
 
                         Text {
-                            text: "Merge Streaming PCK"
+                            text: qsTr("Merge Streaming PCK")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -409,7 +409,7 @@ Item {
                         }
 
                         Text {
-                            text: "Hide all non soundbank language PCK's"
+                            text: qsTr("Hide all non soundbank language PCK's")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -459,7 +459,7 @@ Item {
                         }
 
                         Text {
-                            text: "Normalize Audio on Replace"
+                            text: qsTr("Normalize Audio on Replace")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -494,7 +494,7 @@ Item {
 
                         Text {
                             width: parent.width * 0.42
-                            text: "File"
+                            text: qsTr("File")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -503,7 +503,7 @@ Item {
                         }
                         Text {
                             width: parent.width * 0.13
-                            text: "ID"
+                            text: qsTr("ID")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -517,7 +517,7 @@ Item {
 
                             Text {
                                 anchors.fill: parent
-                                text: "Size " + (sortBySizeAsc ? "\u25B2" : "\u25BC")
+                                text: qsTr("Size ") + (sortBySizeAsc ? "\u25B2" : "\u25BC")
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
@@ -543,7 +543,7 @@ Item {
 
                             Text {
                                 anchors.fill: parent
-                                text: "Duration " + (sortByDurationAsc ? "\u25B2" : "\u25BC")
+                                text: qsTr("Duration ") + (sortByDurationAsc ? "\u25B2" : "\u25BC")
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
@@ -564,7 +564,7 @@ Item {
                         }
                         Text {
                             width: parent.width * 0.17
-                            text: "Type"
+                            text: qsTr("Type")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -606,7 +606,7 @@ Item {
 
                         Text {
                             anchors.centerIn: parent
-                            text: "No audio files loaded.\nSelect a game directory to browse."
+                            text: qsTr("No audio files loaded.\nSelect a game directory to browse.")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeNormal
@@ -772,23 +772,23 @@ Item {
 
                     ZZARButton {
                         objectName: "tutorialImportZzarBtn"
-                        text: "Import .zzar for Editing"
+                        text: qsTr("Import .zzar for Editing")
                         buttonColor: Theme.primaryAccent
                         onClicked: importZzarForEditingClicked()
                     }
                     ZZARButton {
                         objectName: "tutorialShowChangesBtn"
-                        text: changesCount > 0 ? "Show Changes (" + changesCount + ")" : "Show Changes"
+                        text: changesCount > 0 ? qsTr("Show Changes (%1)").arg(changesCount) : qsTr("Show Changes")
                         onClicked: showChangesClicked()
                     }
                     ZZARButton {
                         objectName: "tutorialExportBtn"
-                        text: "Export as Mod Package"
+                        text: qsTr("Export as Mod Package")
                         onClicked: exportModClicked()
                     }
                     ZZARButton {
                         objectName: "tutorialResetBtn"
-                        text: "Reset All Changes"
+                        text: qsTr("Reset All Changes")
                         buttonColor: Theme.disabledAccent
                         textColor: Theme.textPrimary
                         onClicked: resetAllClicked()
@@ -894,7 +894,7 @@ Item {
                             spacing: Theme.spacingSmall
 
                             Text {
-                                text: "Volume:"
+                                text: qsTr("Volume:")
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
@@ -1413,7 +1413,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Replace with Custom Audio..."
+                        text: qsTr("Replace with Custom Audio...")
                         color: replaceArea.containsMouse && replaceArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1444,7 +1444,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Tag This Sound..."
+                        text: qsTr("Tag This Sound...")
                         color: tagArea.containsMouse && tagArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1474,7 +1474,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Mute Audio"
+                        text: qsTr("Mute Audio")
                         color: muteArea.containsMouse && muteArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1509,7 +1509,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Play"
+                        text: qsTr("Play")
                         color: playArea.containsMouse && playArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1539,7 +1539,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Export as WAV..."
+                        text: qsTr("Export as WAV...")
                         color: exportArea.containsMouse && exportArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1575,7 +1575,7 @@ Item {
                     Text {
                         anchors.fill: parent
                         leftPadding: 14
-                        text: "Copy ID"
+                        text: qsTr("Copy ID")
                         color: copyIdArea.containsMouse && copyIdArea.pressed ? Theme.textOnAccent : Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -1651,7 +1651,7 @@ Item {
 
                 Text {
                     id: searchResultsTitle
-                    text: "Search Results"
+                    text: qsTr("Search Results")
                     color: Theme.primaryAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -1727,7 +1727,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "No results found."
+                        text: qsTr("No results found.")
                         color: Theme.textSecondary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -1739,7 +1739,7 @@ Item {
                     Layout.fillWidth: true
                     Item { Layout.fillWidth: true }
                     ZZARButton {
-                        text: "Close"
+                        text: qsTr("Close")
                         onClicked: {
                             searchResultsOverlay.closing = true
                             searchHideTimer.start()
@@ -1812,7 +1812,7 @@ Item {
 
                 Text {
                     id: changesTitle
-                    text: "Current Changes"
+                    text: qsTr("Current Changes")
                     color: Theme.primaryAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -1833,7 +1833,7 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: "File ID"
+                            text: qsTr("File ID")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1841,7 +1841,7 @@ Item {
                             Layout.preferredWidth: 80
                         }
                         Text {
-                            text: "Tagged Name"
+                            text: qsTr("Tagged Name")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1849,7 +1849,7 @@ Item {
                             Layout.preferredWidth: 150
                         }
                         Text {
-                            text: "Replaced By"
+                            text: qsTr("Replaced By")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1857,7 +1857,7 @@ Item {
                             Layout.fillWidth: true
                         }
                         Text {
-                            text: "Type"
+                            text: qsTr("Type")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1865,7 +1865,7 @@ Item {
                             Layout.preferredWidth: 170
                         }
                         Text {
-                            text: "Modified"
+                            text: qsTr("Modified")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1873,7 +1873,7 @@ Item {
                             Layout.preferredWidth: 70
                         }
                         Text {
-                            text: "Actions"
+                            text: qsTr("Actions")
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -1975,7 +1975,7 @@ Item {
                             }
 
                             ZZARButton {
-                                text: "Remove"
+                                text: qsTr("Remove")
                                 Layout.preferredWidth: 70
                                 Layout.preferredHeight: 28
                                 buttonColor: Theme.disabledAccent
@@ -2006,7 +2006,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "No changes yet.\nReplace some audio files to see them here."
+                        text: qsTr("No changes yet.\nReplace some audio files to see them here.")
                         color: Theme.textSecondary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -2022,7 +2022,7 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     ZZARButton {
-                        text: "Apply Changes"
+                        text: qsTr("Apply Changes")
                         buttonColor: Theme.primaryAccent
                         visible: changesModel.count > 0
                         onClicked: {
@@ -2033,7 +2033,7 @@ Item {
                     }
 
                     ZZARButton {
-                        text: "Close"
+                        text: qsTr("Close")
                         onClicked: {
                             changesOverlay.closing = true
                             changesHideTimer.start()
@@ -2099,7 +2099,7 @@ Item {
                 spacing: 12
 
                 Text {
-                    text: "Tag Sound"
+                    text: qsTr("Tag Sound")
                     color: Theme.primaryAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -2108,7 +2108,7 @@ Item {
                 }
 
                 Text {
-                    text: "Name:"
+                    text: qsTr("Name:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2136,14 +2136,14 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "e.g., Astra Ultimate Voice"
+                            text: qsTr("e.g., Astra Ultimate Voice")
                             visible: !tagNameInput.text && !tagNameInput.activeFocus
                         }
                     }
                 }
 
                 Text {
-                    text: "Tags (comma-separated):"
+                    text: qsTr("Tags (comma-separated):")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2171,14 +2171,14 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "e.g., astra, ultimate, voice"
+                            text: qsTr("e.g., astra, ultimate, voice")
                             visible: !tagTagsInput.text && !tagTagsInput.activeFocus
                         }
                     }
                 }
 
                 Text {
-                    text: "Notes:"
+                    text: qsTr("Notes:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2204,7 +2204,7 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "Additional notes..."
+                            text: qsTr("Additional notes...")
                             visible: !tagNotesInput.text && !tagNotesInput.activeFocus
                         }
                     }
@@ -2212,7 +2212,7 @@ Item {
 
                 Text {
                     id: tagHashLabel
-                    text: "Hash: "
+                    text: qsTr("Hash: ")
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
                     font.pixelSize: 9
@@ -2228,7 +2228,7 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     ZZARButton {
-                        text: "Cancel"
+                        text: qsTr("Cancel")
                         buttonColor: Theme.disabledAccent
                         onClicked: {
                             tagOverlay.closing = true
@@ -2237,7 +2237,7 @@ Item {
                     }
 
                     ZZARButton {
-                        text: "Save"
+                        text: qsTr("Save")
                         buttonColor: Theme.primaryAccent
                         onClicked: {
                             var name = tagNameInput.text.trim()
@@ -2342,7 +2342,7 @@ Item {
                 spacing: 12
 
                 Text {
-                    text: "Mod Package Metadata"
+                    text: qsTr("Mod Package Metadata")
                     color: Theme.primaryAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -2351,7 +2351,7 @@ Item {
                 }
 
                 Text {
-                    text: "Name*:"
+                    text: qsTr("Name*:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2379,14 +2379,14 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "My Awesome Mod"
+                            text: qsTr("My Awesome Mod")
                             visible: !metadataNameInput.text && !metadataNameInput.activeFocus
                         }
                     }
                 }
 
                 Text {
-                    text: "Author*:"
+                    text: qsTr("Author*:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2414,14 +2414,14 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "Your Name"
+                            text: qsTr("Your Name")
                             visible: !metadataAuthorInput.text && !metadataAuthorInput.activeFocus
                         }
                     }
                 }
 
                 Text {
-                    text: "Version:"
+                    text: qsTr("Version:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2447,7 +2447,7 @@ Item {
                 }
 
                 Text {
-                    text: "Description:"
+                    text: qsTr("Description:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2473,14 +2473,14 @@ Item {
                             color: Theme.textSecondary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: "Describe what your mod does..."
+                            text: qsTr("Describe what your mod does...")
                             visible: !metadataDescriptionInput.text && !metadataDescriptionInput.activeFocus
                         }
                     }
                 }
 
                 Text {
-                    text: "Thumbnail:"
+                    text: qsTr("Thumbnail:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -2513,14 +2513,14 @@ Item {
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
-                                text: "Optional: Select thumbnail image"
+                                text: qsTr("Optional: Select thumbnail image")
                                 visible: !metadataThumbnailPathInput.text
                             }
                         }
                     }
 
                     ZZARButton {
-                        text: "Browse"
+                        text: qsTr("Browse")
                         onClicked: audioBrowserBackend.browseThumbnail()
                     }
                 }
@@ -2534,7 +2534,7 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     ZZARButton {
-                        text: "Cancel"
+                        text: qsTr("Cancel")
                         buttonColor: Theme.disabledAccent
                         onClicked: {
                             metadataOverlay.closing = true
@@ -2543,7 +2543,7 @@ Item {
                     }
 
                     ZZARButton {
-                        text: "Create Package"
+                        text: qsTr("Create Package")
                         buttonColor: Theme.primaryAccent
                         onClicked: {
                             var name = metadataNameInput.text.trim()

@@ -15,7 +15,7 @@ ApplicationWindow {
     height: 1024
     minimumWidth: 1024
     minimumHeight: 768
-    title: "ZZAR - Zenless Zone Zero Audio Replacer"
+    title: qsTr("ZZAR - Zenless Zone Zero Audio Replacer")
 
     property int currentTab: 0
     property bool modCreationEnabled: false
@@ -53,8 +53,8 @@ ApplicationWindow {
         customDialog.message = message
         customDialog.actionId = actionId
         customDialog.isConfirmation = true
-        customDialog.confirmText = "Confirm"
-        customDialog.cancelText = "Cancel"
+        customDialog.confirmText = qsTr("Confirm")
+        customDialog.cancelText = qsTr("Cancel")
         customDialog.customStickerPath = customSticker || ""
         customDialog.visible = true
     }
@@ -64,7 +64,7 @@ ApplicationWindow {
         customDialog.message = message
         customDialog.actionId = ""
         customDialog.isConfirmation = false
-        customDialog.confirmText = "OK"
+        customDialog.confirmText = qsTr("OK")
         customDialog.customStickerPath = customSticker || ""
         customDialog.visible = true
     }
@@ -158,10 +158,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageTitle
-                        text: currentTab === 0 ? "Mod Manager" :
-                              currentTab === 1 ? "Browser" :
-                              currentTab === 2 ? "Converter" :
-                              "Settings"
+                        text: currentTab === 0 ? qsTr("Mod Manager") :
+                              currentTab === 1 ? qsTr("Browser") :
+                              currentTab === 2 ? qsTr("Converter") :
+                              qsTr("Settings")
                         color: "#ffffff"
                         font.family: "Audiowide"
                         font.letterSpacing: 4
@@ -174,10 +174,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageSubtitle
-                        text: currentTab === 0 ? "Install and manage .zzar mods" :
-                              currentTab === 1 ? "Browse and manage audio files" :
-                              currentTab === 2 ? "Convert audio files" :
-                              "Configure application settings"
+                        text: currentTab === 0 ? qsTr("Install and manage .zzar mods") :
+                              currentTab === 1 ? qsTr("Browse and manage audio files") :
+                              currentTab === 2 ? qsTr("Convert audio files") :
+                              qsTr("Configure application settings")
                         color: "#666666"
                         font.family: "Audiowide"
                         font.letterSpacing: 1.60
@@ -638,7 +638,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "Oops! We found some files in the wrong place!"
+                        text: qsTr("Oops! We found some files in the wrong place!")
                         color: "#d8fa00"
                         font.family: "Alatsi"
                         font.pixelSize: 22
@@ -649,7 +649,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "Some language audio folders are in the Persistent folder instead of StreamingAssets."
+                        text: qsTr("Some language audio folders are in the Persistent folder instead of StreamingAssets.")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 15
@@ -675,7 +675,7 @@ ApplicationWindow {
                             spacing: 6
 
                             Text {
-                                text: "Folders that need to be moved:"
+                                text: qsTr("Folders that need to be moved:")
                                 color: "#aaaaaa"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -720,7 +720,7 @@ ApplicationWindow {
 
                                             Text {
                                                 anchors.centerIn: parent
-                                                text: "Move to Streaming"
+                                                text: qsTr("Move to Streaming")
                                                 color: "#000000"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -750,7 +750,7 @@ ApplicationWindow {
 
                                             Text {
                                                 anchors.centerIn: parent
-                                                text: "Moving..."
+                                                text: qsTr("Moving...")
                                                 color: "#aaaaaa"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -763,7 +763,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "ZZAR needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically."
+                        text: qsTr("ZZAR needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically.")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 13
@@ -774,7 +774,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: "If you experience any audio oddities after moving, please repair your game files."
+                        text: qsTr("If you experience any audio oddities after moving, please repair your game files.")
                         color: "#888888"
                         font.family: "Alatsi"
                         font.pixelSize: 12
@@ -818,7 +818,7 @@ ApplicationWindow {
                         }
 
                         Text {
-                            text: "Don't show this warning again"
+                            text: qsTr("Don't show this warning again")
                             color: "#ffffff"
                             font.family: "Alatsi"
                             font.pixelSize: 14
@@ -849,7 +849,7 @@ ApplicationWindow {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: "Got it"
+                                text: qsTr("Got it")
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeNormal

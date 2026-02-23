@@ -78,7 +78,7 @@ Item {
             spacing: 20
 
             Text {
-                text: "Welcome to ZZAR!"
+                text: qsTr("Welcome to ZZAR!")
                 color: "#CDEE00"
                 font.family: "Stretch Pro"
                 font.pixelSize: 36
@@ -89,11 +89,11 @@ Item {
             }
 
             Text {
-                text: currentPage === 1 ? "Choose how you want to use ZZAR" :
-                        currentPage === 2 ? "Let's set up your game directory" :
-                        currentPage === 3 ? "Set up Wwise for mod creation" :
-                        currentPage === 4 ? "Install audio conversion tools" :
-                        "Everything looks good!"
+                text: currentPage === 1 ? qsTr("Choose how you want to use ZZAR") :
+                        currentPage === 2 ? qsTr("Let's set up your game directory") :
+                        currentPage === 3 ? qsTr("Set up Wwise for mod creation") :
+                        currentPage === 4 ? qsTr("Install audio conversion tools") :
+                        qsTr("Everything looks good!")
 
                 color: "#aaaaaa"
                 font.family: "Alatsi"
@@ -160,7 +160,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: "Mod Manager"
+                                    text: qsTr("Mod Manager")
                                     color: "#ffffff"
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
@@ -168,7 +168,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: "Download and install\n.zzar mod packages"
+                                    text: qsTr("Download and install\n.zzar mod packages")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -217,7 +217,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: "Mod Creator"
+                                    text: qsTr("Mod Creator")
                                     color: "#ffffff"
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
@@ -225,7 +225,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: "Create and export your\nown .zzar mod packages"
+                                    text: qsTr("Create and export your\nown .zzar mod packages")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -273,14 +273,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: "Game Directory"
+                                    text: qsTr("Game Directory")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: "Select the ZenlessZoneZero_Data folder from your game installation."
+                                    text: qsTr("Select the ZenlessZoneZero_Data folder from your game installation.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -318,7 +318,7 @@ Item {
                                             Text {
                                                 anchors.fill: parent
                                                 verticalAlignment: Text.AlignVCenter
-                                                text: "Path to ZenlessZoneZero_Data folder..."
+                                                text: qsTr("Path to ZenlessZoneZero_Data folder...")
                                                 color: "#555555"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -339,7 +339,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "Browse"
+                                            text: qsTr("Browse")
                                             color: Theme.textOnAccent
                                             font.family: Theme.fontFamily
                                             font.pixelSize: Theme.fontSizeMedium
@@ -403,7 +403,7 @@ Item {
 
                                             Text {
                                                 anchors.verticalCenter: parent.verticalCenter
-                                                text: root.isAutoDetecting ? "Searching..." : "Auto-Detect"
+                                                text: root.isAutoDetecting ? qsTr("Searching...") : qsTr("Auto-Detect")
                                                 color: Theme.textOnAccent
                                                 font.family: Theme.fontFamily
                                                 font.pixelSize: Theme.fontSizeMedium
@@ -426,7 +426,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: gameDirectory.length > 0 ? "✓ Game directory set" : "⚠ No game directory configured"
+                                    text: gameDirectory.length > 0 ? qsTr("✓ Game directory set") : qsTr("⚠ No game directory configured")
                                     color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 13
@@ -435,7 +435,7 @@ Item {
                         }
 
                         Text {
-                            text: "You can configure this later from the Settings page"
+                            text: qsTr("You can configure this later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -469,14 +469,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: "Wwise Setup"
+                                    text: qsTr("Wwise Setup")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: "Wwise is required to convert audio files for Zenless Zone Zero."
+                                    text: qsTr("Wwise is required to convert audio files for Zenless Zone Zero.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -489,14 +489,14 @@ Item {
                                     width: parent.width
 
                                     Text {
-                                        text: "Status:"
+                                        text: qsTr("Status:")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
 
                                     Text {
-                                        text: wwiseInstalled ? "INSTALLED ✓" : "NOT INSTALLED"
+                                        text: wwiseInstalled ? qsTr("INSTALLED ✓") : qsTr("NOT INSTALLED")
                                         color: wwiseInstalled ? "#92fa00" : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -515,7 +515,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "Check"
+                                            text: qsTr("Check")
                                             color: "#ffffff"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -573,7 +573,7 @@ Item {
                                         }
 
                                         Text {
-                                            text: isInstallingWwise ? "Installing..." : "Run Automated Setup"
+                                            text: isInstallingWwise ? qsTr("Installing...") : qsTr("Run Automated Setup")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
@@ -599,8 +599,8 @@ Item {
 
                         Text {
                             text: wwiseInstalled ?
-                                  "Wwise is installed and ready! You can start creating mods." :
-                                  "You can install Wwise later from the Settings page"
+                                  qsTr("Wwise is installed and ready! You can start creating mods.") :
+                                  qsTr("You can install Wwise later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -634,14 +634,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: "Windows Audio Tools"
+                                    text: qsTr("Windows Audio Tools")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: "FFmpeg and vgmstream are required to convert audio files."
+                                    text: qsTr("FFmpeg and vgmstream are required to convert audio files.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -654,14 +654,14 @@ Item {
                                     width: parent.width
 
                                     Text {
-                                        text: "Status:"
+                                        text: qsTr("Status:")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
 
                                     Text {
-                                        text: audioToolsInstalled ? "INSTALLED ✓" : "NOT INSTALLED"
+                                        text: audioToolsInstalled ? qsTr("INSTALLED ✓") : qsTr("NOT INSTALLED")
                                         color: audioToolsInstalled ? "#92fa00" : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -680,7 +680,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "Check"
+                                            text: qsTr("Check")
                                             color: "#ffffff"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -738,7 +738,7 @@ Item {
                                         }
 
                                         Text {
-                                            text: isInstallingAudioTools ? "Installing..." : "Install Audio Tools"
+                                            text: isInstallingAudioTools ? qsTr("Installing...") : qsTr("Install Audio Tools")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
@@ -764,8 +764,8 @@ Item {
 
                         Text {
                             text: audioToolsInstalled ?
-                                  "Audio tools are installed! You can now convert audio files." :
-                                  "You can install these tools later from the Settings page"
+                                  qsTr("Audio tools are installed! You can now convert audio files.") :
+                                  qsTr("You can install these tools later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -793,7 +793,7 @@ Item {
                         }
 
                         Text {
-                            text: "You're all set!"
+                            text: qsTr("You're all set!")
                             color: "#CDEE00"
                             font.family: "Audiowide"
                             font.pixelSize: 32
@@ -802,8 +802,8 @@ Item {
 
                         Text {
                             text: selectedMode === "maker" ?
-                                "ZZAR is configured for mod creation. Go make something!!" :
-                                "ZZAR is ready to manage some mods. Install something!"
+                                qsTr("ZZAR is configured for mod creation. Go make something!!") :
+                                qsTr("ZZAR is ready to manage some mods. Install something!")
                             color: "#aaaaaa"
                             font.family: "Alatsi"
                             font.pixelSize: 16
@@ -833,7 +833,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: "< Back"
+                        text: qsTr("< Back")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
@@ -869,7 +869,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
 
-                        text: currentPage === 5 ? "Start Tutorial" : "Continue >"
+                        text: currentPage === 5 ? qsTr("Start Tutorial") : qsTr("Continue >")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
@@ -915,7 +915,7 @@ Item {
             }
 
             Text {
-                text: "Skip tutorial"
+                text: qsTr("Skip tutorial")
                 color: skipTutorialMouse.containsMouse ? "#d8fa00" : "#888888"
                 font.family: "Alatsi"
                 font.pixelSize: 13
@@ -937,7 +937,7 @@ Item {
             }
 
             Text {
-                text: "You can always change this later in settings"
+                text: qsTr("You can always change this later in settings")
                 color: "#666666"
                 font.family: "Alatsi"
                 font.pixelSize: 12

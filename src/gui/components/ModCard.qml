@@ -68,7 +68,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: "No\nImage"
+                text: qsTr("No\nImage")
                 color: "#888"
                 font.pixelSize: Theme.fontSizeSmall
                 horizontalAlignment: Text.AlignHCenter

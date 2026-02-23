@@ -12,6 +12,7 @@ added_files = [
     ('src/gui/qml', 'gui/qml'),
     ('src/gui/assets', 'gui/assets'),
     ('src/gui/components', 'gui/components'),
+    ('src/gui/translations', 'gui/translations'),
     ('src/resources', 'resources'),
     ('setup_wwise.py', '.'),
     ('setup_windows_audio_tools.py', '.'),

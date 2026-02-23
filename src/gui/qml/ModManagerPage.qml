@@ -23,7 +23,7 @@ Item {
     property var modManager: null
     property var selectedModUuids: []
     property int currentSortMode: 0
-    property var sortOptions: ["Default", "Name (A-Z)", "Name (Z-A)", "Author (A-Z)", "Author (Z-A)", "Newest First", "Oldest First", "Enabled First"]
+    property var sortOptions: [qsTr("Default"), qsTr("Name (A-Z)"), qsTr("Name (Z-A)"), qsTr("Author (A-Z)"), qsTr("Author (Z-A)"), qsTr("Newest First"), qsTr("Oldest First"), qsTr("Enabled First")]
 
     Settings {
         id: modManagerSettings
@@ -81,7 +81,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Install .zzar Mod"
+                        text: qsTr("Install .zzar Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -116,7 +116,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Import Non-ZZAR Mod"
+                        text: qsTr("Import Non-ZZAR Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -151,7 +151,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: selectedModUuids.length > 1 ? "Remove Mods (" + selectedModUuids.length + ")" : "Remove Mod"
+                        text: selectedModUuids.length > 1 ? qsTr("Remove Mods (") + selectedModUuids.length + ")" : qsTr("Remove Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -185,7 +185,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Refresh"
+                        text: qsTr("Refresh")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -219,7 +219,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: "Open Mod Folder"
+                        text: qsTr("Open Mod Folder")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -269,7 +269,7 @@ Item {
                     }
 
                     contentItem: Text {
-                        text: "Sort: " + sortCombo.displayText
+                        text: qsTr("Sort: ") + sortCombo.displayText
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -373,7 +373,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "No mods installed.\nClick 'Install .zzar Mod' to get started."
+                    text: qsTr("No mods installed.\nClick 'Install .zzar Mod' to get started.")
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 18
@@ -484,7 +484,7 @@ Item {
                                 font.pixelSize: 16
                                 font.weight: Font.Normal
                                 horizontalAlignment: Text.AlignLeft
-                                text: "By: " + model.author
+                                text: qsTr("By: ") + model.author
                                 textFormat: Text.PlainText
                                 verticalAlignment: Text.AlignVCenter
                                 elide: Text.ElideRight
@@ -537,7 +537,7 @@ Item {
                                     font.pixelSize: 20
                                     font.weight: Font.Normal
                                     horizontalAlignment: Text.AlignHCenter
-                                    text: model.enabled ? "Enabled" : "Disabled"
+                                    text: model.enabled ? qsTr("Enabled") : qsTr("Disabled")
                                     textFormat: Text.PlainText
                                     verticalAlignment: Text.AlignVCenter
                                 }
@@ -573,7 +573,7 @@ Item {
                                     font.pixelSize: 20
                                     font.weight: Font.Normal
                                     horizontalAlignment: Text.AlignHCenter
-                                    text: "More info"
+                                    text: qsTr("More info")
                                     textFormat: Text.PlainText
                                     verticalAlignment: Text.AlignVCenter
                                 }
@@ -643,7 +643,7 @@ Item {
                     }
 
                     Text {
-                        text: "Apply Mods"
+                        text: qsTr("Apply Mods")
                         color: "#000000"
                         font.family: "Alatsi"
                         font.pixelSize: 22

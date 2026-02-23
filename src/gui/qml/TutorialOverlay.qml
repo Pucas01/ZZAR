@@ -19,34 +19,34 @@ Item {
     property var tutorialData: [
         {
             tabIndex: 0,
-            sectionTitle: "Mod Manager",
+            sectionTitle: qsTr("Mod Manager"),
             messages: [
-                { text: "You're here. i'll show you how this works.", highlight: "" },
-                { text: "These buttons. use them.", highlight: "tutorialButtonRow" },
-                { text: "This installs .zzar mod packages. self explanatory.", highlight: "tutorialInstallBtn" },
-                { text: "This one imports non-ZZAR mods and converts them.", highlight: "tutorialImportBtn" },
-                { text: "Remove button. select a mod first, then press it.", highlight: "tutorialRemoveBtn" },
-                { text: "When you're done picking mods, apply. nothing happens until you do.", highlight: "tutorialApplyBtn" },
+                { text: qsTr("You're here. i'll show you how this works."), highlight: "" },
+                { text: qsTr("These buttons. use them."), highlight: "tutorialButtonRow" },
+                { text: qsTr("This installs .zzar mod packages. self explanatory."), highlight: "tutorialInstallBtn" },
+                { text: qsTr("This one imports non-ZZAR mods and converts them."), highlight: "tutorialImportBtn" },
+                { text: qsTr("Remove button. select a mod first, then press it."), highlight: "tutorialRemoveBtn" },
+                { text: qsTr("When you're done picking mods, apply. nothing happens until you do."), highlight: "tutorialApplyBtn" },
                 { text: "", highlight: "tutorialApplyBtn", sticker: "MiyabiMelon.png" },
-                { text: "Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github).", highlight: "tutorialApplyBtn" },
+                { text: qsTr("Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github)."), highlight: "tutorialApplyBtn" },
             ]
         },
         {
             tabIndex: 1,
-            sectionTitle: "Audio Browser",
+            sectionTitle: qsTr("Audio Browser"),
             messages: [
-                { text: "Audio Browser. Yanagi's favorite tab, apparently.", highlight: "" },
-                { text: "These tabs switch between music / sfx, and voice audio. pick one.", highlight: "tutorialLangTabs" },
-                { text: "Search bar. type an ID, name, or tag. it finds things.", highlight: "tutorialSearchInput" },
-                { text: "The audio tree. every sound file in the game is in here.", highlight: "tutorialTreeList" },
-                { text: "Open a PCK File then a BNK file and then play a WEM file (WEM files are the audio).", highlight: "tutorialTreeList" },
-                { text: "Right-click a file to replace it or mute it.", highlight: "tutorialTreeList" },
-                { text: "You can also rename and tag a sound by right-clicking.", highlight: "tutorialTreeList" },
-                { text: "Audio player. play, pause, stop. you've seen one before.", highlight: "tutorialAudioPlayer" },
-                { text: "Got a .zzar mod already? import it here if you want to keep editing it.", highlight: "tutorialImportZzarBtn" },
-                { text: "Shows your changes. also where you apply them for in-game testing.", highlight: "tutorialShowChangesBtn" },
-                { text: "Export. packages everything into a .zzar mod.", highlight: "tutorialExportBtn" },
-                { text: "Reset. wipes all changes. also required if you have mods enabled in the mod manager.", highlight: "tutorialResetBtn" }
+                { text: qsTr("Audio Browser. Yanagi's favorite tab, apparently."), highlight: "" },
+                { text: qsTr("These tabs switch between music / sfx, and voice audio. pick one."), highlight: "tutorialLangTabs" },
+                { text: qsTr("Search bar. type an ID, name, or tag. it finds things."), highlight: "tutorialSearchInput" },
+                { text: qsTr("The audio tree. every sound file in the game is in here."), highlight: "tutorialTreeList" },
+                { text: qsTr("Open a PCK File then a BNK file and then play a WEM file (WEM files are the audio)."), highlight: "tutorialTreeList" },
+                { text: qsTr("Right-click a file to replace it or mute it."), highlight: "tutorialTreeList" },
+                { text: qsTr("You can also rename and tag a sound by right-clicking."), highlight: "tutorialTreeList" },
+                { text: qsTr("Audio player. play, pause, stop. you've seen one before."), highlight: "tutorialAudioPlayer" },
+                { text: qsTr("Got a .zzar mod already? import it here if you want to keep editing it."), highlight: "tutorialImportZzarBtn" },
+                { text: qsTr("Shows your changes. also where you apply them for in-game testing."), highlight: "tutorialShowChangesBtn" },
+                { text: qsTr("Export. packages everything into a .zzar mod."), highlight: "tutorialExportBtn" },
+                { text: qsTr("Reset. wipes all changes. also required if you have mods enabled in the mod manager."), highlight: "tutorialResetBtn" }
             ]
         },
         {

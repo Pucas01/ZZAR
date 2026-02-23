@@ -38,6 +38,7 @@ from gui.connectors.audio_browser_connector import AudioBrowserConnector
 from gui.connectors.import_wizard_connector import ImportWizardConnector
 from gui.connectors.settings_connector import SettingsConnector
 from gui.connectors.update_connector import UpdateConnector
+from gui.translation_manager import TranslationManager
 
 class AutoDetectWorker(QThread):
 
@@ -205,6 +206,14 @@ class Application(
         context.setContextProperty("audioConversionBackend", self.audio_conversion_bridge)
         self.clipboard_helper = ClipboardHelper()
         context.setContextProperty("clipboardHelper", self.clipboard_helper)
+
+        self.translation_manager = TranslationManager(self.engine)
+        context.setContextProperty("translationManager", self.translation_manager)
+
+        settings = self.load_settings()
+        saved_lang = settings.get("language", "en")
+        if saved_lang != "en":
+            self.translation_manager.changeLanguage(saved_lang)
 
         ui_path = Path(__file__).parent
         self.engine.addImportPath(str(ui_path / "qml"))

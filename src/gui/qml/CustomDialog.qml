@@ -8,10 +8,10 @@ Item {
     anchors.fill: parent
     z: 2000
 
-    property string title: "Title"
-    property string message: "Message"
-    property string confirmText: "OK"
-    property string cancelText: "Cancel"
+    property string title: qsTr("Title")
+    property string message: qsTr("Message")
+    property string confirmText: qsTr("OK")
+    property string cancelText: qsTr("Cancel")
     property bool isConfirmation: false
     property string actionId: ""
     property bool closing: false

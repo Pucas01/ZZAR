@@ -36,6 +36,7 @@ class SettingsConnector:
         self.settings_page.runAudioToolsSetupClicked.connect(
             self.mod_manager_bridge.runAudioToolsSetup
         )
+        self.settings_page.languageChanged.connect(self.on_language_changed)
 
         self.mod_manager_bridge.modCreationModeChanged.connect(
             self.on_mod_creation_mode_changed
@@ -131,6 +132,22 @@ class SettingsConnector:
         custom_mods_dir = settings.get("custom_mod_library_dir", "")
         if custom_mods_dir:
             self.settings_page.setModsDirectory(custom_mods_dir)
+
+        saved_lang = settings.get("language", "en")
+        self.settings_page.setProperty("currentLanguage", saved_lang)
+
+    def on_language_changed(self, lang_code):
+        self.translation_manager.changeLanguage(lang_code)
+
+        try:
+            settings = self.load_settings()
+            settings["language"] = lang_code
+            self.settings_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(self.settings_file, "w") as f:
+                json.dump(settings, f, indent=2)
+            print(f"[ZZAR] Language changed to: {lang_code}")
+        except Exception as e:
+            print(f"[ZZAR] Error saving language preference: {e}")
 
     def on_mod_creation_mode_changed(self, enabled):
         self.root.setProperty("modCreationEnabled", enabled)
