@@ -1437,7 +1437,17 @@ Twitter: Pucas02
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/SettingsPage.qml" line="1911" />
+            <location filename="../qml/SettingsPage.qml" line="1826" />
+            <source>Translators</source>
+            <translation type="unfinished"></translation>
+        </message>
+        <message>
+            <location filename="../qml/SettingsPage.qml" line="1845" />
+            <source>Spanish translation.</source>
+            <translation type="unfinished"></translation>
+        </message>
+        <message>
+            <location filename="../qml/SettingsPage.qml" line="1940" />
             <source>Save Settings</source>
             <translation type="unfinished"></translation>
         </message>
@@ -1613,28 +1623,28 @@ Twitter: Pucas02
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="336" />
+            <location filename="../qml/TutorialOverlay.qml" line="337" />
             <source>ZZAR Expert - Chief of Hollow Special Operations Section 6</source>
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="466" />
-            <location filename="../qml/TutorialOverlay.qml" line="473" />
+            <location filename="../qml/TutorialOverlay.qml" line="467" />
+            <location filename="../qml/TutorialOverlay.qml" line="474" />
             <source>Got it!</source>
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="469" />
+            <location filename="../qml/TutorialOverlay.qml" line="470" />
             <source>Next</source>
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="471" />
+            <location filename="../qml/TutorialOverlay.qml" line="472" />
             <source>Next Page</source>
             <translation type="unfinished"></translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="491" />
+            <location filename="../qml/TutorialOverlay.qml" line="492" />
             <source>Skip tutorial</source>
             <translation type="unfinished"></translation>
         </message>

@@ -2,6 +2,268 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="es_ES">
     <context>
+        <name>Application</name>
+        <message>
+            <location filename="../main_qml.py" line="387" />
+            <source>Work in Progress</source>
+            <translation>Trabajo en progreso</translation>
+        </message>
+        <message>
+            <location filename="../main_qml.py" line="388" />
+            <source>This feature is not yet implemented.
+
+This will be added in a future update. (i hope)</source>
+            <translation>Esta función no esta implementada aún.
+                                                                               
+Será agregado en una próxima actualización. (eso espero.)</translation>
+        </message>
+        <message>
+            <location filename="../connectors/audio_browser_connector.py" line="217" />
+            <source>Folder does not exist:
+%1</source>
+            <translation>Carpeta no existe:
+%1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/import_wizard_connector.py" line="189" />
+            <source>Import Error</source>
+            <translation>Error de importación</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="80" />
+            <source>Select .zzar Mod Package(s)</source>
+            <translation>Selecciona paquete(s) de mod .zzar</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="82" />
+            <source>ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)</source>
+            <translation>Paquetes de mod ZZAR (*.zzar);;Archivos ZIP (*.zip);;Todos los archivos (*)</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="118" />
+            <source>Remove Mod?</source>
+            <translation>Borrar mod?</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="119" />
+            <source>Are you sure you want to remove this mod? This cannot be undone.</source>
+            <translation>Estás seguro que quieres borrar este mod? No podrá deshacerse.</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="101" />
+            <source>Error</source>
+            <translation>Error</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="101" />
+            <source>Import wizard component not found</source>
+            <translation>El componente asistente importado, no fue encontrado</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="109" />
+            <source>Select one or more mods from the list first</source>
+            <translation>Selecciona uno o más mods de la lista primera</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="121" />
+            <source>Remove %1 Mods?</source>
+            <translation>Borrar %1 mods?</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="122" />
+            <source>Are you sure you want to remove %1 mods? This cannot be undone.</source>
+            <translation>Estás seguro que quieres borrar %1 mods? No podrá deshacerse</translation>
+        </message>
+        <message>
+            <location filename="../connectors/mod_manager_connector.py" line="209" />
+            <source>Could not open folder: %1</source>
+            <translation>No se puedo abrir la carpeta: %1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="166" />
+            <source>Wwise Setup Warning</source>
+            <translation>Advertencia de la instalación de Wwise</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="167" />
+            <source>You are about to download licensed software from Audiokinetic.
+
+By proceeding, you acknowledge that:
+• You are downloading software directly from Audiokinetic
+• This software is subject to Audiokinetic's licensing terms
+• You use this software at your own risk
+• Pucas01 and other ZZAR contributors are not responsible for any issues
+
+Do you want to continue?</source>
+            <translation>Estás apunto de instalar software licenciado de Audiokinetic.
+
+Al proceder, reconoces que:
+• Estás descargando software directamente de Audiokinetic
+• Este software esta sujetado a los términos de licencia de Audiokinetic
+• Usa este software a tu propio riesgo.
+• Pucas01 y otros contribuidores no son responsables por algún problema
+
+Quieres continuar?</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="234" />
+            <source>Select ZenlessZoneZero_Data Folder</source>
+            <translation>Selecciona la carpeta ZenlessZoneZero_Data</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="264" />
+            <source>Select Mods Directory</source>
+            <translation>Selecciona el directorio de mods</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="306" />
+            <source>Not Found</source>
+            <translation>No encontrado</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="309" />
+            <source>Could not auto-detect game directory.
+
+Please select the ZenlessZoneZero_Data folder manually using the Browse button.</source>
+            <translation>No se pudo auto-detectar el directorio del juego.
+    
+Por favor selecciona la carpeta ZenlessZoneZero_Data manualmente usando el botón "Navegar"</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="744" />
+            <source>Found game directory!</source>
+            <translation>Directorio de juego encontrado!</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="323" />
+            <source>Invalid Directory</source>
+            <translation>Directorio inválido</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="324" />
+            <source>Please select a valid ZenlessZoneZero_Data folder.</source>
+            <translation>Por favor selecciona una carpeta ZenlessZoneZero_Data válido.</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="338" />
+            <source>The selected directory does not exist.</source>
+            <translation>El directorio seleccionado no existe.</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="355" />
+            <source>Please select the ZenlessZoneZero_Data folder.
+
+This folder should contain 'StreamingAssets' and other game data folders.</source>
+            <translation>Por favor selecciona la carpeta ZenlessZoneZero_Data
+    
+Esta carpeta debe contener 'StreamingAssets' y otras carpetas de los datos del juego.</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="398" />
+            <source>Settings have been saved successfully!</source>
+            <translation>La configuración fue guardada correctamente!</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="648" />
+            <source>Welcome setup complete! Settings have been saved.</source>
+            <translation>Instalación de bienvenido completada! Configuración se ha guardado.</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="295" />
+            <source>Found game directory:
+%1</source>
+            <translation>Directorio de juego encontrado:
+$1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="534" />
+            <source>Game directories not configured</source>
+            <translation>No se ha configurado los directorios del juego</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="587" />
+            <source>Moved '%1' to StreamingAssets successfully!</source>
+            <translation>Se ha movido '%1' a StreamingAssets correctamente!</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="413" />
+            <source>Failed to save settings:
+
+%1</source>
+            <translation>Fallo al guardar configuración:
+    
+%1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="546" />
+            <source>Folder '%1' not found in Persistent</source>
+            <translation>Carpeta '%1' no encontrado en Persistent</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="553" />
+            <source>Folder '%1' already exists in StreamingAssets</source>
+            <translation>Carpeta '%1' ya existe en StreamingAssets</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="560" />
+            <source>Folder '%1' does not contain original game files</source>
+            <translation>Carpeta '%1' no contiene los archivos originales del juego</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="659" />
+            <source>Error saving settings: %1</source>
+            <translation>Error guardando la configuración: %1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/settings_connector.py" line="596" />
+            <source>Failed to move '%1': %2</source>
+            <translation>Error al mover '%1': %2</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="134" />
+            <source>GitHub token saved</source>
+            <translation>Token de github guardado</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="91" />
+            <source>You're running the latest version!</source>
+            <translation>Estás en la versión más reciente!</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="64" />
+            <source>A new version of ZZAR is available!
+
+Update your Flatpak to the latest version:
+
+new .flatpak file can be downloaded from https://github.com/Pucas01/ZZAR/releases</source>
+            <translation>Una nueva versión de ZZAR esta disponible!
+    
+Actualización tu Flatpak a la última versión:
+    
+el nuevo archivo puede descargarse de https://github.com/Pucas01/ZZAR/releases</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="193" />
+            <source>Update Successful!</source>
+            <translation>Actualización completada!</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="125" />
+            <source>Update error: %1</source>
+            <translation>Error al actualizar: %1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="62" />
+            <source>Update Available — v%1</source>
+            <translation>Actualización disponible - v%1</translation>
+        </message>
+        <message>
+            <location filename="../connectors/update_connector.py" line="194" />
+            <source>ZZAR has been updated to version %1.</source>
+            <translation>ZZAR fue actualizado a la versión %1</translation>
+        </message>
+    </context>
+    <context>
         <name>AudioBrowserPage</name>
         <message>
             <location filename="../qml/AudioBrowserPage.qml" line="53" />
@@ -1383,7 +1645,17 @@ Clic e instala mods .zzar para iniciar.</translation>
             <translation>por ayudarme probar el build de linux.</translation>
         </message>
         <message>
-            <location filename="../qml/SettingsPage.qml" line="1911" />
+            <location filename="../qml/SettingsPage.qml" line="1826" />
+            <source>Translators</source>
+            <translation>Traductores</translation>
+        </message>
+        <message>
+            <location filename="../qml/SettingsPage.qml" line="1845" />
+            <source>Spanish translation.</source>
+            <translation>traducción al español</translation>
+        </message>
+        <message>
+            <location filename="../qml/SettingsPage.qml" line="1940" />
             <source>Save Settings</source>
             <translation>Guardar configuración</translation>
         </message>
@@ -1617,28 +1889,28 @@ Solo hablo inglés y neerlandés.</translation>
             <translation>..eso es todo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="336" />
+            <location filename="../qml/TutorialOverlay.qml" line="337" />
             <source>ZZAR Expert - Chief of Hollow Special Operations Section 6</source>
             <translation>Experto de ZZAR - Jefe/a de Operaciones especiales en Cavidades de Sección 6 (HSOS6)</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="466" />
-            <location filename="../qml/TutorialOverlay.qml" line="473" />
+            <location filename="../qml/TutorialOverlay.qml" line="467" />
+            <location filename="../qml/TutorialOverlay.qml" line="474" />
             <source>Got it!</source>
             <translation>Entendido!</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="469" />
+            <location filename="../qml/TutorialOverlay.qml" line="470" />
             <source>Next</source>
             <translation>Siguiente</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="471" />
+            <location filename="../qml/TutorialOverlay.qml" line="472" />
             <source>Next Page</source>
             <translation>Siguiente pagina</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="491" />
+            <location filename="../qml/TutorialOverlay.qml" line="492" />
             <source>Skip tutorial</source>
             <translation>Saltar tutorial</translation>
         </message>
@@ -1901,268 +2173,6 @@ propios .zzar paquetes de mod</translation>
             <location filename="../qml/WelcomeDialog.qml" line="940" />
             <source>You can always change this later in settings</source>
             <translation>Siempre puedes cambiar esto después en la configuración</translation>
-        </message>
-    </context>
-    <context>
-        <name>Application</name>
-        <message>
-            <location filename="../main_qml.py" line="387" />
-            <source>Work in Progress</source>
-            <translation>Trabajo en progreso</translation>
-        </message>
-        <message>
-            <location filename="../main_qml.py" line="388" />
-            <source>This feature is not yet implemented.
-
-This will be added in a future update. (i hope)</source>
-            <translation>Esta función no esta implementada aún.
-                                                                               
-Será agregado en una próxima actualización. (eso espero.)</translation>
-        </message>
-        <message>
-            <location filename="../connectors/audio_browser_connector.py" line="217" />
-            <source>Folder does not exist:
-%1</source>
-            <translation>Carpeta no existe:
-%1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/import_wizard_connector.py" line="189" />
-            <source>Import Error</source>
-            <translation>Error de importación</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="80" />
-            <source>Select .zzar Mod Package(s)</source>
-            <translation>Selecciona paquete(s) de mod .zzar</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="82" />
-            <source>ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)</source>
-            <translation>Paquetes de mod ZZAR (*.zzar);;Archivos ZIP (*.zip);;Todos los archivos (*)</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="118" />
-            <source>Remove Mod?</source>
-            <translation>Borrar mod?</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="119" />
-            <source>Are you sure you want to remove this mod? This cannot be undone.</source>
-            <translation>Estás seguro que quieres borrar este mod? No podrá deshacerse.</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="101" />
-            <source>Error</source>
-            <translation>Error</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="101" />
-            <source>Import wizard component not found</source>
-            <translation>El componente asistente importado, no fue encontrado</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="109" />
-            <source>Select one or more mods from the list first</source>
-            <translation>Selecciona uno o más mods de la lista primera</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="121" />
-            <source>Remove %1 Mods?</source>
-            <translation>Borrar %1 mods?</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="122" />
-            <source>Are you sure you want to remove %1 mods? This cannot be undone.</source>
-            <translation>Estás seguro que quieres borrar %1 mods? No podrá deshacerse</translation>
-        </message>
-        <message>
-            <location filename="../connectors/mod_manager_connector.py" line="209" />
-            <source>Could not open folder: %1</source>
-            <translation>No se puedo abrir la carpeta: %1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="166" />
-            <source>Wwise Setup Warning</source>
-            <translation>Advertencia de la instalación de Wwise</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="167" />
-            <source>You are about to download licensed software from Audiokinetic.
-
-By proceeding, you acknowledge that:
-• You are downloading software directly from Audiokinetic
-• This software is subject to Audiokinetic's licensing terms
-• You use this software at your own risk
-• Pucas01 and other ZZAR contributors are not responsible for any issues
-
-Do you want to continue?</source>
-            <translation>Estás apunto de instalar software licenciado de Audiokinetic.
-
-Al proceder, reconoces que:
-• Estás descargando software directamente de Audiokinetic
-• Este software esta sujetado a los términos de licencia de Audiokinetic
-• Usa este software a tu propio riesgo.
-• Pucas01 y otros contribuidores no son responsables por algún problema
-
-Quieres continuar?</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="234" />
-            <source>Select ZenlessZoneZero_Data Folder</source>
-            <translation>Selecciona la carpeta ZenlessZoneZero_Data</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="264" />
-            <source>Select Mods Directory</source>
-            <translation>Selecciona el directorio de mods</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="306" />
-            <source>Not Found</source>
-            <translation>No encontrado</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="309" />
-            <source>Could not auto-detect game directory.
-
-Please select the ZenlessZoneZero_Data folder manually using the Browse button.</source>
-            <translation>No se pudo auto-detectar el directorio del juego.
-    
-Por favor selecciona la carpeta ZenlessZoneZero_Data manualmente usando el botón "Navegar"</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="744" />
-            <source>Found game directory!</source>
-            <translation>Directorio de juego encontrado!</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="323" />
-            <source>Invalid Directory</source>
-            <translation>Directorio inválido</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="324" />
-            <source>Please select a valid ZenlessZoneZero_Data folder.</source>
-            <translation>Por favor selecciona una carpeta ZenlessZoneZero_Data válido.</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="338" />
-            <source>The selected directory does not exist.</source>
-            <translation>El directorio seleccionado no existe.</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="355" />
-            <source>Please select the ZenlessZoneZero_Data folder.
-
-This folder should contain 'StreamingAssets' and other game data folders.</source>
-            <translation>Por favor selecciona la carpeta ZenlessZoneZero_Data
-    
-Esta carpeta debe contener 'StreamingAssets' y otras carpetas de los datos del juego.</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="398" />
-            <source>Settings have been saved successfully!</source>
-            <translation>La configuración fue guardada correctamente!</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="648" />
-            <source>Welcome setup complete! Settings have been saved.</source>
-            <translation>Instalación de bienvenido completada! Configuración se ha guardado.</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="295" />
-            <source>Found game directory:
-%1</source>
-            <translation>Directorio de juego encontrado:
-$1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="534" />
-            <source>Game directories not configured</source>
-            <translation>No se ha configurado los directorios del juego</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="587" />
-            <source>Moved '%1' to StreamingAssets successfully!</source>
-            <translation>Se ha movido '%1' a StreamingAssets correctamente!</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="413" />
-            <source>Failed to save settings:
-
-%1</source>
-            <translation>Fallo al guardar configuración:
-    
-%1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="546" />
-            <source>Folder '%1' not found in Persistent</source>
-            <translation>Carpeta '%1' no encontrado en Persistent</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="553" />
-            <source>Folder '%1' already exists in StreamingAssets</source>
-            <translation>Carpeta '%1' ya existe en StreamingAssets</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="560" />
-            <source>Folder '%1' does not contain original game files</source>
-            <translation>Carpeta '%1' no contiene los archivos originales del juego</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="659" />
-            <source>Error saving settings: %1</source>
-            <translation>Error guardando la configuración: %1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/settings_connector.py" line="596" />
-            <source>Failed to move '%1': %2</source>
-            <translation>Error al mover '%1': %2</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="134" />
-            <source>GitHub token saved</source>
-            <translation>Token de github guardado</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="91" />
-            <source>You're running the latest version!</source>
-            <translation><Estás en la versión más reciente!/translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="64" />
-            <source>A new version of ZZAR is available!
-
-Update your Flatpak to the latest version:
-
-new .flatpak file can be downloaded from https://github.com/Pucas01/ZZAR/releases</source>
-            <translation>Una nueva versión de ZZAR esta disponible!
-    
-Actualización tu Flatpak a la última versión:
-    
-el nuevo archivo puede descargarse de https://github.com/Pucas01/ZZAR/releases</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="193" />
-            <source>Update Successful!</source>
-            <translation>Actualización completada!</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="125" />
-            <source>Update error: %1</source>
-            <translation>Error al actualizar: %1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="62" />
-            <source>Update Available — v%1</source>
-            <translation>Actualización disponible - v%1</translation>
-        </message>
-        <message>
-            <location filename="../connectors/update_connector.py" line="194" />
-            <source>ZZAR has been updated to version %1.</source>
-            <translation>ZZAR fue actualizado a la versión %1</translation>
         </message>
     </context>
 </TS>

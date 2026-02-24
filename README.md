@@ -115,6 +115,10 @@ Found a bug or have an idea? Open an issue! Pull requests are welcome too.
 - **Marbles** - For helping me to do some testing and providing feedback.
 - **Skysill** - For helping me test the linux build.
 
+### Translators
+
+- **Luafile_Gabriel** - Spanish translation.
+
 ## Disclaimer
 
 ZZAR is a fan-made tool and is not affiliated with HoYoverse. Use at your own risk.

@@ -322,6 +322,7 @@ Item {
 
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width - 48
                     spacing: 2
 
                     Text {
@@ -337,10 +338,10 @@ Item {
                         color: "#888888"
                         font.family: "inpin hongmengti"
                         font.pixelSize: 12
+                        width: parent.width
+                        wrapMode: Text.WordWrap
                     }
                 }
-
-                Item { width: 1; height: 1; Layout.fillWidth: true }
             }
 
             Row {

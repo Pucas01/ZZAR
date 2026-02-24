@@ -1184,8 +1184,8 @@ Item {
                                 Item { Layout.fillWidth: true }
 
                                 Item {
-                                    width: checkUpdatesText.implicitWidth + 32
-                                    height: 36
+                                    implicitWidth: checkUpdatesText.implicitWidth + 32
+                                    implicitHeight: 36
                                     visible: !settingsPage.isCheckingUpdates && !settingsPage.updateAvailable && !settingsPage.updateDownloaded
 
                                     Rectangle {
@@ -1814,6 +1814,35 @@ Item {
                                 }
                                 Text {
                                     text: qsTr("For helping me test the linux build.")
+                                    color: '#888888'
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 14
+                                    wrapMode: Text.WordWrap
+                                    width: parent.width
+                                }
+                            }
+
+                            Text {
+                                text: qsTr("Translators")
+                                color: "#d8fa00"
+                                font.family: "Alatsi"
+                                font.pixelSize: 24
+                                font.weight: Font.Normal
+                            }
+
+                        Column {
+                            spacing: 4
+                            width: parent.width
+                                Text {
+                                    text: "Luafile_Gabriel"
+                                    color: '#d8fa00'
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 14
+                                    wrapMode: Text.WordWrap
+                                    width: parent.width
+                                }
+                                Text {
+                                    text: qsTr("Spanish translation.")
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
