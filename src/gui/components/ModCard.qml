@@ -93,7 +93,7 @@ Rectangle {
             }
 
             Text {
-                text: "By: " + modAuthor
+                text: qsTr("By: ") + modAuthor
                 color: Theme.textTertiary
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeNormal
@@ -127,7 +127,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: isEnabled ? "Enabled" : "Disabled"
+                    text: isEnabled ? qsTr("Enabled") : qsTr("Disabled")
                     color: Theme.textOnAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeMedium
@@ -158,7 +158,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: "More info"
+                    text: qsTr("More info")
                     color: Theme.textOnAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeMedium

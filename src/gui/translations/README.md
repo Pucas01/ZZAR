@@ -13,7 +13,9 @@ Updating .ts files after code changes:
   When you add new qsTr() strings in QML, run lupdate to automatically extract
   them into all .ts files at once:
 
-  lupdate src/gui/qml/ src/gui/components/ -ts src/gui/translations/zzar_en.ts src/gui/translations/zzar_es.ts src/gui/translations/zzar_ja.ts
+  Run da script
+
+  lrelease zzar_es.ts
 
   This scans all QML files for qsTr() calls and adds any new strings as
   <message> entries with type="unfinished". Existing translations are preserved.

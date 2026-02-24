@@ -77,9 +77,9 @@ class ModManagerConnector:
         start_dir = self._get_last_install_dir()
 
         file_paths = NativeDialogs.get_open_files(
-            "Select .zzar Mod Package(s)",
+            self.tr("Select .zzar Mod Package(s)"),
             start_dir,
-            "ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)",
+            self.tr("ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)"),
         )
 
         if file_paths:
@@ -98,7 +98,7 @@ class ModManagerConnector:
         else:
             print("[Import Wizard] ERROR: Import wizard not found")
             self.mod_manager_bridge.errorOccurred.emit(
-                "Error", "Import wizard component not found"
+                self.tr("Error"), self.tr("Import wizard component not found")
             )
 
     def on_remove_mods_clicked(self, mod_uuids):
@@ -106,7 +106,7 @@ class ModManagerConnector:
         if not uuids:
             print("[Mod Manager] No mods selected for removal")
             self.mod_manager_bridge.progressUpdate.emit(
-                "Select one or more mods from the list first"
+                self.tr("Select one or more mods from the list first")
             )
             return
 
@@ -115,11 +115,11 @@ class ModManagerConnector:
         print(f"[Mod Manager] Requesting removal of {count} mod(s)")
 
         if count == 1:
-            title = "Remove Mod?"
-            message = "Are you sure you want to remove this mod? This cannot be undone."
+            title = self.tr("Remove Mod?")
+            message = self.tr("Are you sure you want to remove this mod? This cannot be undone.")
         else:
-            title = f"Remove {count} Mods?"
-            message = f"Are you sure you want to remove {count} mods? This cannot be undone."
+            title = self.tr("Remove %1 Mods?").replace("%1", str(count))
+            message = self.tr("Are you sure you want to remove %1 mods? This cannot be undone.").replace("%1", str(count))
 
         QMetaObject.invokeMethod(
             self.root,
@@ -206,7 +206,7 @@ class ModManagerConnector:
         except Exception as e:
             print(f"[Mod Manager] ERROR: Could not open folder: {e}")
             self.mod_manager_bridge.errorOccurred.emit(
-                "Error", f"Could not open folder: {e}"
+                self.tr("Error"), self.tr("Could not open folder: %1").replace("%1", str(e))
             )
 
     def on_mod_toggled(self, mod_uuid, enabled):

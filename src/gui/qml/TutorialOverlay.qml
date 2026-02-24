@@ -51,16 +51,16 @@ Item {
         },
         {
             tabIndex: 2,
-            sectionTitle: "Audio Conversion",
+            sectionTitle: qsTr("Audio Conversion"),
             messages: [
-                { text: "Audio Converter. last one.", highlight: "" },
-                { text: "Conversion mode. WEM to WAV, WAV to WEM. pick whichever.", highlight: "tutorialModeCombo" },
-                { text: "Input goes here. file or folder, doesn't matter.", highlight: "tutorialInputField" },
-                { text: "Or just use these.", highlight: "tutorialBrowseRow" },
-                { text: "Output directory. leave it empty and it saves next to the original.", highlight: "tutorialOutputField" },
-                { text: "Sample rate. 48000 is fine. don't change it unless you actually know why.", highlight: "tutorialSampleRate" },
-                { text: "Press convert. done.", highlight: "tutorialConvertBtn" },
-                { text: "..that's everything.", highlight: "" }
+                { text: qsTr("Audio Converter. last one."), highlight: "" },
+                { text: qsTr("Conversion mode. WEM to WAV, WAV to WEM. pick whichever."), highlight: "tutorialModeCombo" },
+                { text: qsTr("Input goes here. file or folder, doesn't matter."), highlight: "tutorialInputField" },
+                { text: qsTr("Or just use these."), highlight: "tutorialBrowseRow" },
+                { text: qsTr("Output directory. leave it empty and it saves next to the original."), highlight: "tutorialOutputField" },
+                { text: qsTr("Sample rate. 48000 is fine. don't change it unless you actually know why."), highlight: "tutorialSampleRate" },
+                { text: qsTr("Press convert. done."), highlight: "tutorialConvertBtn" },
+                { text: qsTr("..that's everything."), highlight: "" }
             ]
         }
     ]
@@ -333,7 +333,7 @@ Item {
                     }
 
                     Text {
-                        text: "ZZAR Expert - Chief of Hollow Special Operations Section 6"
+                        text: qsTr("ZZAR Expert - Chief of Hollow Special Operations Section 6")
                         color: "#888888"
                         font.family: "inpin hongmengti"
                         font.pixelSize: 12
@@ -463,14 +463,14 @@ Item {
                         text: {
                             var sections = getVisibleSections()
                             var sec = sections[currentSection]
-                            if (!sec) return "Got it!"
+                            if (!sec) return qsTr("Got it!")
 
                             if (currentMessageIndex < sec.messages.length - 1) {
-                                return "Next"
+                                return qsTr("Next")
                             } else if (currentSection < sections.length - 1) {
-                                return "Next Page \u2192"
+                                return qsTr("Next Page") + " \u2192"
                             } else {
-                                return "Got it!"
+                                return qsTr("Got it!")
                             }
                         }
                         color: "#000000"
@@ -488,7 +488,7 @@ Item {
                 }
 
                 Text {
-                    text: "Skip tutorial"
+                    text: qsTr("Skip tutorial")
                     color: "#888888"
                     font.family: "inpin hongmengti"
                     font.pixelSize: 12

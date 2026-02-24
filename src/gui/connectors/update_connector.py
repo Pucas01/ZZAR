@@ -59,11 +59,11 @@ class UpdateConnector:
                     self.root,
                     "showAlertDialog",
                     Qt.QueuedConnection,
-                    Q_ARG("QVariant", f"Update Available — v{version}"),
+                    Q_ARG("QVariant", self.tr("Update Available — v%1").replace("%1", version)),
                     Q_ARG("QVariant",
-                           f"A new version of ZZAR is available!\n\n"
-                           f"Update your Flatpak to the latest version:\n\n"
-                           f"new .flatpak file can be downloaded from https://github.com/Pucas01/ZZAR/releases"),
+                           self.tr("A new version of ZZAR is available!\n\n"
+                           "Update your Flatpak to the latest version:\n\n"
+                           "new .flatpak file can be downloaded from https://github.com/Pucas01/ZZAR/releases")),
                     Q_ARG("QVariant", ""),
                 )
         elif self._startup_update_check and self.update_dialog:
@@ -88,7 +88,7 @@ class UpdateConnector:
                 self.root,
                 "showSuccessToast",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", "You're running the latest version!"),
+                Q_ARG("QVariant", self.tr("You're running the latest version!")),
             )
 
     def _on_update_progress(self, percent):
@@ -122,7 +122,7 @@ class UpdateConnector:
                 self.root,
                 "showErrorToast",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", f"Update error: {message}"),
+                Q_ARG("QVariant", self.tr("Update error: %1").replace("%1", message)),
             )
 
     def _on_github_token_changed(self, token):
@@ -131,7 +131,7 @@ class UpdateConnector:
             self.root,
             "showSuccessToast",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", "GitHub token saved"),
+            Q_ARG("QVariant", self.tr("GitHub token saved")),
         )
 
     def _on_test_update_dialog(self):
@@ -190,8 +190,8 @@ class UpdateConnector:
                     self.root,
                     "showSuccessDialog",
                     Qt.QueuedConnection,
-                    Q_ARG("QVariant", "Update Successful!"),
-                    Q_ARG("QVariant", f"ZZAR has been updated to version {new_version}."),
+                    Q_ARG("QVariant", self.tr("Update Successful!")),
+                    Q_ARG("QVariant", self.tr("ZZAR has been updated to version %1.").replace("%1", new_version)),
                     Q_ARG("QVariant", "../assets/VivianHappy.png"),
                 )
         except Exception as e:

@@ -49,20 +49,20 @@ Item {
             color: "#252525"
             radius: 36.44
 
-            Row {
+            Flow {
                 id: buttons
                 objectName: "tutorialButtonRow"
                 anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.margins: 16
-                height: 31
                 spacing: 10
 
                 Item {
                     id: btn_install
                     objectName: "tutorialInstallBtn"
                     height: 31
-                    width: 189
+                    width: install.implicitWidth + 32
 
                     Rectangle {
                         id: rectangle_37
@@ -97,7 +97,7 @@ Item {
                     id: btn_import
                     objectName: "tutorialImportBtn"
                     height: 31
-                    width: 240
+                    width: _import.implicitWidth + 32
 
                     Rectangle {
                         id: rectangle_38
@@ -132,7 +132,7 @@ Item {
                     id: btn_remove
                     objectName: "tutorialRemoveBtn"
                     height: 31
-                    width: selectedModUuids.length > 1 ? 200 : 150
+                    width: remove.implicitWidth + 32
 
                     Rectangle {
                         id: rectangle_39
@@ -166,7 +166,7 @@ Item {
                 Item {
                     id: btn_refresh
                     height: 31
-                    width: 110
+                    width: refresh.implicitWidth + 32
 
                     Rectangle {
                         id: rectangle_40
@@ -200,7 +200,7 @@ Item {
                 Item {
                     id: btn_openfolder
                     height: 31
-                    width: 185
+                    width: refresh_1.implicitWidth + 32
 
                     Rectangle {
                         id: rectangle_41
@@ -457,7 +457,7 @@ Item {
                         }
 
                         Column {
-                            width: parent.width - 92 - 121 - 16
+                            width: parent.width - 92 - modButtonsCol.width - 16
                             height: 92
                             anchors.verticalCenter: parent.verticalCenter
                             leftPadding: 10
@@ -505,7 +505,8 @@ Item {
                         }
 
                         Column {
-                            width: 121
+                            id: modButtonsCol
+                            width: Math.max(enableText.implicitWidth, infoText.implicitWidth) + 32
                             height: parent.height
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.rightMargin: 8
@@ -513,7 +514,7 @@ Item {
 
                             Item {
                                 height: 47
-                                width: 121
+                                width: parent.width
 
                                 Rectangle {
                                     objectName: "tutorialEnableBtn"
@@ -531,6 +532,7 @@ Item {
                                     Behavior on scale { NumberAnimation { duration: 100 } }
                                 }
                                 Text {
+                                    id: enableText
                                     anchors.centerIn: parent
                                     color: "#000000"
                                     font.family: "Alatsi"
@@ -556,7 +558,7 @@ Item {
 
                             Item {
                                 height: 31
-                                width: 121
+                                width: parent.width
 
                                 Rectangle {
                                     anchors.fill: parent
@@ -567,6 +569,7 @@ Item {
                                     Behavior on scale { NumberAnimation { duration: 100 } }
                                 }
                                 Text {
+                                    id: infoText
                                     anchors.centerIn: parent
                                     color: "#000000"
                                     font.family: "Alatsi"

@@ -214,7 +214,7 @@ class AudioBrowserConnector:
             print(f"[Audio Browser] Folder does not exist: {folder}")
             QMetaObject.invokeMethod(
                 self.root, "showErrorToast", Qt.QueuedConnection,
-                Q_ARG("QVariant", f"Folder does not exist:\n{folder}"),
+                Q_ARG("QVariant", self.tr("Folder does not exist:\n%1").replace("%1", str(folder))),
             )
             return
 

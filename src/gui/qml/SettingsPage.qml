@@ -1184,7 +1184,7 @@ Item {
                                 Item { Layout.fillWidth: true }
 
                                 Item {
-                                    width: 160
+                                    width: checkUpdatesText.implicitWidth + 32
                                     height: 36
                                     visible: !settingsPage.isCheckingUpdates && !settingsPage.updateAvailable && !settingsPage.updateDownloaded
 
@@ -1195,6 +1195,7 @@ Item {
                                     }
 
                                     Text {
+                                        id: checkUpdatesText
                                         anchors.centerIn: parent
                                         text: qsTr("Check for Updates")
                                         color: "#ffffff"

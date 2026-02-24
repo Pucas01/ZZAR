@@ -186,7 +186,7 @@ class ImportWizardConnector:
             self.mod_manager_bridge.refreshMods()
         else:
             print(f"[Import Worker] Error: {message}")
-            self.mod_manager_bridge.errorOccurred.emit("Import Error", message)
+            self.mod_manager_bridge.errorOccurred.emit(self.tr("Import Error"), message)
 
         self.import_worker = None
         self.wizard_selected_files = []
