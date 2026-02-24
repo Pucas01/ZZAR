@@ -253,6 +253,10 @@ Replace some audio files to see them here.</source>
         <source>Create Package</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioConversionPage</name>
@@ -419,7 +423,7 @@ Replace some audio files to see them here.</source>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">警告</translation>
     </message>
     <message>
         <source>PCK files must match the current game version. Using PCK files from a different game version will cause issues, if you dont know what your doing use the WEM file option.</source>
@@ -1097,7 +1101,6 @@ Click &apos;Install .zzar Mod&apos; to get started.</source>
         <source>App</source>
         <translation type="unfinished"></translation>
     </message>
-    <!-- Translated using automated tooling -->
     <message>
         <source>Warning</source>
         <translation>警告</translation>
@@ -1137,7 +1140,6 @@ Twitter: Pucas02
 私は英語とオランダ語しか話せません。</translation>
     </message>
 </context>
-<!-- no longer Translated using automated tooling -->
 <context>
     <name>SuccessDialog</name>
     <message>

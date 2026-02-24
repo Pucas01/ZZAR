@@ -323,156 +323,225 @@ Item {
                     }
                 }
 
-                Row {
-                    spacing: Theme.spacingLarge
+                Item {
+                    width: optionsBtn.width
+                    height: optionsBtn.height
 
-                    Row {
-                        spacing: Theme.spacingSmall
-
-                        Rectangle {
-                            width: 20
-                            height: 20
-                            radius: 4
-                            color: mergeWemChecked ? Theme.primaryAccent : Theme.cardBackground
-                            border.color: mergeWemChecked ? Theme.primaryAccent : Theme.textSecondary
-                            border.width: 1
-                            anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "\u2713"
-                                color: Theme.textOnAccent
-                                font.pixelSize: 14
-                                font.bold: true
-                                visible: mergeWemChecked
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    mergeWemChecked = !mergeWemChecked
-                                    mergeWemToggled(mergeWemChecked)
-                                }
-                            }
-                        }
+                    Rectangle {
+                        id: optionsBtn
+                        width: optionsBtnRow.width + Theme.spacingMedium * 2
+                        height: Theme.buttonHeight
+                        radius: Theme.radiusMedium
+                        color: optionsBtnMouse.pressed ? Qt.darker(Theme.cardBackground, 1.1) :
+                               optionsBtnMouse.containsMouse ? Qt.lighter(Theme.cardBackground, 1.1) : Theme.cardBackground
+                        Behavior on color { ColorAnimation { duration: Theme.animationDuration } }
+                        scale: optionsBtnMouse.pressed ? 0.97 : 1.0
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
 
                         Text {
-                            text: qsTr("Merge Streaming PCK")
+                            id: optionsBtnRow
+                            anchors.centerIn: parent
+                            text: qsTr("Options")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            anchors.verticalCenter: parent.verticalCenter
+                            font.pixelSize: Theme.fontSizeMedium
+                        }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    mergeWemChecked = !mergeWemChecked
-                                    mergeWemToggled(mergeWemChecked)
-                                }
-                            }
+                        MouseArea {
+                            id: optionsBtnMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: optionsPopup.visible ? optionsPopup.close() : optionsPopup.open()
                         }
                     }
 
-                    Row {
-                        spacing: Theme.spacingSmall
+                    Popup {
+                        id: optionsPopup
+                        y: optionsBtn.height + 4
+                        padding: 0
+                        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
-                        Rectangle {
-                            width: 20
-                            height: 20
-                            radius: 4
-                            color: hideUselessPckChecked ? Theme.primaryAccent : Theme.cardBackground
-                            border.color: hideUselessPckChecked ? Theme.primaryAccent : Theme.textSecondary
+                        enter: Transition {
+                            ParallelAnimation {
+                                NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 200 }
+                                NumberAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack }
+                            }
+                        }
+
+                        exit: Transition {
+                            ParallelAnimation {
+                                NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 200 }
+                                NumberAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200; easing.type: Easing.OutBack }
+                            }
+                        }
+
+                        background: Item {}
+
+                        contentItem: Rectangle {
+                            color: Theme.surfaceDark
+                            radius: Theme.radiusMedium
+                            border.color: Qt.rgba(1, 1, 1, 0.1)
                             border.width: 1
-                            anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            implicitWidth: optionsCol.width + 24
+                            implicitHeight: optionsCol.height + 24
+                            transformOrigin: Item.TopLeft
 
-                            Text {
+                            Column {
+                                id: optionsCol
                                 anchors.centerIn: parent
-                                text: "\u2713"
-                                color: Theme.textOnAccent
-                                font.pixelSize: 14
-                                font.bold: true
-                                visible: hideUselessPckChecked
+                                spacing: 8
+
+                            Row {
+                                spacing: Theme.spacingSmall
+
+                                Rectangle {
+                                    width: 20
+                                    height: 20
+                                    radius: 4
+                                    color: mergeWemChecked ? Theme.primaryAccent : Theme.cardBackground
+                                    border.color: mergeWemChecked ? Theme.primaryAccent : Theme.textSecondary
+                                    border.width: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u2713"
+                                        color: Theme.textOnAccent
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        visible: mergeWemChecked
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            mergeWemChecked = !mergeWemChecked
+                                            mergeWemToggled(mergeWemChecked)
+                                        }
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Merge Streaming PCK")
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            mergeWemChecked = !mergeWemChecked
+                                            mergeWemToggled(mergeWemChecked)
+                                        }
+                                    }
+                                }
                             }
 
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    hideUselessPckChecked = !hideUselessPckChecked
-                                    hideUselessPckToggled(hideUselessPckChecked)
+                            Row {
+                                spacing: Theme.spacingSmall
+
+                                Rectangle {
+                                    width: 20
+                                    height: 20
+                                    radius: 4
+                                    color: hideUselessPckChecked ? Theme.primaryAccent : Theme.cardBackground
+                                    border.color: hideUselessPckChecked ? Theme.primaryAccent : Theme.textSecondary
+                                    border.width: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u2713"
+                                        color: Theme.textOnAccent
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        visible: hideUselessPckChecked
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            hideUselessPckChecked = !hideUselessPckChecked
+                                            hideUselessPckToggled(hideUselessPckChecked)
+                                        }
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Hide all non soundbank language PCK's")
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            hideUselessPckChecked = !hideUselessPckChecked
+                                            hideUselessPckToggled(hideUselessPckChecked)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Row {
+                                spacing: Theme.spacingSmall
+
+                                Rectangle {
+                                    width: 20
+                                    height: 20
+                                    radius: 4
+                                    color: normalizeAudioChecked ? Theme.primaryAccent : Theme.cardBackground
+                                    border.color: normalizeAudioChecked ? Theme.primaryAccent : Theme.textSecondary
+                                    border.width: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u2713"
+                                        color: Theme.textOnAccent
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        visible: normalizeAudioChecked
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            normalizeAudioChecked = !normalizeAudioChecked
+                                            normalizeAudioToggled(normalizeAudioChecked)
+                                        }
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Normalize Audio on Replace")
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            normalizeAudioChecked = !normalizeAudioChecked
+                                            normalizeAudioToggled(normalizeAudioChecked)
+                                        }
+                                    }
                                 }
                             }
                         }
-
-                        Text {
-                            text: qsTr("Hide all non soundbank language PCK's")
-                            color: Theme.textPrimary
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    hideUselessPckChecked = !hideUselessPckChecked
-                                    hideUselessPckToggled(hideUselessPckChecked)
-                                }
-                            }
-                        }
-                    }
-
-                    Row {
-                        spacing: Theme.spacingSmall
-
-                        Rectangle {
-                            width: 20
-                            height: 20
-                            radius: 4
-                            color: normalizeAudioChecked ? Theme.primaryAccent : Theme.cardBackground
-                            border.color: normalizeAudioChecked ? Theme.primaryAccent : Theme.textSecondary
-                            border.width: 1
-                            anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "\u2713"
-                                color: Theme.textOnAccent
-                                font.pixelSize: 14
-                                font.bold: true
-                                visible: normalizeAudioChecked
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    normalizeAudioChecked = !normalizeAudioChecked
-                                    normalizeAudioToggled(normalizeAudioChecked)
-                                }
-                            }
-                        }
-
-                        Text {
-                            text: qsTr("Normalize Audio on Replace")
-                            color: Theme.textPrimary
-                            font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontSizeSmall
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    normalizeAudioChecked = !normalizeAudioChecked
-                                    normalizeAudioToggled(normalizeAudioChecked)
-                                }
-                            }
                         }
                     }
                 }

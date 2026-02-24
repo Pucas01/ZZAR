@@ -253,6 +253,10 @@ Replace some audio files to see them here.</source>
         <source>Create Package</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioConversionPage</name>
