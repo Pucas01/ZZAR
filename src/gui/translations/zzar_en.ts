@@ -1085,6 +1085,47 @@ Click &apos;Install .zzar Mod&apos; to get started.</source>
         <source>Save Settings</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mod Creation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This translation is incomplete. Some text may appear in English.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Want to help?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Help Translate ZZAR!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>I need your help to translate ZZAR to more languages!
+
+If you&apos;re interested in translating, reach out to:
+
+Discord: Pucas01
+Twitter: Pucas02
+
+Or open an issue on the GitHub repo.
+
+I only speak English and Dutch.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SuccessDialog</name>

@@ -9,6 +9,12 @@ Adding a language:
   4. Compile with: lrelease zzar_XX.ts
   5. Add the language to SUPPORTED_LANGUAGES in src/gui/translation_manager.py
 
-Updating after code changes:
-  lupdate src/gui/qml/ src/gui/components/ -ts src/gui/translations/zzar_en.ts
+Updating .ts files after code changes:
+  When you add new qsTr() strings in QML, run lupdate to automatically extract
+  them into all .ts files at once:
 
+  lupdate src/gui/qml/ src/gui/components/ -ts src/gui/translations/zzar_en.ts src/gui/translations/zzar_es.ts src/gui/translations/zzar_ja.ts
+
+  This scans all QML files for qsTr() calls and adds any new strings as
+  <message> entries with type="unfinished". Existing translations are preserved.
+  After running lupdate, translate the new entries and recompile with lrelease.

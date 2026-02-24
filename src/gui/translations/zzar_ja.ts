@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es_ES">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>AudioBrowserPage</name>
     <message>
@@ -1100,19 +1100,19 @@ Click &apos;Install .zzar Mod&apos; to get started.</source>
     <!-- Translated using automated tooling -->
     <message>
         <source>Warning</source>
-        <translation>Advertencia</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>This translation is incomplete. Some text may appear in English.</source>
-        <translation>Esta traducción está incompleta. Algunos textos pueden aparecer en inglés.</translation>
+        <translation>この翻訳は未完成です。一部のテキストが英語で表示される場合があります。</translation>
     </message>
     <message>
         <source>Want to help?</source>
-        <translation>¿Quieres ayudar?</translation>
+        <translation>翻訳を手伝いませんか？</translation>
     </message>
     <message>
         <source>Help Translate ZZAR!</source>
-        <translation>¡Ayuda a traducir ZZAR!</translation>
+        <translation>ZZARの翻訳を手伝ってください！</translation>
     </message>
     <message>
         <source>I need your help to translate ZZAR to more languages!
@@ -1125,20 +1125,20 @@ Twitter: Pucas02
 Or open an issue on the GitHub repo.
 
 I only speak English and Dutch.</source>
-        <translation>¡Necesito tu ayuda para traducir ZZAR a más idiomas!
+        <translation>ZZARをもっと多くの言語に翻訳するために、あなたの助けが必要です！
 
-Si te interesa traducir, contáctame en:
+翻訳に興味がある方は、こちらまでご連絡ください：
 
 Discord: Pucas01
 Twitter: Pucas02
 
-O abre un issue en el repositorio de GitHub.
+またはGitHubリポジトリでissueを作成してください。
 
-Solo hablo inglés y neerlandés.</translation>
+私は英語とオランダ語しか話せません。</translation>
     </message>
 </context>
-<context>
 <!-- no longer Translated using automated tooling -->
+<context>
     <name>SuccessDialog</name>
     <message>
         <source>Success</source>
