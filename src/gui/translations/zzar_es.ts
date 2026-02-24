@@ -2142,7 +2142,7 @@ new .flatpak file can be downloaded from https://github.com/Pucas01/ZZAR/release
     
 Actualización tu Flatpak a la última versión:
     
-el nuevo archivo puede descargarse de https://github.com/Pucas01/ZZAR/releases</source></translation>
+el nuevo archivo puede descargarse de https://github.com/Pucas01/ZZAR/releases</translation>
         </message>
         <message>
             <location filename="../connectors/update_connector.py" line="193" />
