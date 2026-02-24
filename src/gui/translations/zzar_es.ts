@@ -255,6 +255,10 @@ Reemplaza unos audios para verlos aquí.</translation>
         <source>Create Package</source>
         <translation>Crear Paquete</translation>
     </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AudioConversionPage</name>
@@ -1088,6 +1092,56 @@ Clic e instala mods .zzar para iniciar.</translation>
     <message>
         <source>Save Settings</source>
         <translation>Guardar configuración</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mod Creation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation>Advertencia</translation>
+    </message>
+    <message>
+        <source>This translation is incomplete. Some text may appear in English.</source>
+        <translation>Esta traducción está incompleta. Algunos textos pueden aparecer en inglés.</translation>
+    </message>
+    <message>
+        <source>Want to help?</source>
+        <translation>¿Quieres ayudar?</translation>
+    </message>
+    <message>
+        <source>Help Translate ZZAR!</source>
+        <translation>¡Ayuda a traducir ZZAR!</translation>
+    </message>
+    <message>
+        <source>I need your help to translate ZZAR to more languages!
+
+If you&apos;re interested in translating, reach out to:
+
+Discord: Pucas01
+Twitter: Pucas02
+
+Or open an issue on the GitHub repo.
+
+I only speak English and Dutch.</source>
+        <translation>¡Necesito tu ayuda para traducir ZZAR a más idiomas!
+
+Si te interesa traducir, contáctame en:
+
+Discord: Pucas01
+Twitter: Pucas02
+
+O abre un issue en el repositorio de GitHub.
+
+Solo hablo inglés y neerlandés.</translation>
     </message>
 </context>
 <context>

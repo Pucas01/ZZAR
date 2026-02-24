@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="en_US">
+<TS version="2.1" language="ja_JP">
 <context>
     <name>AudioBrowserPage</name>
     <message>
@@ -423,7 +423,7 @@ Replace some audio files to see them here.</source>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">警告</translation>
     </message>
     <message>
         <source>PCK files must match the current game version. Using PCK files from a different game version will cause issues, if you dont know what your doing use the WEM file option.</source>
@@ -1103,19 +1103,19 @@ Click &apos;Install .zzar Mod&apos; to get started.</source>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>This translation is incomplete. Some text may appear in English.</source>
-        <translation type="unfinished"></translation>
+        <translation>この翻訳は未完成です。一部のテキストが英語で表示される場合があります。</translation>
     </message>
     <message>
         <source>Want to help?</source>
-        <translation type="unfinished"></translation>
+        <translation>翻訳を手伝いませんか？</translation>
     </message>
     <message>
         <source>Help Translate ZZAR!</source>
-        <translation type="unfinished"></translation>
+        <translation>ZZARの翻訳を手伝ってください！</translation>
     </message>
     <message>
         <source>I need your help to translate ZZAR to more languages!
@@ -1128,7 +1128,16 @@ Twitter: Pucas02
 Or open an issue on the GitHub repo.
 
 I only speak English and Dutch.</source>
-        <translation type="unfinished"></translation>
+        <translation>ZZARをもっと多くの言語に翻訳するために、あなたの助けが必要です！
+
+翻訳に興味がある方は、こちらまでご連絡ください：
+
+Discord: Pucas01
+Twitter: Pucas02
+
+またはGitHubリポジトリでissueを作成してください。
+
+私は英語とオランダ語しか話せません。</translation>
     </message>
 </context>
 <context>

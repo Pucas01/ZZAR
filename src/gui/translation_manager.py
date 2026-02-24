@@ -9,6 +9,7 @@ class TranslationManager(QObject):
     SUPPORTED_LANGUAGES = [
         {"code": "en", "name": "English"},
         {"code": "es", "name": "Español"},
+        {"code": "ja", "name": "日本語"},
     ]
 
     def __init__(self, engine, parent=None):
@@ -25,6 +26,16 @@ class TranslationManager(QObject):
     @pyqtProperty(str, notify=languageChanged)
     def currentLanguage(self):
         return self._current_language
+
+    @pyqtSlot(str, result=bool)
+    def isIncomplete(self, lang_code):
+        if lang_code == "en":
+            return False
+        ts_file = self._translations_dir / f"zzar_{lang_code}.ts"
+        if not ts_file.exists():
+            return True
+        content = ts_file.read_text(encoding="utf-8")
+        return 'type="unfinished"' in content
 
     @pyqtSlot(str)
     def changeLanguage(self, lang_code):

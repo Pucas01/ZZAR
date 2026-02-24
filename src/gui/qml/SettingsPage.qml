@@ -69,7 +69,7 @@ Item {
                 spacing: 8
 
                 Repeater {
-                    model: ["General", "Mod Creation", "App"]
+                    model: [qsTr("General"), qsTr("Mod Creation"), qsTr("App")]
 
                     Item {
                         width: tabLabel.implicitWidth + 48
@@ -202,10 +202,13 @@ Item {
                                     return 0
                                 }
 
+                                property bool selectedIncomplete: translationManager.isIncomplete(settingsPage.currentLanguage)
+
                                 onActivated: {
                                     var selectedLang = translationManager.availableLanguages[index]
                                     settingsPage.currentLanguage = selectedLang.code
                                     languageChanged(selectedLang.code)
+                                    selectedIncomplete = translationManager.isIncomplete(selectedLang.code)
                                 }
 
                                 background: Rectangle {
@@ -300,6 +303,67 @@ Item {
 
                                         ScrollIndicator.vertical: ScrollIndicator {
                                             active: true
+                                        }
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: langWarningCol.implicitHeight + 20
+                                radius: 10
+                                color: "#2a2a1a"
+                                border.color: "#ffaa00"
+                                border.width: 1
+                                visible: languageCombo.selectedIncomplete
+
+                                Column {
+                                    id: langWarningCol
+                                    anchors.fill: parent
+                                    anchors.margins: 10
+                                    spacing: 4
+
+                                    Text {
+                                        text: qsTr("Warning")
+                                        color: "#ffaa00"
+                                        font.family: "Alatsi"
+                                        font.pixelSize: 13
+                                        font.bold: true
+                                    }
+
+                                    Text {
+                                        text: qsTr("This translation is incomplete. Some text may appear in English.")
+                                        color: "#ccaa66"
+                                        font.family: "Alatsi"
+                                        font.pixelSize: 12
+                                        width: parent.width
+                                        wrapMode: Text.WordWrap
+                                        lineHeight: 1.2
+                                    }
+
+                                    Item {
+                                        width: helpLink.implicitWidth
+                                        height: helpLink.implicitHeight
+
+                                        Text {
+                                            id: helpLink
+                                            text: qsTr("Want to help?")
+                                            color: helpArea.containsMouse ? "#ffffff" : "#d8fa00"
+                                            font.family: "Alatsi"
+                                            font.pixelSize: 12
+                                            font.underline: helpArea.containsMouse
+                                        }
+
+                                        MouseArea {
+                                            id: helpArea
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: mainWindow.showAlertDialog(
+                                                qsTr("Help Translate ZZAR!"),
+                                                qsTr("I need your help to translate ZZAR to more languages!\n\nIf you're interested in translating, reach out to:\n\nDiscord: Pucas01\nTwitter: Pucas02\n\nOr open an issue on the GitHub repo.\n\nI only speak English and Dutch."),
+                                                "../assets/YeShunguangReed.png"
+                                            )
                                         }
                                     }
                                 }
