@@ -78,16 +78,16 @@ class TagDatabaseDownloadWorker(QThread):
             self.downloadFinished.emit(temp_file.name)
 
         except json.JSONDecodeError:
-            self.errorOccurred.emit("Downloaded file is not valid JSON")
+            self.errorOccurred.emit(self.tr("Downloaded file is not valid JSON"))
         except urllib.error.HTTPError as e:
             if e.code == 404:
-                self.errorOccurred.emit("Official tag database not found on GitHub")
+                self.errorOccurred.emit(self.tr("Official tag database not found on GitHub"))
             else:
-                self.errorOccurred.emit(f"HTTP error: {e.code} {e.reason}")
+                self.errorOccurred.emit(self.tr("HTTP error: %1 %2").replace("%1", str(e.code)).replace("%2", str(e.reason)))
         except urllib.error.URLError as e:
-            self.errorOccurred.emit(f"Network error: {e.reason}")
+            self.errorOccurred.emit(self.tr("Network error: %1").replace("%1", str(e.reason)))
         except Exception as e:
-            self.errorOccurred.emit(f"Download failed: {e}")
+            self.errorOccurred.emit(self.tr("Download failed: %1").replace("%1", str(e)))
 
 
 class TagDatabaseCheckWorker(QThread):
@@ -158,6 +158,10 @@ class AudioBrowserBridge(QObject):
     tagDbDownloadError = pyqtSignal(str, arguments=["message"])
     tagDbImportComplete = pyqtSignal(int, arguments=["importedCount"])
     newTagDbAvailable = pyqtSignal(int, arguments=["entryCount"])
+    matchProgressUpdate = pyqtSignal(int, int, arguments=["current", "total"])
+    matchResultsReady = pyqtSignal(list, arguments=["results"])
+    matchStarted = pyqtSignal()
+    matchFinished = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -193,6 +197,8 @@ class AudioBrowserBridge(QObject):
         self._playback_duration = 0
 
         self._imported_mod_metadata = None
+        self._match_thread = None
+        self._match_cancel = threading.Event()
         self._tag_db_worker = None
         self._tag_db_temp_path = None
         self._tag_db_check_worker = None
@@ -268,16 +274,16 @@ class AudioBrowserBridge(QObject):
             data_folder = selected_dir / "ZenlessZoneZero_Data"
 
         if not data_folder or not data_folder.exists():
-            self.errorOccurred.emit("Invalid Directory",
-                                    "Could not find ZenlessZoneZero_Data folder.")
+            self.errorOccurred.emit(self.tr("Invalid Directory"),
+                                    self.tr("Could not find ZenlessZoneZero_Data folder."))
             return
 
         self.game_root_dir = data_folder
         full_folder = data_folder / "StreamingAssets" / "Audio" / "Windows" / "Full"
 
         if not full_folder.exists():
-            self.errorOccurred.emit("Invalid Directory",
-                                    f"Could not find audio folder at:\n{full_folder}")
+            self.errorOccurred.emit(self.tr("Invalid Directory"),
+                                    self.tr("Could not find audio folder at:\n%1").replace("%1", str(full_folder)))
             return
 
         self.language_folders = {}
@@ -317,8 +323,8 @@ class AudioBrowserBridge(QObject):
                         print(f"[ZZAR] Found language folder in Persistent: {subfolder.name} ({len(pck_files)} PCKs)")
 
         if not self.language_folders:
-            self.errorOccurred.emit("No Audio Files",
-                                    f"No PCK files found in:\n{full_folder}")
+            self.errorOccurred.emit(self.tr("No Audio Files"),
+                                    self.tr("No PCK files found in:\n%1").replace("%1", str(full_folder)))
             return
 
         sorted_folders = sorted(self.language_folders.keys(),
@@ -360,12 +366,12 @@ class AudioBrowserBridge(QObject):
                 QMetaObject.invokeMethod(
                     self, "_emitStreamingAlert",
                     Qt.QueuedConnection,
-                    Q_ARG(str, "Missing Streaming Audio Files"),
+                    Q_ARG(str, self.tr("Missing Streaming Audio Files")),
                     Q_ARG(str,
-                        "No Streamed_SFX PCK files were found in the game's audio folder.\n\n"
+                        self.tr("No Streamed_SFX PCK files were found in the game's audio folder.\n\n"
                         "This means your game installation is incomplete or corrupted. "
                         "Audio mods may not work correctly without these files.\n\n"
-                        "Please repair your game files through the game launcher."
+                        "Please repair your game files through the game launcher.")
                     ),
                 )
                 return
@@ -431,12 +437,12 @@ class AudioBrowserBridge(QObject):
                 QMetaObject.invokeMethod(
                     self, "_emitStreamingAlert",
                     Qt.QueuedConnection,
-                    Q_ARG(str, "Missing Streaming Audio Files"),
+                    Q_ARG(str, self.tr("Missing Streaming Audio Files")),
                     Q_ARG(str,
-                        f"{detail}\n\n"
-                        "Your game installation may be incomplete or corrupted. "
+                        detail + "\n\n" +
+                        self.tr("Your game installation may be incomplete or corrupted. "
                         "Some audio mods may not work correctly without these files.\n\n"
-                        "Please repair your game files through the game launcher."
+                        "Please repair your game files through the game launcher.")
                     ),
                 )
             else:
@@ -488,7 +494,7 @@ class AudioBrowserBridge(QObject):
             if dir_key in self._index_cache:
                 self.file_id_index = self._index_cache[dir_key]
                 self.index_ready = True
-                self.statusUpdate.emit(f"Index ready - {len(self.file_id_index)} unique file IDs")
+                self.statusUpdate.emit(self.tr("Index ready - %1 unique file IDs").replace("%1", str(len(self.file_id_index))))
             else:
                 self._build_file_index(cached["pck_files"])
 
@@ -500,7 +506,7 @@ class AudioBrowserBridge(QObject):
 
         pck_files = sorted(directory.glob("*.pck"))
         if not pck_files:
-            self.statusUpdate.emit("No PCK files found")
+            self.statusUpdate.emit(self.tr("No PCK files found"))
             return
 
         items = []
@@ -543,7 +549,7 @@ class AudioBrowserBridge(QObject):
         }
 
         self.treeItemsReady.emit(items)
-        self.statusUpdate.emit(f"Found {len(items)} PCK files - building index...")
+        self.statusUpdate.emit(self.tr("Found %1 PCK files - building index...").replace("%1", str(len(items))))
 
         self._build_file_index(pck_files)
 
@@ -579,7 +585,7 @@ class AudioBrowserBridge(QObject):
             return
 
         self._pck_loaded[pck_path] = True
-        self.statusUpdate.emit(f"Indexing {Path(pck_path).name}...")
+        self.statusUpdate.emit(self.tr("Indexing %1...").replace("%1", Path(pck_path).name))
 
         try:
             indexer = PCKIndexer(pck_path)
@@ -669,11 +675,11 @@ class AudioBrowserBridge(QObject):
 
             self.treeItemsReady.emit(items)
             self.statusUpdate.emit(
-                f"Loaded {len(items)} files from {Path(pck_path).name}"
+                self.tr("Loaded %1 files from %2").replace("%1", str(len(items))).replace("%2", Path(pck_path).name)
             )
 
         except Exception as e:
-            self.statusUpdate.emit(f"Error loading {Path(pck_path).name}: {e}")
+            self.statusUpdate.emit(self.tr("Error loading %1: %2").replace("%1", Path(pck_path).name).replace("%2", str(e)))
 
     def _expand_bnk_item(self, bnk_id):
 
@@ -784,7 +790,7 @@ class AudioBrowserBridge(QObject):
             self.treeItemsReady.emit(items)
 
         except Exception as e:
-            self.statusUpdate.emit(f"Error loading BNK {bnk_id}: {e}")
+            self.statusUpdate.emit(self.tr("Error loading BNK %1: %2").replace("%1", str(bnk_id)).replace("%2", str(e)))
 
     @pyqtSlot(str, str, str)
     def onTreeItemDoubleClicked(self, item_id, item_type, pck_path):
@@ -801,7 +807,7 @@ class AudioBrowserBridge(QObject):
     def _play_wem_from_pck(self, meta):
 
         try:
-            self.statusUpdate.emit("Loading audio...")
+            self.statusUpdate.emit(self.tr("Loading audio..."))
             indexer = PCKIndexer(meta["pck_path"])
             indexer.build_index()
             wem_bytes = indexer.extract_single_file(
@@ -813,12 +819,12 @@ class AudioBrowserBridge(QObject):
             )
             self.audio_player.play_wem(wem_bytes, cache_key)
 
-            self.nowPlayingUpdate.emit(f"Playing: {meta['file_id']}.wem")
+            self.nowPlayingUpdate.emit(self.tr("Playing: %1.wem").replace("%1", str(meta['file_id'])))
             self.playbackStateUpdate.emit(True, False, True)
-            self.statusUpdate.emit(f"Playing {meta['file_id']}.wem")
+            self.statusUpdate.emit(self.tr("Playing %1.wem").replace("%1", str(meta['file_id'])))
 
         except Exception as e:
-            self.errorOccurred.emit("Playback Error", str(e))
+            self.errorOccurred.emit(self.tr("Playback Error"), str(e))
 
     def _play_wem_from_bnk(self, meta):
 
@@ -841,13 +847,13 @@ class AudioBrowserBridge(QObject):
 
             self.audio_player.play_wem(wem_bytes, cache_key)
             self.nowPlayingUpdate.emit(
-                f"Playing: {meta['wem_id']}.wem (from BNK {meta['bnk_id']})"
+                self.tr("Playing: %1.wem (from BNK %2)").replace("%1", str(meta['wem_id'])).replace("%2", str(meta['bnk_id']))
             )
             self.playbackStateUpdate.emit(True, False, True)
-            self.statusUpdate.emit(f"Playing {meta['wem_id']}.wem from BNK")
+            self.statusUpdate.emit(self.tr("Playing %1.wem from BNK").replace("%1", str(meta['wem_id'])))
 
         except Exception as e:
-            self.errorOccurred.emit("Playback Error", str(e))
+            self.errorOccurred.emit(self.tr("Playback Error"), str(e))
 
     @pyqtSlot()
     def play(self):
@@ -860,9 +866,9 @@ class AudioBrowserBridge(QObject):
     @pyqtSlot()
     def stop(self):
         self.audio_player.stop()
-        self.nowPlayingUpdate.emit("Not playing")
+        self.nowPlayingUpdate.emit(self.tr("Not playing"))
         self.progressUpdate.emit(0.0, "00:00 / 00:00")
-        self.statusUpdate.emit("Stopped")
+        self.statusUpdate.emit(self.tr("Stopped"))
 
     @pyqtSlot(int)
     def setVolume(self, value):
@@ -875,7 +881,7 @@ class AudioBrowserBridge(QObject):
             self.audio_player.set_position(int(position * self._playback_duration))
 
     def _on_playback_state_changed(self, state):
-        self.statusUpdate.emit(f"Playback: {state}")
+        self.statusUpdate.emit(self.tr("Playback: %1").replace("%1", str(state)))
         has_audio = self.audio_player.current_file is not None
         if state == "playing":
             self.playbackStateUpdate.emit(True, False, True)
@@ -894,7 +900,7 @@ class AudioBrowserBridge(QObject):
         self._playback_duration = duration
 
     def _on_playback_error(self, error):
-        self.errorOccurred.emit("Playback Error", error)
+        self.errorOccurred.emit(self.tr("Playback Error"), error)
 
     @pyqtSlot(bool)
     def setMergeWem(self, enabled):
@@ -907,7 +913,7 @@ class AudioBrowserBridge(QObject):
                 folder_path = self.language_folders[self.current_language_folder]["path"]
                 self._load_pck_files(folder_path)
                 state = "enabled" if enabled else "disabled"
-                self.statusUpdate.emit(f"Merge mode {state}")
+                self.statusUpdate.emit(self.tr("Merge mode %1").replace("%1", state))
 
     @pyqtSlot(bool)
     def setHideUselessPck(self, enabled):
@@ -920,7 +926,7 @@ class AudioBrowserBridge(QObject):
                 folder_path = self.language_folders[self.current_language_folder]["path"]
                 self._load_pck_files(folder_path)
                 state = "enabled" if enabled else "disabled"
-                self.statusUpdate.emit(f"Hide useless PCK {state}")
+                self.statusUpdate.emit(self.tr("Hide useless PCK %1").replace("%1", state))
 
     @pyqtSlot(bool)
     def setHideEmptyBnk(self, enabled):
@@ -933,7 +939,7 @@ class AudioBrowserBridge(QObject):
                 folder_path = self.language_folders[self.current_language_folder]["path"]
                 self._load_pck_files(folder_path)
                 state = "enabled" if enabled else "disabled"
-                self.statusUpdate.emit(f"Hide empty BNK {state}")
+                self.statusUpdate.emit(self.tr("Hide empty BNK %1").replace("%1", state))
 
             try:
                 if self.settings_file.exists():
@@ -973,7 +979,7 @@ class AudioBrowserBridge(QObject):
             return
 
         if not self.index_ready:
-            self.statusUpdate.emit("Index still building... Please wait")
+            self.statusUpdate.emit(self.tr("Index still building... Please wait"))
             return
 
         matches = []
@@ -1021,16 +1027,16 @@ class AudioBrowserBridge(QObject):
                        if not Path(m["pckPath"]).name.startswith("Streamed_SFX_")]
 
         if matches:
-            self.statusUpdate.emit(f"Found {len(matches)} match(es) for '{query}'")
+            self.statusUpdate.emit(self.tr("Found %1 match(es) for '%2'").replace("%1", str(len(matches))).replace("%2", query))
             self.searchResultsReady.emit(query, matches)
         else:
-            self.statusUpdate.emit(f"No files found matching '{query}'")
+            self.statusUpdate.emit(self.tr("No files found matching '%1'").replace("%1", query))
 
     @pyqtSlot(str, str, str, str)
     def navigateToSearchResult(self, file_id, item_type, pck_path, bnk_id):
 
         if not pck_path:
-            self.statusUpdate.emit(f"Cannot navigate to file {file_id}")
+            self.statusUpdate.emit(self.tr("Cannot navigate to file %1").replace("%1", str(file_id)))
             return
 
         if pck_path not in self._pck_loaded:
@@ -1041,19 +1047,19 @@ class AudioBrowserBridge(QObject):
             if load_key not in self._bnk_loaded:
                 self._expand_bnk_item(bnk_id)
 
-        self.statusUpdate.emit(f"Navigated to file {file_id} in {Path(pck_path).name}")
+        self.statusUpdate.emit(self.tr("Navigated to file %1 in %2").replace("%1", str(file_id)).replace("%2", Path(pck_path).name))
         self.navigateToItem.emit(file_id, pck_path)
 
     @pyqtSlot()
     def clearSearch(self):
-        self.statusUpdate.emit("Ready")
+        self.statusUpdate.emit(self.tr("Ready"))
 
     @pyqtSlot(str, str, str, bool)
     def replaceWithCustomAudio(self, item_id, item_type, pck_path, normalize=True):
 
         meta = self._find_item_meta(item_id, item_type, pck_path)
         if not meta:
-            self.errorOccurred.emit("Error", "Could not find item data")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Could not find item data"))
             return
 
         from .native_dialogs import NativeDialogs
@@ -1069,7 +1075,7 @@ class AudioBrowserBridge(QObject):
             pck_file_path = Path(meta["pck_path"])
             pck_filename = pck_file_path.name
 
-            self.statusUpdate.emit("Processing your custom audio...")
+            self.statusUpdate.emit(self.tr("Processing your custom audio..."))
 
             if meta["type"] == "wem":
                 file_id = meta["file_id"]
@@ -1094,7 +1100,7 @@ class AudioBrowserBridge(QObject):
             if custom_file.suffix.lower() == ".wem":
                 wem_file = custom_file
             else:
-                self.statusUpdate.emit(f"Converting {custom_file.suffix} to WEM...")
+                self.statusUpdate.emit(self.tr("Converting %1 to WEM...").replace("%1", custom_file.suffix))
                 converter = AudioConverter()
                 try:
                     if custom_file.suffix.lower() == ".wav":
@@ -1106,7 +1112,7 @@ class AudioBrowserBridge(QObject):
                     error_msg = str(e)
 
                     if "Wwise is not installed" in error_msg or "Wwise Not" in error_msg:
-                        self.wwiseErrorDialog.emit("Wwise Required", error_msg)
+                        self.wwiseErrorDialog.emit(self.tr("Wwise Required"), error_msg)
                         return
                     else:
                         raise
@@ -1121,12 +1127,12 @@ class AudioBrowserBridge(QObject):
             persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
             self.mod_manager.set_persistent_path(str(persistent_path))
 
-            self.statusUpdate.emit(f"Replacement staged: {pck_filename} (ID: {file_id}) - Click 'Apply Changes' to activate")
+            self.statusUpdate.emit(self.tr("Replacement staged: %1 (ID: %2) - Click 'Apply Changes' to activate").replace("%1", pck_filename).replace("%2", str(file_id)))
             self._emit_changes_count()
 
         except Exception as e:
-            self.statusUpdate.emit(f"Error: Failed to stage replacement")
-            self.errorOccurred.emit("Error", f"Failed to stage replacement:\n{e}")
+            self.statusUpdate.emit(self.tr("Error: Failed to stage replacement"))
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to stage replacement:\n%1").replace("%1", str(e)))
             import traceback
             traceback.print_exc()
 
@@ -1147,7 +1153,7 @@ class AudioBrowserBridge(QObject):
             return
 
         try:
-            self.statusUpdate.emit("Exporting audio...")
+            self.statusUpdate.emit(self.tr("Exporting audio..."))
 
             if meta["type"] == "wem":
                 indexer = PCKIndexer(meta["pck_path"])
@@ -1173,25 +1179,25 @@ class AudioBrowserBridge(QObject):
             converter.wem_to_wav(str(temp_wem), filename)
             temp_wem.unlink()
 
-            self.statusUpdate.emit(f"Exported to {Path(filename).name}")
+            self.statusUpdate.emit(self.tr("Exported to %1").replace("%1", Path(filename).name))
 
         except Exception as e:
-            self.statusUpdate.emit("Export failed")
-            self.errorOccurred.emit("Export Error", str(e))
+            self.statusUpdate.emit(self.tr("Export failed"))
+            self.errorOccurred.emit(self.tr("Export Error"), str(e))
 
     @pyqtSlot(str, str, str)
     def muteAudio(self, item_id, item_type, pck_path):
 
         meta = self._find_item_meta(item_id, item_type, pck_path)
         if not meta:
-            self.errorOccurred.emit("Error", "Could not find item data")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Could not find item data"))
             return
 
         try:
             pck_file_path = Path(meta["pck_path"])
             pck_filename = pck_file_path.name
 
-            self.statusUpdate.emit("Creating silent audio replacement...")
+            self.statusUpdate.emit(self.tr("Creating silent audio replacement..."))
 
             if meta["type"] == "wem":
                 file_id = meta["file_id"]
@@ -1230,7 +1236,7 @@ class AudioBrowserBridge(QObject):
                 silent_data = struct.pack('<h', 0) * (duration_samples * 2)
                 wav_file.writeframes(silent_data)
 
-            self.statusUpdate.emit("Converting silent audio to WEM...")
+            self.statusUpdate.emit(self.tr("Converting silent audio to WEM..."))
             converter = AudioConverter()
             try:
                 wem_file = converter.wav_to_wem(str(silent_wav))
@@ -1238,7 +1244,7 @@ class AudioBrowserBridge(QObject):
                 error_msg = str(e)
 
                 if "Wwise is not installed" in error_msg or "Wwise Not" in error_msg:
-                    self.wwiseErrorDialog.emit("Wwise Required", error_msg)
+                    self.wwiseErrorDialog.emit(self.tr("Wwise Required"), error_msg)
                     silent_wav.unlink()
                     return
                 else:
@@ -1258,12 +1264,12 @@ class AudioBrowserBridge(QObject):
             persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
             self.mod_manager.set_persistent_path(str(persistent_path))
 
-            self.statusUpdate.emit(f"Audio muted: {pck_filename} (ID: {file_id}) - Click 'Apply Changes' to activate")
+            self.statusUpdate.emit(self.tr("Audio muted: %1 (ID: %2) - Click 'Apply Changes' to activate").replace("%1", pck_filename).replace("%2", str(file_id)))
             self._emit_changes_count()
 
         except Exception as e:
-            self.statusUpdate.emit(f"Error: Failed to mute audio")
-            self.errorOccurred.emit("Error", f"Failed to mute audio:\n{e}")
+            self.statusUpdate.emit(self.tr("Error: Failed to mute audio"))
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to mute audio:\n%1").replace("%1", str(e)))
             import traceback
             traceback.print_exc()
 
@@ -1287,7 +1293,7 @@ class AudioBrowserBridge(QObject):
 
         replacements = self._get_user_replacements()
         if not replacements:
-            self.alertDialogRequested.emit("No Changes found", "No audio replacements found.\n\nDid you even replace anything?.", "../assets/EllenSleep.png")
+            self.alertDialogRequested.emit(self.tr("No Changes found"), self.tr("No audio replacements found.\n\nDid you even replace anything?."), "../assets/EllenSleep.png")
             return
 
         changes = []
@@ -1330,11 +1336,11 @@ class AudioBrowserBridge(QObject):
                 })
 
         if not changes:
-            self.alertDialogRequested.emit("No Changes found", "No manual audio replacements found.\n\nChanges from installed mods are managed in the Mod Manager.", "../assets/EllenSleep.png")
+            self.alertDialogRequested.emit(self.tr("No Changes found"), self.tr("No manual audio replacements found.\n\nChanges from installed mods are managed in the Mod Manager."), "../assets/EllenSleep.png")
             return
 
         self.changesReady.emit(changes)
-        self.statusUpdate.emit(f"Showing {len(changes)} replacement(s)")
+        self.statusUpdate.emit(self.tr("Showing %1 replacement(s)").replace("%1", str(len(changes))))
 
     @pyqtSlot()
     def applyAllChanges(self):
@@ -1348,7 +1354,7 @@ class AudioBrowserBridge(QObject):
                     persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
 
                     if persistent_path.exists():
-                        self.statusUpdate.emit("Cleaning up Persistent folder...")
+                        self.statusUpdate.emit(self.tr("Cleaning up Persistent folder..."))
 
                         lang_folders_to_skip = set()
                         for lang_folder in persistent_path.iterdir():
@@ -1373,24 +1379,24 @@ class AudioBrowserBridge(QObject):
                                 print(f"[Audio Browser] Failed to delete {pck_file}: {e}")
 
                         if cleaned_files > 0:
-                            self.statusUpdate.emit(f"Cleaned up {cleaned_files} modded PCK file(s) from Persistent folder")
+                            self.statusUpdate.emit(self.tr("Cleaned up %1 modded PCK file(s) from Persistent folder").replace("%1", str(cleaned_files)))
                         else:
-                            self.statusUpdate.emit("No modded PCK files found in Persistent folder")
+                            self.statusUpdate.emit(self.tr("No modded PCK files found in Persistent folder"))
                     else:
-                        self.errorOccurred.emit("No Changes", "No changes to apply and no Persistent folder found.")
+                        self.errorOccurred.emit(self.tr("No Changes"), self.tr("No changes to apply and no Persistent folder found."))
                 except Exception as e:
-                    self.errorOccurred.emit("Cleanup Error", f"Failed to clean up Persistent folder:\n{e}")
+                    self.errorOccurred.emit(self.tr("Cleanup Error"), self.tr("Failed to clean up Persistent folder:\n%1").replace("%1", str(e)))
             else:
-                self.errorOccurred.emit("No Changes", "No changes to apply.")
+                self.errorOccurred.emit(self.tr("No Changes"), self.tr("No changes to apply."))
             return
 
         if not self.game_root_dir:
-            self.errorOccurred.emit("No Directory", "Please select a game directory first.")
+            self.errorOccurred.emit(self.tr("No Directory"), self.tr("Please select a game directory first."))
             return
 
         try:
             total_files = sum(len(files) for files in replacements.values())
-            self.statusUpdate.emit(f"Applying {total_files} change(s)...")
+            self.statusUpdate.emit(self.tr("Applying %1 change(s)...").replace("%1", str(total_files)))
 
             for pck_filename, files in replacements.items():
 
@@ -1406,7 +1412,7 @@ class AudioBrowserBridge(QObject):
                                 break
 
                 if not pck_file_path.exists():
-                    self.statusUpdate.emit(f"Warning: {pck_filename} not found, skipping")
+                    self.statusUpdate.emit(self.tr("Warning: %1 not found, skipping").replace("%1", pck_filename))
                     continue
 
                 streaming_path = pck_file_path.parent
@@ -1414,7 +1420,7 @@ class AudioBrowserBridge(QObject):
                 persistent_path.mkdir(parents=True, exist_ok=True)
                 self.mod_manager.set_persistent_path(str(persistent_path))
 
-                self.statusUpdate.emit(f"Creating modded {pck_filename}...")
+                self.statusUpdate.emit(self.tr("Creating modded %1...").replace("%1", pck_filename))
                 output_pck = self.mod_manager.get_persistent_pck_path(pck_filename)
                 output_pck.parent.mkdir(parents=True, exist_ok=True)
 
@@ -1425,12 +1431,12 @@ class AudioBrowserBridge(QObject):
                 packer = PCKPacker(str(pck_file_path), str(output_pck))
                 packer.load_original_pck()
 
-                self.statusUpdate.emit(f"Adding {len(files)} replacement(s) to {pck_filename}...")
+                self.statusUpdate.emit(self.tr("Adding %1 replacement(s) to %2...").replace("%1", str(len(files))).replace("%2", pck_filename))
 
                 for file_id, repl_info in files.items():
                     repl_wem = Path(repl_info["wem_path"])
                     if not repl_wem.exists():
-                        self.statusUpdate.emit(f"Warning: {repl_wem.name} not found, skipping")
+                        self.statusUpdate.emit(self.tr("Warning: %1 not found, skipping").replace("%1", repl_wem.name))
                         continue
 
                     if repl_info["file_type"] == "wem":
@@ -1447,18 +1453,18 @@ class AudioBrowserBridge(QObject):
                             packer.replace_bnk_wems(repl_bnk_id, str(bnk_wem_dir), repl_info["lang_id"])
                             shutil.rmtree(str(bnk_temp), ignore_errors=True)
 
-                self.statusUpdate.emit(f"Packing {pck_filename}...")
+                self.statusUpdate.emit(self.tr("Packing %1...").replace("%1", pck_filename))
                 packer.pack(use_patching=False)
                 packer.close()
 
                 import os, stat
                 os.chmod(str(output_pck), stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
-            self.statusUpdate.emit(f"Successfully applied {total_files} change(s)!")
+            self.statusUpdate.emit(self.tr("Successfully applied %1 change(s)!").replace("%1", str(total_files)))
 
         except Exception as e:
-            self.statusUpdate.emit("Failed to apply changes")
-            self.errorOccurred.emit("Error", f"Failed to apply changes:\n{e}")
+            self.statusUpdate.emit(self.tr("Failed to apply changes"))
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to apply changes:\n%1").replace("%1", str(e)))
             import traceback
             traceback.print_exc()
 
@@ -1467,8 +1473,8 @@ class AudioBrowserBridge(QObject):
 
         replacements = self._get_user_replacements()
         if not replacements:
-            self.errorOccurred.emit("No Replacements",
-                                    "No audio replacements found. Replace some audio files first.")
+            self.errorOccurred.emit(self.tr("No Replacements"),
+                                    self.tr("No audio replacements found. Replace some audio files first."))
             return
 
         self.exportMetadataDialogReady.emit(self._imported_mod_metadata or {})
@@ -1490,7 +1496,7 @@ class AudioBrowserBridge(QObject):
 
         replacements = self._get_user_replacements()
         if not replacements:
-            self.errorOccurred.emit("No Replacements", "No audio replacements found.")
+            self.errorOccurred.emit(self.tr("No Replacements"), self.tr("No audio replacements found."))
             return
 
         default_name = f"{name.replace(' ', '_')}_v{version}.zzar"
@@ -1508,7 +1514,7 @@ class AudioBrowserBridge(QObject):
             filename += ".zzar"
 
         try:
-            self.statusUpdate.emit("Creating mod package...")
+            self.statusUpdate.emit(self.tr("Creating mod package..."))
             mod_pkg = ModPackageManager(persistent_mod_manager=self.mod_manager)
 
             metadata = {
@@ -1521,9 +1527,9 @@ class AudioBrowserBridge(QObject):
             thumb_path = thumbnail_path if thumbnail_path and thumbnail_path.strip() else None
 
             mod_pkg.create_mod_package(filename, metadata, replacements, thumb_path)
-            self.statusUpdate.emit(f"Mod package created: {Path(filename).name}")
+            self.statusUpdate.emit(self.tr("Mod package created: %1").replace("%1", Path(filename).name))
         except Exception as e:
-            self.errorOccurred.emit("Export Error", f"Failed to create mod package:\n{str(e)}")
+            self.errorOccurred.emit(self.tr("Export Error"), self.tr("Failed to create mod package:\n%1").replace("%1", str(e)))
 
     @pyqtSlot(str, str)
     def removeChange(self, pck_file, file_id):
@@ -1557,25 +1563,25 @@ class AudioBrowserBridge(QObject):
                 if wem_path_to_delete and wem_path_to_delete.exists():
                     try:
                         wem_path_to_delete.unlink()
-                        self.statusUpdate.emit(f"Removed replacement and deleted imported mod file")
+                        self.statusUpdate.emit(self.tr("Removed replacement and deleted imported mod file"))
                     except Exception as e:
-                        self.statusUpdate.emit(f"Removed replacement (but couldn't delete file: {e})")
+                        self.statusUpdate.emit(self.tr("Removed replacement (but couldn't delete file: %1)").replace("%1", str(e)))
                 else:
-                    self.statusUpdate.emit(f"Removed replacement for file {file_id}")
+                    self.statusUpdate.emit(self.tr("Removed replacement for file %1").replace("%1", str(file_id)))
 
                 replacements = self.mod_manager.get_all_replacements()
                 if not replacements:
 
                     self.closeChangesDialog.emit()
-                    self.statusUpdate.emit("All changes have been removed")
+                    self.statusUpdate.emit(self.tr("All changes have been removed"))
                 else:
 
                     self.showChanges()
             else:
-                self.statusUpdate.emit(f"Could not find replacement for file {file_id}")
+                self.statusUpdate.emit(self.tr("Could not find replacement for file %1").replace("%1", str(file_id)))
 
         except Exception as e:
-            self.errorOccurred.emit("Error", f"Failed to remove change: {e}")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to remove change: %1").replace("%1", str(e)))
 
     @pyqtSlot(str)
     def playReplacementAudio(self, wem_path):
@@ -1585,7 +1591,7 @@ class AudioBrowserBridge(QObject):
         print(f"[PLAY DEBUG] Path exists: {Path(wem_path).exists() if wem_path else 'N/A'}")
 
         if not wem_path or not Path(wem_path).exists():
-            self.statusUpdate.emit(f"Replacement audio file not found: {wem_path}")
+            self.statusUpdate.emit(self.tr("Replacement audio file not found: %1").replace("%1", wem_path))
             return
 
         try:
@@ -1595,18 +1601,18 @@ class AudioBrowserBridge(QObject):
             cache_key = f"replacement_{Path(wem_path).name}"
             self.audio_player.play_wem(wem_bytes, cache_key)
 
-            self.nowPlayingUpdate.emit(f"Playing: {Path(wem_path).name}")
+            self.nowPlayingUpdate.emit(self.tr("Playing: %1").replace("%1", Path(wem_path).name))
             self.playbackStateUpdate.emit(True, False, True)
-            self.statusUpdate.emit(f"Playing replacement audio")
+            self.statusUpdate.emit(self.tr("Playing replacement audio"))
 
         except Exception as e:
-            self.errorOccurred.emit("Playback Error", str(e))
+            self.errorOccurred.emit(self.tr("Playback Error"), str(e))
 
     @pyqtSlot(str, str, str, str)
     def navigateToChange(self, pck_filename, file_id, item_type, bnk_id):
 
         if not self.game_root_dir:
-            self.statusUpdate.emit("Cannot navigate: no game directory selected")
+            self.statusUpdate.emit(self.tr("Cannot navigate: no game directory selected"))
             return
 
         pck_path = None
@@ -1637,7 +1643,7 @@ class AudioBrowserBridge(QObject):
                         break
 
         if not pck_path:
-            self.statusUpdate.emit(f"Could not find PCK file: {pck_filename}")
+            self.statusUpdate.emit(self.tr("Could not find PCK file: %1").replace("%1", pck_filename))
             return
 
         self.navigateToSearchResult(file_id, item_type, pck_path, bnk_id)
@@ -1647,7 +1653,7 @@ class AudioBrowserBridge(QObject):
 
         stats = self.mod_manager.get_stats()
         if stats["modded_pcks"] == 0:
-            self.statusUpdate.emit("No replacements to reset")
+            self.statusUpdate.emit(self.tr("No replacements to reset"))
             return
 
         try:
@@ -1662,17 +1668,17 @@ class AudioBrowserBridge(QObject):
 
             self._imported_mod_metadata = None
 
-            self.statusUpdate.emit("All changes reset")
+            self.statusUpdate.emit(self.tr("All changes reset"))
             self._emit_changes_count()
         except Exception as e:
-            self.errorOccurred.emit("Error", f"Failed to reset: {e}")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to reset: %1").replace("%1", str(e)))
 
     @pyqtSlot(str, str, str)
     def tagSound(self, item_id, item_type, pck_path):
 
         meta = self._find_item_meta(item_id, item_type, pck_path)
         if not meta:
-            self.errorOccurred.emit("Error", "Could not find item data")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Could not find item data"))
             return
 
         try:
@@ -1717,13 +1723,13 @@ class AudioBrowserBridge(QObject):
             self.tagDialogReady.emit(sound_info)
 
         except Exception as e:
-            self.errorOccurred.emit("Error", f"Failed to load sound info:\n{e}")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to load sound info:\n%1").replace("%1", str(e)))
 
     @pyqtSlot(str, str, str, str, str, str)
     def saveTag(self, item_id, item_type, pck_path, name, tags_text, notes):
 
         if not hasattr(self, '_tag_context'):
-            self.errorOccurred.emit("Error", "No tagging context available")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("No tagging context available"))
             return
 
         try:
@@ -1734,7 +1740,7 @@ class AudioBrowserBridge(QObject):
 
             self.sound_db.add_sound(wem_bytes, name, tags, notes, file_id)
 
-            self.statusUpdate.emit(f"Tagged sound: {name}")
+            self.statusUpdate.emit(self.tr("Tagged sound: %1").replace("%1", name))
 
             tag_text = name
             if tags:
@@ -1745,13 +1751,21 @@ class AudioBrowserBridge(QObject):
             del self._tag_context
 
         except Exception as e:
-            self.errorOccurred.emit("Error", f"Failed to save tag:\n{e}")
+            self.errorOccurred.emit(self.tr("Error"), self.tr("Failed to save tag:\n%1").replace("%1", str(e)))
 
     @pyqtSlot()
     def findMatchingSound(self):
 
         if not self.game_root_dir:
-            self.errorOccurred.emit("No Directory", "Please select a game directory first.")
+            self.errorOccurred.emit(self.tr("No Directory"), self.tr("Please select a game directory first."))
+            return
+
+        if not self.index_ready:
+            self.errorOccurred.emit(self.tr("Not Ready"), self.tr("The file index is still building. Please wait."))
+            return
+
+        if self._match_thread and self._match_thread.is_alive():
+            self.statusUpdate.emit(self.tr("A match is already in progress"))
             return
 
         from .native_dialogs import NativeDialogs
@@ -1763,7 +1777,230 @@ class AudioBrowserBridge(QObject):
         if not recording_path:
             return
 
-        self.statusUpdate.emit("Audio matching started... (this feature is in progress)")
+        self._match_cancel = threading.Event()
+
+        self.matchStarted.emit()
+        self.statusUpdate.emit(self.tr("Preparing audio fingerprint..."))
+
+        self._match_thread = threading.Thread(
+            target=self._run_matching_threaded,
+            args=(recording_path, self._match_cancel),
+            daemon=True,
+        )
+        self._match_thread.start()
+
+    @pyqtSlot()
+    def cancelMatchingSound(self):
+        self._match_cancel.set()
+        self.statusUpdate.emit(self.tr("Match cancelled"))
+        self.matchFinished.emit()
+
+    def _run_matching_threaded(self, recording_path, cancel_event):
+
+        try:
+            from src.audio_matcher import AudioMatcher
+
+            matcher = AudioMatcher()
+
+            recording_fp = matcher.extract_fingerprint(recording_path, duration=30)
+            if recording_fp is None:
+                QMetaObject.invokeMethod(
+                    self, "_onMatchError",
+                    Qt.QueuedConnection,
+                    Q_ARG(str, self.tr("Failed to process the selected audio file.")),
+                )
+                return
+
+            if cancel_event.is_set():
+                return
+
+            # Gather all WEM candidates from the current directory's PCK files
+            candidates = []
+            directory = self._current_directory
+            if not directory:
+                QMetaObject.invokeMethod(
+                    self, "_onMatchError",
+                    Qt.QueuedConnection,
+                    Q_ARG(str, self.tr("No audio directory loaded.")),
+                )
+                return
+
+            pck_files = sorted(Path(directory).glob("*.pck"))
+            total_pcks = len(pck_files)
+
+            QMetaObject.invokeMethod(
+                self, "_onMatchStatus",
+                Qt.QueuedConnection,
+                Q_ARG(str, self.tr("Scanning %1 PCK files for sounds...").replace("%1", str(total_pcks))),
+            )
+
+            for pck_idx, pck_file in enumerate(pck_files):
+                if cancel_event.is_set():
+                    return
+
+                try:
+                    indexer = PCKIndexer(str(pck_file))
+                    indexer.build_index()
+
+                    # Gather standalone WEM files
+                    for wem_info in indexer.index_data["sounds"] + indexer.index_data["externals"]:
+                        if cancel_event.is_set():
+                            return
+                        try:
+                            wem_bytes = indexer.extract_single_file(
+                                wem_info["id"], "wem", wem_info["lang_id"]
+                            )
+                            tag_text = ""
+                            sound_info = self.sound_db.get_sound_info(wem_bytes)
+                            if sound_info:
+                                tag_text = sound_info.get("name", "")
+                                if sound_info.get("tags"):
+                                    tag_text += f" [{', '.join(sound_info['tags'])}]"
+
+                            candidates.append((wem_bytes, {
+                                "id": wem_info["id"],
+                                "type": "wem",
+                                "pck_path": str(pck_file),
+                                "pck_name": pck_file.name,
+                                "lang_id": wem_info["lang_id"],
+                                "tags": tag_text,
+                            }))
+                        except Exception:
+                            pass
+
+                    # Gather embedded WEM files from BNKs
+                    for bnk_info in indexer.index_data["banks"]:
+                        if cancel_event.is_set():
+                            return
+                        try:
+                            bnk_bytes = indexer.extract_single_file(
+                                bnk_info["id"], "bnk", bnk_info["lang_id"]
+                            )
+                            bnk_indexer = BNKIndexer(bnk_bytes)
+                            bnk_indexer.parse_didx()
+
+                            for wem in bnk_indexer.wem_list:
+                                if cancel_event.is_set():
+                                    return
+                                try:
+                                    wem_bytes = bnk_indexer.extract_wem(wem["wem_id"])
+                                    tag_text = ""
+                                    sound_info = self.sound_db.get_sound_info(wem_bytes)
+                                    if sound_info:
+                                        tag_text = sound_info.get("name", "")
+                                        if sound_info.get("tags"):
+                                            tag_text += f" [{', '.join(sound_info['tags'])}]"
+
+                                    candidates.append((wem_bytes, {
+                                        "id": wem["wem_id"],
+                                        "type": "wem_embedded",
+                                        "pck_path": str(pck_file),
+                                        "pck_name": pck_file.name,
+                                        "bnk_id": bnk_info["id"],
+                                        "lang_id": bnk_info["lang_id"],
+                                        "tags": tag_text,
+                                    }))
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+
+                except Exception:
+                    pass
+
+            if cancel_event.is_set():
+                return
+
+            if not candidates:
+                QMetaObject.invokeMethod(
+                    self, "_onMatchError",
+                    Qt.QueuedConnection,
+                    Q_ARG(str, self.tr("No audio files found in the current directory.")),
+                )
+                return
+
+            QMetaObject.invokeMethod(
+                self, "_onMatchStatus",
+                Qt.QueuedConnection,
+                Q_ARG(str, self.tr("Matching against %1 sounds...").replace("%1", str(len(candidates)))),
+            )
+
+            def progress_cb(current, total):
+                if cancel_event.is_set():
+                    return
+                QMetaObject.invokeMethod(
+                    self, "_onMatchProgress",
+                    Qt.QueuedConnection,
+                    Q_ARG(int, current), Q_ARG(int, total),
+                )
+
+            results = matcher.find_matches(
+                recording_fp, candidates, top_n=20,
+                progress_callback=progress_cb,
+                cancel_event=cancel_event,
+            )
+
+            if cancel_event.is_set():
+                return
+
+            match_results = []
+            for score, info in results:
+                tag_text = info.get("tags", "")
+                loc = None
+                file_id = info["id"]
+                if file_id in self.file_id_index:
+                    locs = self.file_id_index[file_id]
+                    if locs:
+                        loc = locs[0]
+
+                match_results.append({
+                    "score": round(score, 1),
+                    "fileId": str(file_id),
+                    "name": tag_text if tag_text else f"File {file_id}",
+                    "pckName": info.get("pck_name", ""),
+                    "pckPath": info.get("pck_path", loc["pck_path"] if loc else ""),
+                    "itemType": info.get("type", loc["type"] if loc else "wem"),
+                    "bnkId": str(info.get("bnk_id", loc.get("bnk_id", "") if loc else "")),
+                })
+
+            QMetaObject.invokeMethod(
+                self, "_onMatchResults",
+                Qt.QueuedConnection,
+                Q_ARG(object, match_results),
+            )
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            QMetaObject.invokeMethod(
+                self, "_onMatchError",
+                Qt.QueuedConnection,
+                Q_ARG(str, self.tr("Matching failed: %1").replace("%1", str(e))),
+            )
+
+    @pyqtSlot(str)
+    def _onMatchStatus(self, message):
+        self.statusUpdate.emit(message)
+
+    @pyqtSlot(int, int)
+    def _onMatchProgress(self, current, total):
+        self.matchProgressUpdate.emit(current, total)
+        self.statusUpdate.emit(self.tr("Matching... %1/%2 sounds").replace("%1", str(current)).replace("%2", str(total)))
+
+    @pyqtSlot(object)
+    def _onMatchResults(self, results):
+        self.matchFinished.emit()
+        self.matchResultsReady.emit(results)
+        count = len(results)
+        if count > 0:
+            self.statusUpdate.emit(self.tr("Found %1 match(es) — best score: %2%").replace("%1", str(count)).replace("%2", str(results[0]['score'])))
+        else:
+            self.statusUpdate.emit(self.tr("No matches found"))
+
+    @pyqtSlot(str)
+    def _onMatchError(self, message):
+        self.matchFinished.emit()
+        self.errorOccurred.emit(self.tr("Match Error"), message)
 
     @pyqtSlot()
     def browseAndImportZzar(self):
@@ -1783,7 +2020,7 @@ class AudioBrowserBridge(QObject):
     def importZzarForEditing(self, zzar_path):
 
         try:
-            self.statusUpdate.emit("Importing .zzar mod for editing...")
+            self.statusUpdate.emit(self.tr("Importing .zzar mod for editing..."))
 
             if self.mod_manager.get_all_replacements():
                 print("[Audio Browser] Clearing existing changes before importing new mod")
@@ -1874,20 +2111,22 @@ class AudioBrowserBridge(QObject):
 
                     self._emit_changes_count()
                     self.statusUpdate.emit(
-                        f"Imported '{mod_name}' - {replacement_count} replacement(s) loaded. "
-                        f"You can now view, edit, or add more replacements."
+                        self.tr("Imported '%1' - %2 replacement(s) loaded. You can now view, edit, or add more replacements.")
+                        .replace("%1", mod_name).replace("%2", str(replacement_count))
                     )
 
                     self.successDialogRequested.emit(
-                        "Mod Imported for Editing",
-                        f"Successfully imported:\n\n"
-                        f"Name: {mod_name}\n"
-                        f"Author: {mod_author}\n"
-                        f"Version: {mod_version}\n"
-                        f"Replacements: {replacement_count}\n\n"
-                        f"The replacements are now loaded in your session.\n"
-                        f"You can view them in 'Show Changes', add more replacements, "
-                        f"or export as a new mod package.",
+                        self.tr("Mod Imported for Editing"),
+                        self.tr("Successfully imported:\n\n"
+                        "Name: %1\n"
+                        "Author: %2\n"
+                        "Version: %3\n"
+                        "Replacements: %4\n\n"
+                        "The replacements are now loaded in your session.\n"
+                        "You can view them in 'Show Changes', add more replacements, "
+                        "or export as a new mod package.")
+                        .replace("%1", mod_name).replace("%2", mod_author)
+                        .replace("%3", mod_version).replace("%4", str(replacement_count)),
                         "../assets/YanagiSmug.png"
                     )
 
@@ -1899,10 +2138,10 @@ class AudioBrowserBridge(QObject):
                     raise
 
         except Exception as e:
-            self.statusUpdate.emit("Failed to import .zzar")
+            self.statusUpdate.emit(self.tr("Failed to import .zzar"))
             self.errorOccurred.emit(
-                "Import Error",
-                f"Failed to import .zzar mod for editing:\n\n{str(e)}"
+                self.tr("Import Error"),
+                self.tr("Failed to import .zzar mod for editing:\n\n%1").replace("%1", str(e))
             )
             import traceback
             traceback.print_exc()
@@ -1981,7 +2220,7 @@ class AudioBrowserBridge(QObject):
 
     @pyqtSlot(int, int)
     def _updateIndexProgress(self, current, total):
-        self.statusUpdate.emit(f"Indexing... {current}/{total} PCK files")
+        self.statusUpdate.emit(self.tr("Indexing... %1/%2 PCK files").replace("%1", str(current)).replace("%2", str(total)))
 
     @pyqtSlot(object)
     def _finalizeIndex(self, index_data):
@@ -1991,7 +2230,7 @@ class AudioBrowserBridge(QObject):
         if hasattr(self, '_indexing_directory') and self._indexing_directory:
             self._index_cache[self._indexing_directory] = index_data
 
-        self.statusUpdate.emit(f"Index ready - {len(self.file_id_index)} unique file IDs")
+        self.statusUpdate.emit(self.tr("Index ready - %1 unique file IDs").replace("%1", str(len(self.file_id_index))))
 
     def _find_item_meta(self, item_id, item_type, pck_path):
 
@@ -2086,7 +2325,7 @@ class AudioBrowserBridge(QObject):
         if self._tag_db_worker and self._tag_db_worker.isRunning():
             return
 
-        self.statusUpdate.emit("Downloading official tag database...")
+        self.statusUpdate.emit(self.tr("Downloading official tag database..."))
         self.tagDbDownloadStarted.emit()
 
         self._tag_db_worker = TagDatabaseDownloadWorker()
@@ -2104,27 +2343,27 @@ class AudioBrowserBridge(QObject):
             entry_count = len(data)
             self.tagDbDownloadReady.emit(entry_count)
             self.statusUpdate.emit(
-                f"Official tag database downloaded ({entry_count} entries)"
+                self.tr("Official tag database downloaded (%1 entries)").replace("%1", str(entry_count))
             )
         except Exception as e:
-            self.tagDbDownloadError.emit(f"Failed to read downloaded database: {e}")
+            self.tagDbDownloadError.emit(self.tr("Failed to read downloaded database: %1").replace("%1", str(e)))
 
     def _on_tag_db_error(self, message):
         self._tag_db_temp_path = None
         self.tagDbDownloadError.emit(message)
-        self.statusUpdate.emit(f"Tag database download failed: {message}")
+        self.statusUpdate.emit(self.tr("Tag database download failed: %1").replace("%1", message))
 
     @pyqtSlot(bool)
     def applyOfficialTagDb(self, merge):
         if not self._tag_db_temp_path:
-            self.tagDbDownloadError.emit("No downloaded database available")
+            self.tagDbDownloadError.emit(self.tr("No downloaded database available"))
             return
 
         try:
             count = self.sound_db.import_from_file(self._tag_db_temp_path, merge=merge)
-            mode = "Merged" if merge else "Replaced"
+            mode = self.tr("Merged") if merge else self.tr("Replaced")
             self.tagDbImportComplete.emit(count)
-            self.statusUpdate.emit(f"{mode} tag database — {count} entries imported")
+            self.statusUpdate.emit(self.tr("%1 tag database — %2 entries imported").replace("%1", mode).replace("%2", str(count)))
 
             if hasattr(self, "_tag_db_latest_hash"):
                 try:
@@ -2139,8 +2378,8 @@ class AudioBrowserBridge(QObject):
                 except Exception:
                     pass
         except Exception as e:
-            self.tagDbDownloadError.emit(f"Failed to apply tag database: {e}")
-            self.statusUpdate.emit(f"Failed to apply tag database: {e}")
+            self.tagDbDownloadError.emit(self.tr("Failed to apply tag database: %1").replace("%1", str(e)))
+            self.statusUpdate.emit(self.tr("Failed to apply tag database: %1").replace("%1", str(e)))
         finally:
             try:
                 os.unlink(self._tag_db_temp_path)

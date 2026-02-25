@@ -119,6 +119,28 @@ class AudioBrowserConnector:
         ab.newTagDbAvailable.connect(self._on_new_tag_db_available)
         self.audio_page.dismissTagDbNotify.connect(ab.dismissTagDbNotify)
 
+        self.audio_page.cancelMatchClicked.connect(ab.cancelMatchingSound)
+        self.audio_page.matchResultNavigateClicked.connect(ab.navigateToSearchResult)
+        ab.matchStarted.connect(
+            lambda: QMetaObject.invokeMethod(
+                self.audio_page, "onMatchStarted", Qt.QueuedConnection
+            )
+        )
+        ab.matchFinished.connect(
+            lambda: QMetaObject.invokeMethod(
+                self.audio_page, "onMatchFinished", Qt.QueuedConnection
+            )
+        )
+        ab.matchProgressUpdate.connect(
+            lambda current, total: QMetaObject.invokeMethod(
+                self.audio_page, "onMatchProgress",
+                Qt.QueuedConnection,
+                Q_ARG("QVariant", current),
+                Q_ARG("QVariant", total),
+            )
+        )
+        ab.matchResultsReady.connect(self._on_match_results)
+
         ab.loadFromSettings()
         ab.checkForNewTagDb()
         print("[ZZAR] Audio browser page connected")
@@ -300,3 +322,11 @@ class AudioBrowserConnector:
                 )
         except Exception as e:
             print(f"[Audio Browser] ERROR: Could not open tag DB folder: {e}")
+
+    def _on_match_results(self, results):
+        if self.audio_page:
+            QMetaObject.invokeMethod(
+                self.audio_page, "showMatchResults",
+                Qt.QueuedConnection,
+                Q_ARG("QVariant", results),
+            )

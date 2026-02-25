@@ -5,17 +5,19 @@ This file shows of all the planned features for ZZAR.
 
 ##  Currently planned: Version 1.X
 
-- [ ] **Sound match implementation** 
-    - [ ] Enabled feature in UI
-    - [ ] Improve alogrithm
+[/] = Implemented but not released
+
+- [/] **Sound match implementation** 
+    - [/] Enabled feature in UI
+    - [/] Improve alogrithm
 - [X] **Translation system implementation** 
     - [x] Implement translation backend
     - [X] Spanish
     - [ ] Japanese
-- [ ] **Official tag repo (download verified sounds tags)** 
-    - [ ] Make the github repo
-    - [ ] Add the ability to download them in app
-    - [ ] Allow users to open pull requests to add tags
+- [/] **Official tag repo (download verified sounds tags)** 
+    - [/] Add file to repo
+    - [/] Add the ability to download them in app
+    - [/] Allow users to open pull requests to add tags
 ---
 
 ## Future stuff (none of this stuff is confirmed to be coming)

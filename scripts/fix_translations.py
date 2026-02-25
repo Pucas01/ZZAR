@@ -18,6 +18,7 @@ QML_DIRS = [
 PYTHON_FILES = [
     PROJECT_ROOT / "src" / "gui" / "main_qml.py",
     *sorted((PROJECT_ROOT / "src" / "gui" / "connectors").glob("*.py")),
+    *sorted((PROJECT_ROOT / "src" / "gui" / "backend").glob("*.py")),
 ]
 
 RUNTIME_CONTEXT = "Application"

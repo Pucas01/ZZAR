@@ -52,6 +52,8 @@ Item {
     signal applyOfficialTagDb(bool merge)
     signal dismissTagDbNotify(bool dontShowAgain)
     signal openTagDbFolderClicked()
+    signal cancelMatchClicked()
+    signal matchResultNavigateClicked(string fileId, string itemType, string pckPath, string bnkId)
 
     property real contextMenuX: 0
     property real contextMenuY: 0
@@ -74,6 +76,9 @@ Item {
     property int tagDbEntryCount: 0
     property bool tagDbNotifyVisible: false
     property int tagDbNewCount: 0
+    property bool matchInProgress: false
+    property int matchCurrent: 0
+    property int matchTotal: 0
 
     property string highlightPckPath: ""
     property bool sortBySizeAsc: false
@@ -328,9 +333,10 @@ Item {
                     }
                     ZZARButton {
                         id: findMatchingSoundBtn
-                        text: qsTr("Find Matching Sound")
+                        text: matchInProgress ? qsTr("Matching...") : qsTr("Find Matching Sound")
                         buttonColor: Theme.secondaryAccent
-                        onClicked: wipDialogRequested()
+                        enabled: !matchInProgress
+                        onClicked: findMatchingSoundClicked()
                     }
                 }
 
@@ -1335,7 +1341,7 @@ Item {
         tagNameInput.text = soundInfo.name || ""
         tagTagsInput.text = soundInfo.tags || ""
         tagNotesInput.text = soundInfo.notes || ""
-        tagHashLabel.text = "Hash: " + (soundInfo.hash || "Unknown")
+        tagHashLabel.text = qsTr("Hash: ") + (soundInfo.hash || qsTr("Unknown"))
 
         tagDialog.currentItemId = soundInfo.itemId || ""
         tagDialog.currentItemType = soundInfo.itemType || ""
@@ -1387,7 +1393,7 @@ Item {
                 "wemPath": changes[i].wemPath || ""
             })
         }
-        changesTitle.text = "Current Changes (" + changes.length + " replacement" + (changes.length !== 1 ? "s" : "") + ")"
+        changesTitle.text = qsTr("Current Changes") + " (" + changes.length + " " + (changes.length !== 1 ? qsTr("replacements") : qsTr("replacement")) + ")"
         changesOverlay.visible = true
         changesOverlay.closing = false
     }
@@ -1409,9 +1415,41 @@ Item {
                 "bnkId": results[i].bnkId || ""
             })
         }
-        searchResultsTitle.text = "Search Results for '" + query + "' (" + results.length + " found)"
+        searchResultsTitle.text = qsTr("Search Results for '%1' (%2 found)").arg(query).arg(results.length)
         searchResultsOverlay.visible = true
         searchResultsOverlay.closing = false
+    }
+
+    function onMatchStarted() {
+        matchInProgress = true
+        matchCurrent = 0
+        matchTotal = 0
+    }
+
+    function onMatchFinished() {
+        matchInProgress = false
+    }
+
+    function onMatchProgress(current, total) {
+        matchCurrent = current
+        matchTotal = total
+    }
+
+    function showMatchResults(results) {
+        matchResultsModel.clear()
+        for (var i = 0; i < results.length; i++) {
+            matchResultsModel.append({
+                "score": results[i].score || 0,
+                "name": results[i].name || "",
+                "fileId": results[i].fileId || "",
+                "pckName": results[i].pckName || "",
+                "pckPath": results[i].pckPath || "",
+                "itemType": results[i].itemType || "",
+                "bnkId": results[i].bnkId || ""
+            })
+        }
+        matchResultsOverlay.visible = true
+        matchResultsOverlay.closing = false
     }
 
     function updateTreeItemTag(itemId, itemType, pckPath, tagText) {
@@ -1989,6 +2027,220 @@ Item {
     }
 
     Item {
+        id: matchResultsOverlay
+        visible: false
+        anchors.fill: parent
+        z: 2000
+        property bool closing: false
+
+        Timer {
+            id: matchHideTimer
+            interval: 200
+            onTriggered: {
+                matchResultsOverlay.visible = false
+                matchResultsOverlay.closing = false
+            }
+        }
+
+        ListModel { id: matchResultsModel }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"
+            opacity: (!matchResultsOverlay.closing && matchResultsOverlay.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    matchResultsOverlay.closing = true
+                    matchHideTimer.start()
+                }
+            }
+        }
+
+        Rectangle {
+            id: matchDialog
+            width: Math.min(750, parent.width - 60)
+            height: Math.min(550, parent.height - 80)
+            anchors.centerIn: parent
+            color: Theme.surfaceColor
+            radius: Theme.radiusLarge
+            border.color: Theme.cardBackground
+            border.width: 1
+            scale: (!matchResultsOverlay.closing && matchResultsOverlay.visible) ? 1.0 : 0.9
+            opacity: (!matchResultsOverlay.closing && matchResultsOverlay.visible) ? 1.0 : 0.0
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 20
+                spacing: 12
+
+                Text {
+                    id: matchResultsTitle
+                    text: qsTr("Match Results") + " (" + matchResultsModel.count + " " + qsTr("found") + ")"
+                    color: Theme.primaryAccent
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeNormal
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+                    visible: matchResultsModel.count > 0
+
+                    Text {
+                        text: qsTr("Score")
+                        color: Theme.textSecondary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        Layout.preferredWidth: 60
+                    }
+                    Text {
+                        text: qsTr("Sound")
+                        color: Theme.textSecondary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        Layout.fillWidth: true
+                    }
+                    Text {
+                        text: qsTr("File ID")
+                        color: Theme.textSecondary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        Layout.preferredWidth: 100
+                    }
+                    Text {
+                        text: qsTr("PCK")
+                        color: Theme.textSecondary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeSmall
+                        font.bold: true
+                        Layout.preferredWidth: 160
+                    }
+                }
+
+                ListView {
+                    id: matchResultsList
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    model: matchResultsModel
+                    spacing: 2
+                    boundsBehavior: Flickable.DragOverBounds
+                    flickDeceleration: 5000
+                    maximumFlickVelocity: 2500
+
+                    ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                    delegate: Rectangle {
+                        width: matchResultsList.width
+                        height: 40
+                        color: matchResultMouse.containsMouse ? Qt.lighter(Theme.surfaceDark, 1.4) : Theme.surfaceDark
+                        radius: 6
+                        Behavior on color { ColorAnimation { duration: 80 } }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 10
+
+                            Rectangle {
+                                width: 50
+                                height: 22
+                                radius: 11
+                                color: {
+                                    var s = model.score
+                                    if (s >= 70) return "#2e7d32"
+                                    if (s >= 50) return "#f57f17"
+                                    if (s >= 30) return "#e65100"
+                                    return "#c62828"
+                                }
+                                Layout.preferredWidth: 60
+                                Layout.alignment: Qt.AlignVCenter
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: model.score + "%"
+                                    color: "#ffffff"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    font.bold: true
+                                }
+                            }
+                            Text {
+                                text: model.name
+                                color: Theme.textPrimary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                elide: Text.ElideRight
+                                Layout.fillWidth: true
+                            }
+                            Text {
+                                text: model.fileId
+                                color: Theme.textSecondary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                Layout.preferredWidth: 100
+                            }
+                            Text {
+                                text: model.pckName
+                                color: Theme.textSecondary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                elide: Text.ElideRight
+                                Layout.preferredWidth: 160
+                            }
+                        }
+
+                        MouseArea {
+                            id: matchResultMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                matchResultNavigateClicked(
+                                    model.fileId, model.itemType, model.pckPath, model.bnkId)
+                                matchResultsOverlay.closing = true
+                                matchHideTimer.start()
+                            }
+                        }
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: qsTr("No matches found.")
+                        color: Theme.textSecondary
+                        font.family: Theme.fontFamily
+                        font.pixelSize: Theme.fontSizeNormal
+                        visible: matchResultsModel.count === 0
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Item { Layout.fillWidth: true }
+                    ZZARButton {
+                        text: qsTr("Close")
+                        onClicked: {
+                            matchResultsOverlay.closing = true
+                            matchHideTimer.start()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Item {
         id: changesOverlay
         visible: false
         anchors.fill: parent
@@ -2181,17 +2433,17 @@ Item {
                                 text: {
 
                                     var date = new Date(model.dateModified)
-                                    if (isNaN(date.getTime())) return "Unknown"
+                                    if (isNaN(date.getTime())) return qsTr("Unknown")
                                     var now = new Date()
                                     var diffMs = now - date
                                     var diffMins = Math.floor(diffMs / 60000)
                                     var diffHours = Math.floor(diffMins / 60)
                                     var diffDays = Math.floor(diffHours / 24)
 
-                                    if (diffMins < 1) return "Just now"
-                                    if (diffMins < 60) return diffMins + "m ago"
-                                    if (diffHours < 24) return diffHours + "h ago"
-                                    if (diffDays < 7) return diffDays + "d ago"
+                                    if (diffMins < 1) return qsTr("Just now")
+                                    if (diffMins < 60) return qsTr("%1m ago").arg(diffMins)
+                                    if (diffHours < 24) return qsTr("%1h ago").arg(diffHours)
+                                    if (diffDays < 7) return qsTr("%1d ago").arg(diffDays)
                                     return date.toLocaleDateString()
                                 }
                                 color: Theme.textSecondary

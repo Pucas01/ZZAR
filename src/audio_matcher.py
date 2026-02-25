@@ -6,11 +6,9 @@ import numpy as np
 import platform
 from pathlib import Path
 from scipy import signal
-from scipy.fft import fft
+from scipy.fft import dct
 import subprocess
 import tempfile
-from multiprocessing import Pool, cpu_count
-from functools import partial
 
 _is_windows = platform.system() == "Windows"
 
@@ -29,8 +27,41 @@ if _is_windows:
 else:
     _subprocess_kwargs = {}
 
-class AudioMatcher:
 
+def _hz_to_mel(hz):
+    return 2595.0 * np.log10(1.0 + hz / 700.0)
+
+
+def _mel_to_hz(mel):
+    return 700.0 * (10.0 ** (mel / 2595.0) - 1.0)
+
+
+def _mel_filterbank(sample_rate, n_fft, n_mels=40):
+    low_mel = _hz_to_mel(0)
+    high_mel = _hz_to_mel(sample_rate / 2)
+    mel_points = np.linspace(low_mel, high_mel, n_mels + 2)
+    hz_points = _mel_to_hz(mel_points)
+
+    bin_points = np.floor((n_fft + 1) * hz_points / sample_rate).astype(int)
+    n_bins = n_fft // 2 + 1
+    filterbank = np.zeros((n_mels, n_bins))
+
+    for i in range(n_mels):
+        left = bin_points[i]
+        center = bin_points[i + 1]
+        right = bin_points[i + 2]
+
+        for j in range(left, center):
+            if j < n_bins and center != left:
+                filterbank[i, j] = (j - left) / (center - left)
+        for j in range(center, right):
+            if j < n_bins and right != center:
+                filterbank[i, j] = (right - j) / (right - center)
+
+    return filterbank
+
+
+class AudioMatcher:
 
     def __init__(self, ffmpeg_path='ffmpeg'):
         self.ffmpeg_path = ffmpeg_path
@@ -97,7 +128,7 @@ class AudioMatcher:
             raise Exception(f"Audio processing timed out")
 
         audio_data = self._read_wav(temp_wav, sample_rate)
-        temp_wav.unlink()
+        temp_wav.unlink(missing_ok=True)
 
         if intermediate_wav and intermediate_wav.exists():
             try:
@@ -108,14 +139,39 @@ class AudioMatcher:
         if audio_data is None or len(audio_data) == 0:
             return None
 
+        return self._build_fingerprint(audio_data, sample_rate)
+
+    def extract_fingerprint_from_bytes(self, wem_bytes, sample_rate=22050, duration=None):
+
+        from ZZAR import get_temp_dir
+        temp_wem = Path(tempfile.mktemp(suffix='.wem', dir=str(get_temp_dir())))
+        try:
+            temp_wem.write_bytes(wem_bytes)
+            return self.extract_fingerprint(temp_wem, sample_rate, duration)
+        finally:
+            temp_wem.unlink(missing_ok=True)
+
+    def _build_fingerprint(self, audio_data, sample_rate):
+
+        n_fft = 2048
+        hop = 512
+        f, t, Sxx = signal.spectrogram(
+            audio_data, sample_rate, nperseg=n_fft, noverlap=n_fft - hop,
+            window='hann', mode='magnitude'
+        )
+
+        power = Sxx ** 2
+
         fingerprint = {
-            'mfcc': self._extract_mfcc(audio_data, sample_rate),
-            'spectral_centroid': self._spectral_centroid(audio_data, sample_rate),
+            'mfcc': self._extract_mfcc(power, sample_rate, n_fft),
+            'spectral_centroid': self._spectral_centroid(f, power),
             'energy': self._energy_profile(audio_data),
-            'chroma': self._extract_chroma(audio_data, sample_rate),
-            'spectral_contrast': self._spectral_contrast(audio_data, sample_rate),
+            'chroma': self._extract_chroma(f, power),
+            'spectral_contrast': self._spectral_contrast(power, n_bands=6),
             'zero_crossing_rate': self._zero_crossing_rate(audio_data),
-            'tempo': self._estimate_tempo(audio_data, sample_rate),
+            'spectral_rolloff': self._spectral_rolloff(f, power),
+            'spectral_flatness': self._spectral_flatness(power),
+            'onset_strength': self._onset_strength(power),
             'duration': len(audio_data) / sample_rate,
             'sample_rate': sample_rate
         }
@@ -142,22 +198,23 @@ class AudioMatcher:
         except:
             return None
 
-    def _extract_mfcc(self, audio_data, sample_rate, n_mfcc=13):
+    def _extract_mfcc(self, power_spectrogram, sample_rate, n_fft, n_mfcc=13, n_mels=40):
 
+        filterbank = _mel_filterbank(sample_rate, n_fft, n_mels)
 
-        f, t, Sxx = signal.spectrogram(audio_data, sample_rate, nperseg=2048)
+        mel_spec = filterbank @ power_spectrogram
+        mel_spec = np.log(mel_spec + 1e-10)
 
-        Sxx_log = np.log10(Sxx + 1e-10)
+        mfcc = dct(mel_spec, type=2, axis=0, norm='ortho')[:n_mfcc, :]
 
-        mfcc = np.mean(Sxx_log, axis=1)[:n_mfcc]
+        mfcc_mean = np.mean(mfcc, axis=1)
+        mfcc_std = np.std(mfcc, axis=1)
 
-        return mfcc
+        return {'mean': mfcc_mean.tolist(), 'std': mfcc_std.tolist()}
 
-    def _spectral_centroid(self, audio_data, sample_rate):
+    def _spectral_centroid(self, f, power_spectrogram):
 
-        f, t, Sxx = signal.spectrogram(audio_data, sample_rate, nperseg=2048)
-
-        centroid = np.sum(f[:, np.newaxis] * Sxx, axis=0) / (np.sum(Sxx, axis=0) + 1e-10)
+        centroid = np.sum(f[:, np.newaxis] * power_spectrogram, axis=0) / (np.sum(power_spectrogram, axis=0) + 1e-10)
 
         return {
             'mean': float(np.mean(centroid)),
@@ -165,7 +222,6 @@ class AudioMatcher:
         }
 
     def _energy_profile(self, audio_data):
-
 
         chunk_size = 2048
         chunks = [audio_data[i:i+chunk_size] for i in range(0, len(audio_data), chunk_size)]
@@ -177,43 +233,41 @@ class AudioMatcher:
             'max': float(np.max(energy))
         }
 
-    def _extract_chroma(self, audio_data, sample_rate):
-
-
-        f, t, Sxx = signal.spectrogram(audio_data, sample_rate, nperseg=4096)
+    def _extract_chroma(self, f, power_spectrogram):
 
         chroma = np.zeros(12)
         for i, freq in enumerate(f):
-
             if 40.0 <= freq <= 4000.0:
                 try:
-
                     pitch_class = int(12 * np.log2(freq / 440.0)) % 12
-                    chroma[pitch_class] += np.mean(Sxx[i, :])
+                    chroma[pitch_class] += np.mean(power_spectrogram[i, :])
                 except (ValueError, OverflowError):
-
                     continue
 
-        chroma = chroma / (np.sum(chroma) + 1e-10)
+        total = np.sum(chroma)
+        if total > 0:
+            chroma = chroma / total
 
         return chroma.tolist()
 
-    def _spectral_contrast(self, audio_data, sample_rate):
+    def _spectral_contrast(self, power_spectrogram, n_bands=6):
 
-        f, t, Sxx = signal.spectrogram(audio_data, sample_rate, nperseg=2048)
-
-        n_bands = 6
-        band_size = len(f) // n_bands
+        n_freq = power_spectrogram.shape[0]
+        band_size = max(1, n_freq // n_bands)
         contrasts = []
 
         for i in range(n_bands):
             band_start = i * band_size
-            band_end = (i + 1) * band_size
-            band_power = Sxx[band_start:band_end, :]
+            band_end = min((i + 1) * band_size, n_freq)
+            band_power = power_spectrogram[band_start:band_end, :]
+
+            if band_power.size == 0:
+                contrasts.append(0.0)
+                continue
 
             peak = np.percentile(band_power, 90, axis=0)
             valley = np.percentile(band_power, 10, axis=0)
-            contrast = np.mean(peak - valley)
+            contrast = np.mean(np.log10(peak + 1e-10) - np.log10(valley + 1e-10))
             contrasts.append(float(contrast))
 
         return contrasts
@@ -224,197 +278,167 @@ class AudioMatcher:
         zcr = zero_crossings / len(audio_data)
         return float(zcr)
 
-    def _estimate_tempo(self, audio_data, sample_rate):
+    def _spectral_rolloff(self, f, power_spectrogram, rolloff_percent=0.85):
 
+        total_energy = np.sum(power_spectrogram, axis=0)
+        cumulative = np.cumsum(power_spectrogram, axis=0)
+        threshold = rolloff_percent * total_energy
 
-        chunk_size = 512
-        hop_length = 256
-        envelope = []
+        rolloff_idx = np.argmax(cumulative >= threshold[np.newaxis, :], axis=0)
+        rolloff_freq = f[np.clip(rolloff_idx, 0, len(f) - 1)]
 
-        for i in range(0, len(audio_data) - chunk_size, hop_length):
-            chunk = audio_data[i:i+chunk_size]
-            envelope.append(np.sum(np.abs(chunk)))
+        return {
+            'mean': float(np.mean(rolloff_freq)),
+            'std': float(np.std(rolloff_freq))
+        }
 
-        envelope = np.array(envelope)
+    def _spectral_flatness(self, power_spectrogram):
 
-        if len(envelope) > 0:
-            autocorr = np.correlate(envelope, envelope, mode='full')
-            autocorr = autocorr[len(autocorr)//2:]
+        geo_mean = np.exp(np.mean(np.log(power_spectrogram + 1e-10), axis=0))
+        arith_mean = np.mean(power_spectrogram, axis=0) + 1e-10
+        flatness = geo_mean / arith_mean
 
-            if len(autocorr) > 10:
-                peaks = []
-                for i in range(1, min(len(autocorr)-1, 200)):
-                    if autocorr[i] > autocorr[i-1] and autocorr[i] > autocorr[i+1]:
-                        peaks.append((i, autocorr[i]))
+        return {
+            'mean': float(np.mean(flatness)),
+            'std': float(np.std(flatness))
+        }
 
-                if peaks and sample_rate > 0:
+    def _onset_strength(self, power_spectrogram):
 
-                    dominant_peak = max(peaks, key=lambda x: x[1])
-                    peak_time = dominant_peak[0] * hop_length / sample_rate
-                    if peak_time > 0:
-                        tempo = 60.0 / peak_time
+        log_spec = np.log(power_spectrogram + 1e-10)
 
-                        if 20 <= tempo <= 300:
-                            return float(tempo)
+        diff = np.diff(log_spec, axis=1)
+        diff = np.maximum(0, diff)
 
-        return 0.0
+        onset = np.mean(diff, axis=0)
 
-    def compare_fingerprints(self, fp1, fp2, debug=False):
+        if len(onset) == 0:
+            return {'mean': 0.0, 'std': 0.0, 'max': 0.0}
+
+        return {
+            'mean': float(np.mean(onset)),
+            'std': float(np.std(onset)),
+            'max': float(np.max(onset))
+        }
+
+    def compare_fingerprints(self, fp1, fp2):
 
         if fp1 is None or fp2 is None:
             return 0.0
 
         scores = []
-        penalties = []
 
-        mfcc_dist = np.linalg.norm(np.array(fp1['mfcc']) - np.array(fp2['mfcc']))
+        # MFCC — strongest feature for timbral similarity
+        mfcc1 = np.array(fp1['mfcc']['mean'])
+        mfcc2 = np.array(fp2['mfcc']['mean'])
+        mfcc_cos = self._cosine_similarity(mfcc1, mfcc2)
+        mfcc_std1 = np.array(fp1['mfcc']['std'])
+        mfcc_std2 = np.array(fp2['mfcc']['std'])
+        mfcc_std_cos = self._cosine_similarity(mfcc_std1, mfcc_std2)
+        mfcc_score = 100 * (0.7 * max(0, mfcc_cos) + 0.3 * max(0, mfcc_std_cos))
+        scores.append(('mfcc', mfcc_score, 0.30))
 
-        mfcc_score = 100 * np.exp(-mfcc_dist / 5.0)
-        scores.append(('mfcc', mfcc_score, 0.25))
+        # Chroma — pitch class distribution
+        chroma1 = np.array(fp1['chroma'])
+        chroma2 = np.array(fp2['chroma'])
+        chroma_cos = self._cosine_similarity(chroma1, chroma2)
+        chroma_score = 100 * max(0, chroma_cos)
+        scores.append(('chroma', chroma_score, 0.15))
 
-        chroma_dist = np.linalg.norm(np.array(fp1['chroma']) - np.array(fp2['chroma']))
+        # Spectral contrast — tonal vs flat character
+        contrast1 = np.array(fp1['spectral_contrast'])
+        contrast2 = np.array(fp2['spectral_contrast'])
+        contrast_cos = self._cosine_similarity(contrast1, contrast2)
+        contrast_score = 100 * max(0, contrast_cos)
+        scores.append(('contrast', contrast_score, 0.10))
 
-        chroma_score = 100 * np.exp(-chroma_dist / 0.3)
-        scores.append(('chroma', chroma_score, 0.30))
-
-        contrast_dist = np.linalg.norm(
-            np.array(fp1['spectral_contrast']) - np.array(fp2['spectral_contrast'])
-        )
-
-        contrast_score = 100 * np.exp(-contrast_dist / 50.0)
-        scores.append(('contrast', contrast_score, 0.20))
-
+        # Spectral centroid — brightness
         centroid_diff = abs(fp1['spectral_centroid']['mean'] - fp2['spectral_centroid']['mean'])
-        centroid_std_diff = abs(fp1['spectral_centroid']['std'] - fp2['spectral_centroid']['std'])
+        max_centroid = max(fp1['spectral_centroid']['mean'], fp2['spectral_centroid']['mean'], 1.0)
+        centroid_score = 100 * np.exp(-centroid_diff / (max_centroid * 0.3))
+        scores.append(('centroid', centroid_score, 0.10))
 
-        centroid_score = 100 * np.exp(-(centroid_diff / 2000.0 + centroid_std_diff / 1000.0))
-        scores.append(('centroid', centroid_score, 0.15))
-
+        # Energy profile
         energy_mean_diff = abs(fp1['energy']['mean'] - fp2['energy']['mean'])
-        energy_std_diff = abs(fp1['energy']['std'] - fp2['energy']['std'])
-        energy_score = 100 * np.exp(-(energy_mean_diff / 0.5 + energy_std_diff / 0.5))
-        scores.append(('energy', energy_score, 0.10))
+        max_energy = max(fp1['energy']['mean'], fp2['energy']['mean'], 0.001)
+        energy_score = 100 * np.exp(-energy_mean_diff / (max_energy * 0.5))
+        scores.append(('energy', energy_score, 0.05))
 
-        duration_ratio = min(fp1['duration'], fp2['duration']) / max(fp1['duration'], fp2['duration'])
-        if duration_ratio < 0.5:
+        # Zero crossing rate — noisy vs tonal
+        zcr_diff = abs(fp1['zero_crossing_rate'] - fp2['zero_crossing_rate'])
+        max_zcr = max(fp1['zero_crossing_rate'], fp2['zero_crossing_rate'], 0.001)
+        zcr_score = 100 * np.exp(-zcr_diff / (max_zcr * 0.5))
+        scores.append(('zcr', zcr_score, 0.05))
 
-            penalties.append(('duration', 0.5))
-        elif duration_ratio < 0.7:
-            penalties.append(('duration', 0.8))
+        # Spectral rolloff — brightness distribution
+        rolloff_diff = abs(fp1['spectral_rolloff']['mean'] - fp2['spectral_rolloff']['mean'])
+        max_rolloff = max(fp1['spectral_rolloff']['mean'], fp2['spectral_rolloff']['mean'], 1.0)
+        rolloff_score = 100 * np.exp(-rolloff_diff / (max_rolloff * 0.3))
+        scores.append(('rolloff', rolloff_score, 0.10))
 
+        # Spectral flatness — noise vs tone
+        flatness_diff = abs(fp1['spectral_flatness']['mean'] - fp2['spectral_flatness']['mean'])
+        flatness_score = 100 * np.exp(-flatness_diff / 0.15)
+        scores.append(('flatness', flatness_score, 0.05))
+
+        # Onset strength — rhythmic character
+        onset1 = fp1.get('onset_strength', {'mean': 0, 'std': 0})
+        onset2 = fp2.get('onset_strength', {'mean': 0, 'std': 0})
+        onset_mean_diff = abs(onset1['mean'] - onset2['mean'])
+        max_onset = max(onset1['mean'], onset2['mean'], 0.001)
+        onset_score = 100 * np.exp(-onset_mean_diff / (max_onset * 0.5))
+        scores.append(('onset', onset_score, 0.10))
+
+        # Weighted total
         total_score = sum(score * weight for _, score, weight in scores)
 
-        for penalty_name, penalty_factor in penalties:
-            total_score *= penalty_factor
+        # Duration penalty — applied as a soft multiplier
+        dur1 = fp1['duration']
+        dur2 = fp2['duration']
+        if max(dur1, dur2) > 0:
+            duration_ratio = min(dur1, dur2) / max(dur1, dur2)
+        else:
+            duration_ratio = 1.0
 
-        all_low = all(score < 30 for _, score, _ in scores)
-        if all_low:
-            total_score *= 0.5
-
-        if debug:
-            print(f"  MFCC dist: {mfcc_dist:.2f} -> score: {mfcc_score:.1f}%")
-            print(f"  Chroma dist: {chroma_dist:.4f} -> score: {chroma_score:.1f}%")
-            print(f"  Contrast dist: {contrast_dist:.4f} -> score: {contrast_score:.1f}%")
-            print(f"  Centroid diff: {centroid_diff:.2f} -> score: {centroid_score:.1f}%")
-            print(f"  Energy diff: {energy_mean_diff:.4f} -> score: {energy_score:.1f}%")
-            print(f"  Duration ratio: {duration_ratio:.2f}")
-            if penalties:
-                print(f"  Penalties: {penalties}")
-            print(f"  Total: {total_score:.1f}%")
+        if duration_ratio < 0.3:
+            total_score *= 0.4
+        elif duration_ratio < 0.5:
+            total_score *= 0.6
+        elif duration_ratio < 0.7:
+            total_score *= 0.85
 
         return total_score
 
-    def find_matches(self, recording_path, candidate_files, top_n=10, progress_callback=None, num_threads=None):
+    @staticmethod
+    def _cosine_similarity(a, b):
+        norm_a = np.linalg.norm(a)
+        norm_b = np.linalg.norm(b)
+        if norm_a < 1e-10 or norm_b < 1e-10:
+            return 0.0
+        return float(np.dot(a, b) / (norm_a * norm_b))
 
-
-        recording_fp = self.extract_fingerprint(recording_path, duration=30)
-
-        if recording_fp is None:
-            raise Exception("Failed to process recording")
-
-        if num_threads is None:
-            num_threads = max(1, cpu_count() - 1)
+    def find_matches(self, recording_fp, candidate_files, top_n=10, progress_callback=None, cancel_event=None):
 
         total = len(candidate_files)
         matches = []
 
-        batch_size = max(1, total // (num_threads * 4))
+        for idx, (wem_bytes, file_info) in enumerate(candidate_files):
+            if cancel_event and cancel_event.is_set():
+                break
 
-        if num_threads == 1 or total < 10:
+            if progress_callback:
+                progress_callback(idx + 1, total)
 
-            for idx, (file_path, file_info) in enumerate(candidate_files):
-                if progress_callback:
-                    progress_callback(idx + 1, total, file_info.get('id', 'unknown'))
+            try:
+                candidate_fp = self.extract_fingerprint_from_bytes(wem_bytes, duration=30)
+                if candidate_fp is None:
+                    continue
 
-                result = self._process_candidate(file_path, file_info, recording_fp)
-                if result:
-                    matches.append(result)
-        else:
-
-            processed = 0
-
-            worker_func = partial(self._process_candidate_worker, recording_fp=recording_fp)
-
-            with Pool(processes=num_threads) as pool:
-                for i in range(0, total, batch_size):
-                    batch = candidate_files[i:i+batch_size]
-
-                    batch_results = pool.map(worker_func, batch)
-
-                    for result in batch_results:
-                        if result:
-                            matches.append(result)
-
-                    processed += len(batch)
-                    if progress_callback:
-                        progress_callback(
-                            min(processed, total),
-                            total,
-                            f"batch {i//batch_size + 1}"
-                        )
+                score = self.compare_fingerprints(recording_fp, candidate_fp)
+                matches.append((score, file_info))
+            except Exception as e:
+                print(f"[AudioMatcher] Error processing {file_info.get('id', '?')}: {e}")
 
         matches.sort(key=lambda x: x[0], reverse=True)
 
         return matches[:top_n]
-
-    def _process_candidate(self, file_path, file_info, recording_fp, debug_first_n=3):
-
-        try:
-            candidate_fp = self.extract_fingerprint(file_path, duration=30)
-            if candidate_fp is None:
-                print(f"Failed to extract fingerprint for {file_info.get('id', 'unknown')}")
-                return None
-
-            file_id = file_info.get('id', '')
-            try:
-                debug = len(str(file_id)) > 0 and int(str(file_id)[-1]) < debug_first_n
-            except (ValueError, TypeError):
-                debug = False
-
-            if debug:
-                print(f"\n=== Comparing ID {file_info.get('id', 'unknown')} ===")
-
-            score = self.compare_fingerprints(recording_fp, candidate_fp, debug=debug)
-            return (score, file_info)
-        except Exception as e:
-            print(f"Error processing {file_info.get('id', 'unknown')}: {e}")
-            return None
-
-    @staticmethod
-    def _process_candidate_worker(candidate_tuple, recording_fp):
-
-        file_path, file_info = candidate_tuple
-        try:
-
-            matcher = AudioMatcher()
-            candidate_fp = matcher.extract_fingerprint(file_path, duration=30)
-            if candidate_fp is None:
-                print(f"Worker: Failed to extract fingerprint for {file_info.get('id', 'unknown')}")
-                return None
-            score = matcher.compare_fingerprints(recording_fp, candidate_fp)
-            return (score, file_info)
-        except Exception as e:
-            print(f"Worker: Error processing {file_info.get('id', 'unknown')}: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
