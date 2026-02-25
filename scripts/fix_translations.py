@@ -215,6 +215,23 @@ def remove_obsolete_python(ts_path: Path, python_source_strings: set[str], pytho
 
     return removed
 
+def count_translations(ts_path: Path) -> tuple[int, int, int]:
+    tree = ET.parse(ts_path)
+    root = tree.getroot()
+
+    total = 0
+    done = 0
+    for ctx in root.findall("context"):
+        for msg in ctx.findall("message"):
+            trans = msg.find("translation")
+            if trans is None:
+                continue
+            total += 1
+            if trans.get("type") not in ("unfinished", "obsolete", "vanished") and trans.text:
+                done += 1
+
+    return total, done, total - done
+
 def fix_xml_formatting(ts_path: Path) -> int:
     
     text = ts_path.read_text(encoding="utf-8")
@@ -283,6 +300,15 @@ def main():
             print(f"    Unfinished: nothing to fix")
         print()
 
+    print("=" * 50)
+    print("Translation Summary")
+    print("=" * 50)
+    for ts_file in ts_files:
+        total, done, remaining = count_translations(ts_file)
+        pct = (done / total * 100) if total > 0 else 0
+        print(f"  {ts_file.stem}:")
+        print(f"    Total: {total}  Done: {done}  Remaining: {remaining}  ({pct:.1f}%)")
+    print()
     print("Done!")
 
 if __name__ == "__main__":
