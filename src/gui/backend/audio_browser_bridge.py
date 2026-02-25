@@ -1,10 +1,13 @@
 
 
 import json
+import os
 import struct
 import threading
 import tempfile
 import subprocess
+import urllib.request
+import urllib.error
 from pathlib import Path
 from PyQt5.QtCore import (
     QObject, pyqtSlot, pyqtSignal, QMetaObject, Qt, Q_ARG, QThread
@@ -20,6 +23,9 @@ from src.persistent_mod_manager import PersistentModManager
 from src.pck_packer import PCKPacker
 from src.mod_package_manager import ModPackageManager
 from src.config_manager import get_settings_file, get_config_dir
+from gui.backend.update_manager_bridge import _urlopen
+
+OFFICIAL_TAG_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_sound_database.json"
 
 class _WorkerThread(QThread):
 
@@ -37,6 +43,43 @@ class _WorkerThread(QThread):
         except Exception as e:
             import traceback
             self.finished.emit(False, f"{e}\n{traceback.format_exc()}")
+
+
+class TagDatabaseDownloadWorker(QThread):
+
+    downloadFinished = pyqtSignal(str)
+    errorOccurred = pyqtSignal(str)
+
+    def run(self):
+        try:
+            req = urllib.request.Request(OFFICIAL_TAG_DB_URL)
+            req.add_header("User-Agent", "ZZAR-TagDB")
+
+            with _urlopen(req, timeout=30) as response:
+                data = response.read()
+
+            json.loads(data.decode("utf-8"))
+
+            temp_file = tempfile.NamedTemporaryFile(
+                suffix=".json", prefix="zzar_tagdb_", delete=False
+            )
+            temp_file.write(data)
+            temp_file.close()
+
+            self.downloadFinished.emit(temp_file.name)
+
+        except json.JSONDecodeError:
+            self.errorOccurred.emit("Downloaded file is not valid JSON")
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                self.errorOccurred.emit("Official tag database not found on GitHub")
+            else:
+                self.errorOccurred.emit(f"HTTP error: {e.code} {e.reason}")
+        except urllib.error.URLError as e:
+            self.errorOccurred.emit(f"Network error: {e.reason}")
+        except Exception as e:
+            self.errorOccurred.emit(f"Download failed: {e}")
+
 
 class AudioBrowserBridge(QObject):
 
@@ -64,6 +107,10 @@ class AudioBrowserBridge(QObject):
     changesCountUpdated = pyqtSignal(int, arguments=["count"])
     normalizeAudioChanged = pyqtSignal(bool, arguments=["enabled"])
     hideEmptyBnkChanged = pyqtSignal(bool, arguments=["enabled"])
+    tagDbDownloadStarted = pyqtSignal()
+    tagDbDownloadReady = pyqtSignal(int, arguments=["entryCount"])
+    tagDbDownloadError = pyqtSignal(str, arguments=["message"])
+    tagDbImportComplete = pyqtSignal(int, arguments=["importedCount"])
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -99,6 +146,8 @@ class AudioBrowserBridge(QObject):
         self._playback_duration = 0
 
         self._imported_mod_metadata = None
+        self._tag_db_worker = None
+        self._tag_db_temp_path = None
 
         self.audio_player.state_changed.connect(self._on_playback_state_changed)
         self.audio_player.position_changed.connect(self._on_position_changed)
@@ -1978,9 +2027,66 @@ class AudioBrowserBridge(QObject):
             pass
         return ""
 
+    @pyqtSlot()
+    def downloadOfficialTagDb(self):
+        if self._tag_db_worker and self._tag_db_worker.isRunning():
+            return
+
+        self.statusUpdate.emit("Downloading official tag database...")
+        self.tagDbDownloadStarted.emit()
+
+        self._tag_db_worker = TagDatabaseDownloadWorker()
+        self._tag_db_worker.downloadFinished.connect(self._on_tag_db_downloaded)
+        self._tag_db_worker.errorOccurred.connect(self._on_tag_db_error)
+        self._tag_db_worker.start()
+
+    def _on_tag_db_downloaded(self, temp_path):
+        self._tag_db_temp_path = temp_path
+        try:
+            with open(temp_path, "r") as f:
+                data = json.load(f)
+            entry_count = len(data)
+            self.tagDbDownloadReady.emit(entry_count)
+            self.statusUpdate.emit(
+                f"Official tag database downloaded ({entry_count} entries)"
+            )
+        except Exception as e:
+            self.tagDbDownloadError.emit(f"Failed to read downloaded database: {e}")
+
+    def _on_tag_db_error(self, message):
+        self._tag_db_temp_path = None
+        self.tagDbDownloadError.emit(message)
+        self.statusUpdate.emit(f"Tag database download failed: {message}")
+
+    @pyqtSlot(bool)
+    def applyOfficialTagDb(self, merge):
+        if not self._tag_db_temp_path:
+            self.tagDbDownloadError.emit("No downloaded database available")
+            return
+
+        try:
+            count = self.sound_db.import_from_file(self._tag_db_temp_path, merge=merge)
+            mode = "Merged" if merge else "Replaced"
+            self.tagDbImportComplete.emit(count)
+            self.statusUpdate.emit(f"{mode} tag database — {count} entries imported")
+        except Exception as e:
+            self.tagDbDownloadError.emit(f"Failed to apply tag database: {e}")
+            self.statusUpdate.emit(f"Failed to apply tag database: {e}")
+        finally:
+            try:
+                os.unlink(self._tag_db_temp_path)
+            except Exception:
+                pass
+            self._tag_db_temp_path = None
+
     def cleanup(self):
 
         self.audio_player.stop()
         self.cache_manager.cleanup()
         if self._index_thread and self._index_thread.is_alive():
             self._index_thread.join(timeout=1.0)
+        if self._tag_db_temp_path:
+            try:
+                os.unlink(self._tag_db_temp_path)
+            except Exception:
+                pass

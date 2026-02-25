@@ -2,8 +2,11 @@
 
 import json
 import hashlib
+import shutil
 from pathlib import Path
 from datetime import datetime
+
+from src.config_manager import get_sound_database_file
 
 class SoundDatabase:
 
@@ -11,12 +14,27 @@ class SoundDatabase:
     def __init__(self, db_path=None):
 
         if db_path is None:
-            self.db_path = Path.home() / '.zzar_sound_db.json'
+            self.db_path = get_sound_database_file()
         else:
             self.db_path = Path(db_path)
 
+        self._migrate_old_location()
         self.database = {}
         self.load()
+
+    def _migrate_old_location(self):
+        old_path = Path.home() / '.zzar_sound_db.json'
+        if old_path.exists() and not self.db_path.exists():
+            try:
+                self.db_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(old_path), str(self.db_path))
+                print(f"[SoundDB] Migrated {old_path} -> {self.db_path}")
+            except Exception as e:
+                print(f"[SoundDB] Migration failed, copying instead: {e}")
+                try:
+                    shutil.copy2(old_path, self.db_path)
+                except Exception as e2:
+                    print(f"[SoundDB] Copy also failed: {e2}")
 
     def calculate_hash(self, file_bytes):
 

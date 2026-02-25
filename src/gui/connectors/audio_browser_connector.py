@@ -90,6 +90,32 @@ class AudioBrowserConnector:
             lambda enabled: self.audio_page.setProperty("hideEmptyBnkChecked", enabled)
         )
 
+        self.audio_page.downloadOfficialTagDbClicked.connect(ab.downloadOfficialTagDb)
+        self.audio_page.applyOfficialTagDb.connect(ab.applyOfficialTagDb)
+        ab.tagDbDownloadStarted.connect(
+            lambda: QMetaObject.invokeMethod(
+                self.audio_page, "onTagDbDownloadStarted", Qt.QueuedConnection
+            )
+        )
+        ab.tagDbDownloadReady.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.audio_page, "onTagDbDownloadReady",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+        ab.tagDbDownloadError.connect(
+            lambda msg: QMetaObject.invokeMethod(
+                self.audio_page, "onTagDbDownloadError",
+                Qt.QueuedConnection, Q_ARG("QVariant", msg)
+            )
+        )
+        ab.tagDbImportComplete.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.audio_page, "onTagDbImportComplete",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+
         ab.loadFromSettings()
         print("[ZZAR] Audio browser page connected")
 

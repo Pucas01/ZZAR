@@ -47,6 +47,8 @@ Item {
     signal seekRequested(real position)
     signal wipDialogRequested()
     signal openAudioFolderClicked(string folderType)
+    signal downloadOfficialTagDbClicked()
+    signal applyOfficialTagDb(bool merge)
 
     property real contextMenuX: 0
     property real contextMenuY: 0
@@ -65,6 +67,8 @@ Item {
     property bool normalizeAudioChecked: true
     property string highlightItemId: ""
     property int changesCount: 0
+    property bool tagDbDownloading: false
+    property int tagDbEntryCount: 0
 
     property string highlightPckPath: ""
     property bool sortBySizeAsc: false
@@ -591,6 +595,24 @@ Item {
                                             normalizeAudioToggled(normalizeAudioChecked)
                                         }
                                     }
+                                }
+                            }
+
+                            Rectangle {
+                                width: parent.width
+                                height: 1
+                                color: Theme.cardBackground
+                            }
+
+                            ZZARButton {
+                                text: tagDbDownloading
+                                    ? qsTr("Downloading...")
+                                    : qsTr("Download Official Tags")
+                                buttonColor: tagDbDownloading ? Theme.disabledAccent : Theme.secondaryAccent
+                                enabled: !tagDbDownloading
+                                onClicked: {
+                                    optionsPopup.close()
+                                    downloadOfficialTagDbClicked()
                                 }
                             }
                         }
@@ -1331,6 +1353,24 @@ Item {
                 break
             }
         }
+    }
+
+    function onTagDbDownloadStarted() {
+        tagDbDownloading = true
+    }
+
+    function onTagDbDownloadReady(entryCount) {
+        tagDbDownloading = false
+        tagDbEntryCount = entryCount
+        tagDbOverlay.visible = true
+        tagDbOverlay.closing = false
+    }
+
+    function onTagDbDownloadError(message) {
+        tagDbDownloading = false
+    }
+
+    function onTagDbImportComplete(count) {
     }
 
     function sortTreeBySize() {
@@ -2685,6 +2725,138 @@ Item {
                             metadataHideTimer.start()
                         }
                     }
+                }
+            }
+        }
+    }
+
+    Item {
+        id: tagDbOverlay
+        visible: false
+        anchors.fill: parent
+        z: 2003
+        property bool closing: false
+
+        Timer {
+            id: tagDbHideTimer
+            interval: 200
+            onTriggered: {
+                tagDbOverlay.visible = false
+                tagDbOverlay.closing = false
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"
+            opacity: (!tagDbOverlay.closing && tagDbOverlay.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Image {
+                anchors.fill: parent
+                source: "../assets/gradient.png"
+                fillMode: Image.Stretch
+                mipmap: true
+                opacity: 0.6
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    tagDbOverlay.closing = true
+                    tagDbHideTimer.start()
+                }
+            }
+        }
+
+        Rectangle {
+            id: tagDbDialog
+            width: Math.min(500, parent.width - 60)
+            height: tagDbCol.height + 60
+            anchors.centerIn: parent
+            color: Theme.surfaceColor
+            radius: Theme.radiusLarge
+            border.color: Theme.cardBackground
+            border.width: 1
+            scale: (!tagDbOverlay.closing && tagDbOverlay.visible) ? 1.0 : 0.9
+            opacity: (!tagDbOverlay.closing && tagDbOverlay.visible) ? 1.0 : 0.0
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            ColumnLayout {
+                id: tagDbCol
+                width: parent.width - 40
+                anchors.centerIn: parent
+                spacing: 16
+
+                Text {
+                    text: qsTr("Official Tag Database")
+                    color: Theme.primaryAccent
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeNormal
+                    font.bold: true
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Text {
+                    text: qsTr("Downloaded %1 tag entries.\n\nHow would you like to apply them?").arg(tagDbEntryCount)
+                    color: Theme.textPrimary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeSmall
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
+
+                Text {
+                    text: qsTr("Merge adds new entries and updates existing ones.\nReplace completely replaces your local database.")
+                    color: Theme.textSecondary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 12
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.3
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: Theme.spacingSmall
+
+                    Item { Layout.fillWidth: true }
+
+                    ZZARButton {
+                        text: qsTr("Cancel")
+                        buttonColor: Theme.disabledAccent
+                        onClicked: {
+                            tagDbOverlay.closing = true
+                            tagDbHideTimer.start()
+                        }
+                    }
+
+                    ZZARButton {
+                        text: qsTr("Replace")
+                        buttonColor: Theme.dangerAccent
+                        onClicked: {
+                            tagDbOverlay.closing = true
+                            tagDbHideTimer.start()
+                            applyOfficialTagDb(false)
+                        }
+                    }
+
+                    ZZARButton {
+                        text: qsTr("Merge")
+                        buttonColor: Theme.primaryAccent
+                        onClicked: {
+                            tagDbOverlay.closing = true
+                            tagDbHideTimer.start()
+                            applyOfficialTagDb(true)
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
             }
         }
