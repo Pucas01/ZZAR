@@ -333,10 +333,9 @@ Item {
                     }
                     ZZARButton {
                         id: findMatchingSoundBtn
-                        text: matchInProgress ? qsTr("Matching...") : qsTr("Find Matching Sound")
+                        text: qsTr("Find Matching Sound")
                         buttonColor: Theme.secondaryAccent
-                        enabled: !matchInProgress
-                        onClicked: findMatchingSoundClicked()
+                        onClicked: audioMatchDialog.show()
                     }
                 }
 
@@ -1306,18 +1305,22 @@ Item {
     }
 
     function scrollToItem(fileId, pckPath) {
+        console.log("[QML] scrollToItem called: fileId=", fileId, "pckPath=", pckPath)
+        console.log("[QML] treeModel.count=", treeModel.count)
 
         for (var p = 0; p < treeModel.count; p++) {
             var item = treeModel.get(p)
             if (item.pckPath === pckPath &&
                 (item.itemType === "PCK" || item.itemType === "BNK") &&
                 item.hasChildren && !(item.expanded || false)) {
+                console.log("[QML] Expanding item at index", p, "type=", item.itemType)
                 treeModel.setProperty(p, "expanded", true)
             }
         }
 
         for (var i = 0; i < treeModel.count; i++) {
             if (treeModel.get(i).itemId === fileId && treeModel.get(i).pckPath === pckPath) {
+                console.log("[QML] Found item at index", i, "scrolling to it")
                 treeList.positionViewAtIndex(i, ListView.Center)
                 highlightItemId = fileId
                 highlightPckPath = pckPath
@@ -1325,6 +1328,7 @@ Item {
                 return
             }
         }
+        console.log("[QML] Item not found in tree model")
     }
 
     Timer {
@@ -1438,14 +1442,17 @@ Item {
     function showMatchResults(results) {
         matchResultsModel.clear()
         for (var i = 0; i < results.length; i++) {
+            var item = results[i]
+            var scoreVal = parseFloat(item.score) || 0
             matchResultsModel.append({
-                "score": results[i].score || 0,
-                "name": results[i].name || "",
-                "fileId": results[i].fileId || "",
-                "pckName": results[i].pckName || "",
-                "pckPath": results[i].pckPath || "",
-                "itemType": results[i].itemType || "",
-                "bnkId": results[i].bnkId || ""
+                "score": scoreVal,
+                "name": String(item.name || ""),
+                "fileId": String(item.fileId || ""),
+                "pckName": String(item.pckName || ""),
+                "pckPath": String(item.pckPath || ""),
+                "itemType": String(item.itemType || ""),
+                "bnkId": String(item.bnkId || ""),
+                "langId": String(item.langId || "0")
             })
         }
         matchResultsOverlay.visible = true
@@ -2153,6 +2160,18 @@ Item {
                             anchors.rightMargin: 12
                             spacing: 10
 
+                            ZZARButton {
+                                text: "▶"
+                                Layout.preferredWidth: 45
+                                Layout.preferredHeight: 28
+                                buttonColor: Theme.primaryAccent
+                                fontSize: 12
+                                onClicked: {
+                                    console.log("Play button clicked for:", model.fileId, model.itemType, model.pckPath)
+                                    treeItemDoubleClicked(model.fileId, model.itemType, model.pckPath)
+                                }
+                            }
+
                             Rectangle {
                                 width: 50
                                 height: 22
@@ -2206,11 +2225,21 @@ Item {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
+                            propagateComposedEvents: true
+                            onPressed: {
+
+                                if (mouse.x <= 70) {
+                                    mouse.accepted = false
+                                }
+                            }
                             onClicked: {
-                                matchResultNavigateClicked(
-                                    model.fileId, model.itemType, model.pckPath, model.bnkId)
-                                matchResultsOverlay.closing = true
-                                matchHideTimer.start()
+
+                                if (mouse.x > 70) {
+                                    audioBrowserBackend.navigateToSearchResult(
+                                        model.fileId, model.itemType, model.pckPath, model.bnkId)
+                                    matchResultsOverlay.closing = true
+                                    matchHideTimer.start()
+                                }
                             }
                         }
                     }
@@ -3484,5 +3513,10 @@ Item {
                 Item { height: 5; width: 1 }
             }
         }
+    }
+
+    AudioMatchDialog {
+        id: audioMatchDialog
+        objectName: "audioMatchDialog"
     }
 }

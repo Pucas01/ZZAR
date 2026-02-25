@@ -20,6 +20,7 @@ from src.temp_cache_manager import TempCacheManager
 from src.audio_player import AudioPlayer
 from src.audio_converter import AudioConverter
 from src.sound_database import SoundDatabase
+from src.fingerprint_database import FingerprintDatabase
 from src.persistent_mod_manager import PersistentModManager
 from src.pck_packer import PCKPacker
 from src.mod_package_manager import ModPackageManager
@@ -51,7 +52,6 @@ class _WorkerThread(QThread):
         except Exception as e:
             import traceback
             self.finished.emit(False, f"{e}\n{traceback.format_exc()}")
-
 
 class TagDatabaseDownloadWorker(QThread):
 
@@ -89,10 +89,9 @@ class TagDatabaseDownloadWorker(QThread):
         except Exception as e:
             self.errorOccurred.emit(self.tr("Download failed: %1").replace("%1", str(e)))
 
-
 class TagDatabaseCheckWorker(QThread):
 
-    newTagsFound = pyqtSignal(int, str)  # entry_count, content_hash
+    newTagsFound = pyqtSignal(int, str)
     noNewTags = pyqtSignal()
 
     def __init__(self, last_seen_hash):
@@ -126,9 +125,7 @@ class TagDatabaseCheckWorker(QThread):
         except Exception:
             pass
 
-
 class AudioBrowserBridge(QObject):
-
 
     statusUpdate = pyqtSignal(str, arguments=["message"])
     nowPlayingUpdate = pyqtSignal(str, arguments=["text"])
@@ -170,6 +167,7 @@ class AudioBrowserBridge(QObject):
         self.cache_manager = TempCacheManager(max_cached_files=100)
         self.audio_player = AudioPlayer(AudioConverter(), self.cache_manager)
         self.sound_db = SoundDatabase()
+        self.fingerprint_db = FingerprintDatabase()
         self.mod_manager = PersistentModManager()
 
         self.game_root_dir = None
@@ -190,6 +188,7 @@ class AudioBrowserBridge(QObject):
         self._index_cache = {}
         self._tree_cache = {}
         self._current_directory = None
+        self._match_metadata = {}
 
         self._worker = None
         self._index_thread = None
@@ -580,11 +579,14 @@ class AudioBrowserBridge(QObject):
 
     @pyqtSlot(str)
     def expandPckItem(self, pck_path):
+        print(f"[ExpandPCK] expandPckItem called: {pck_path}")
 
         if pck_path in self._pck_loaded:
+            print(f"[ExpandPCK] PCK already loaded, returning")
             return
 
         self._pck_loaded[pck_path] = True
+        print(f"[ExpandPCK] Marking PCK as loaded and indexing")
         self.statusUpdate.emit(self.tr("Indexing %1...").replace("%1", Path(pck_path).name))
 
         try:
@@ -596,7 +598,6 @@ class AudioBrowserBridge(QObject):
             for bnk_info in indexer.index_data["banks"]:
                 bnk_id = str(bnk_info["id"])
 
-                # Filter: hide BNK files that contain no WEM audio
                 if self.hide_empty_bnk_enabled:
                     try:
                         bnk_bytes = indexer.extract_single_file(
@@ -673,16 +674,18 @@ class AudioBrowserBridge(QObject):
                         "parentPck": pck_path,
                     })
 
+            print(f"[ExpandPCK] Emitting {len(items)} items via treeItemsReady")
             self.treeItemsReady.emit(items)
             self.statusUpdate.emit(
                 self.tr("Loaded %1 files from %2").replace("%1", str(len(items))).replace("%2", Path(pck_path).name)
             )
+            print(f"[ExpandPCK] expandPckItem completed successfully")
 
         except Exception as e:
+            print(f"[ExpandPCK] Error during expansion: {e}")
             self.statusUpdate.emit(self.tr("Error loading %1: %2").replace("%1", Path(pck_path).name).replace("%2", str(e)))
 
     def _expand_bnk_item(self, bnk_id):
-
 
         bnk_data = None
         bnk_key = None
@@ -794,11 +797,32 @@ class AudioBrowserBridge(QObject):
 
     @pyqtSlot(str, str, str)
     def onTreeItemDoubleClicked(self, item_id, item_type, pck_path):
+        print(f"[PlayButton] onTreeItemDoubleClicked called: id={item_id}, type={item_type}, pck={pck_path}")
 
         meta = self._find_item_meta(item_id, item_type, pck_path)
         if not meta:
-            return
+            print(f"[PlayButton] No meta found in _item_data, checking match metadata")
 
+            meta_key = f"{item_id}:{pck_path}"
+            if meta_key in self._match_metadata:
+                meta = self._match_metadata[meta_key]
+                print(f"[PlayButton] Found in match metadata: {meta}")
+            else:
+                print(f"[PlayButton] Not in match metadata either")
+
+                if not pck_path or not Path(pck_path).exists():
+                    print(f"[PlayButton] Invalid pck_path: {pck_path}")
+                    return
+
+                meta = {
+                    "type": item_type or "wem",
+                    "pck_path": pck_path,
+                    "file_id": item_id,
+                    "lang_id": "0",
+                }
+                print(f"[PlayButton] Created minimal meta from params: {meta}")
+
+        print(f"[PlayButton] Playing audio, type={meta.get('type')}")
         if meta["type"] == "wem":
             self._play_wem_from_pck(meta)
         elif meta["type"] == "wem_embedded":
@@ -1034,19 +1058,53 @@ class AudioBrowserBridge(QObject):
 
     @pyqtSlot(str, str, str, str)
     def navigateToSearchResult(self, file_id, item_type, pck_path, bnk_id):
+        print(f"[Navigate] navigateToSearchResult called: id={file_id}, type={item_type}, pck={pck_path}, bnk={bnk_id}")
 
         if not pck_path:
+            print(f"[Navigate] No pck_path provided")
             self.statusUpdate.emit(self.tr("Cannot navigate to file %1").replace("%1", str(file_id)))
             return
 
+        if self.merge_wem_enabled and Path(pck_path).name.startswith("Streamed_SFX_"):
+            print(f"[Navigate] Streamed_SFX detected with merge enabled, looking up file_id_index")
+            file_id_int = int(file_id) if file_id.isdigit() else file_id
+            locs = self.file_id_index.get(file_id_int, [])
+
+            alt_loc = None
+            for loc in locs:
+                if loc.get("type") == "wem_embedded" and not Path(loc["pck_path"]).name.startswith("Streamed_SFX_"):
+                    alt_loc = loc
+                    break
+            if alt_loc:
+                pck_path = alt_loc["pck_path"]
+                bnk_id = str(alt_loc.get("bnk_id", ""))
+                item_type = "wem_embedded"
+                print(f"[Navigate] Redirected to: pck={pck_path}, bnk={bnk_id}, type={item_type}")
+            else:
+                print(f"[Navigate] No alternative location found in file_id_index")
+
+        needs_delay = False
         if pck_path not in self._pck_loaded:
+            print(f"[Navigate] PCK not loaded, expanding: {pck_path}")
             self.expandPckItem(pck_path)
+            needs_delay = True
 
         if bnk_id and item_type == "wem_embedded":
             load_key = f"{pck_path}:{bnk_id}"
             if load_key not in self._bnk_loaded:
+                print(f"[Navigate] BNK not loaded, expanding: {bnk_id}")
                 self._expand_bnk_item(bnk_id)
+                needs_delay = True
 
+        if needs_delay:
+            print(f"[Navigate] Delaying navigation by 500ms to let tree update")
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(500, lambda: self._do_navigate(file_id, pck_path))
+        else:
+            self._do_navigate(file_id, pck_path)
+
+    def _do_navigate(self, file_id, pck_path):
+        print(f"[Navigate] Emitting navigateToItem: {file_id}, {pck_path}")
         self.statusUpdate.emit(self.tr("Navigated to file %1 in %2").replace("%1", str(file_id)).replace("%2", Path(pck_path).name))
         self.navigateToItem.emit(file_id, pck_path)
 
@@ -1366,7 +1424,6 @@ class AudioBrowserBridge(QObject):
 
                         cleaned_files = 0
                         for pck_file in persistent_path.rglob("*.pck"):
-
 
                             if any(lang_folder in pck_file.parents for lang_folder in lang_folders_to_skip):
                                 continue
@@ -1795,12 +1852,51 @@ class AudioBrowserBridge(QObject):
         self.statusUpdate.emit(self.tr("Match cancelled"))
         self.matchFinished.emit()
 
+    @pyqtSlot()
+    def selectRecordingFile(self):
+
+        from .native_dialogs import NativeDialogs
+        recording_path = NativeDialogs.get_open_file(
+            "Select Audio Recording",
+            str(Path.home()),
+            "Audio Files (*.wav *.mp3 *.m4a *.ogg *.flac);;All Files (*)",
+        )
+        if recording_path:
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setSelectedFile",
+                Qt.QueuedConnection, Q_ARG("QVariant", recording_path)
+            )
+
+    @pyqtSlot(str)
+    def startMatchingWithFile(self, recording_path):
+
+        if not self.game_root_dir:
+            self.errorOccurred.emit(self.tr("No Directory"), self.tr("Please select a game directory first."))
+            return
+
+        if not self.index_ready:
+            self.errorOccurred.emit(self.tr("Not Ready"), self.tr("The file index is still building. Please wait."))
+            return
+
+        if self._match_thread and self._match_thread.is_alive():
+            self.statusUpdate.emit(self.tr("A match is already in progress"))
+            return
+
+        self._match_cancel = threading.Event()
+
+        self._match_thread = threading.Thread(
+            target=self._run_matching_threaded,
+            args=(recording_path, self._match_cancel),
+            daemon=True,
+        )
+        self._match_thread.start()
+
     def _run_matching_threaded(self, recording_path, cancel_event):
 
         try:
             from src.audio_matcher import AudioMatcher
 
-            matcher = AudioMatcher()
+            matcher = AudioMatcher(fingerprint_db=self.fingerprint_db)
 
             recording_fp = matcher.extract_fingerprint(recording_path, duration=30)
             if recording_fp is None:
@@ -1814,7 +1910,6 @@ class AudioBrowserBridge(QObject):
             if cancel_event.is_set():
                 return
 
-            # Gather all WEM candidates from the current directory's PCK files
             candidates = []
             directory = self._current_directory
             if not directory:
@@ -1842,7 +1937,6 @@ class AudioBrowserBridge(QObject):
                     indexer = PCKIndexer(str(pck_file))
                     indexer.build_index()
 
-                    # Gather standalone WEM files
                     for wem_info in indexer.index_data["sounds"] + indexer.index_data["externals"]:
                         if cancel_event.is_set():
                             return
@@ -1868,7 +1962,6 @@ class AudioBrowserBridge(QObject):
                         except Exception:
                             pass
 
-                    # Gather embedded WEM files from BNKs
                     for bnk_info in indexer.index_data["banks"]:
                         if cancel_event.is_set():
                             return
@@ -1943,7 +2036,11 @@ class AudioBrowserBridge(QObject):
             if cancel_event.is_set():
                 return
 
+            self.fingerprint_db.save()
+
             match_results = []
+            self._match_metadata = {}
+
             for score, info in results:
                 tag_text = info.get("tags", "")
                 loc = None
@@ -1953,14 +2050,32 @@ class AudioBrowserBridge(QObject):
                     if locs:
                         loc = locs[0]
 
+                score_val = float(round(score, 1))
+                print(f"[Match] ID {file_id}: score={score_val}")
+
+                pck_path = info.get("pck_path", loc["pck_path"] if loc else "")
+                item_type = info.get("type", loc["type"] if loc else "wem")
+                lang_id = info.get("lang_id", loc.get("lang_id", "0") if loc else "0")
+                bnk_id = info.get("bnk_id", loc.get("bnk_id", "") if loc else "")
+
+                meta_key = f"{file_id}:{pck_path}"
+                self._match_metadata[meta_key] = {
+                    "file_id": file_id,
+                    "type": item_type,
+                    "pck_path": pck_path,
+                    "lang_id": lang_id,
+                    "bnk_id": bnk_id,
+                }
+
                 match_results.append({
-                    "score": round(score, 1),
+                    "score": score_val,
                     "fileId": str(file_id),
                     "name": tag_text if tag_text else f"File {file_id}",
                     "pckName": info.get("pck_name", ""),
-                    "pckPath": info.get("pck_path", loc["pck_path"] if loc else ""),
-                    "itemType": info.get("type", loc["type"] if loc else "wem"),
-                    "bnkId": str(info.get("bnk_id", loc.get("bnk_id", "") if loc else "")),
+                    "pckPath": pck_path,
+                    "itemType": item_type,
+                    "bnkId": str(bnk_id),
+                    "langId": str(lang_id),
                 })
 
             QMetaObject.invokeMethod(
@@ -1981,11 +2096,21 @@ class AudioBrowserBridge(QObject):
     @pyqtSlot(str)
     def _onMatchStatus(self, message):
         self.statusUpdate.emit(message)
+        if hasattr(self, 'audio_match_dialog') and self.audio_match_dialog:
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setStatus",
+                Qt.QueuedConnection, Q_ARG("QVariant", message)
+            )
 
     @pyqtSlot(int, int)
     def _onMatchProgress(self, current, total):
         self.matchProgressUpdate.emit(current, total)
         self.statusUpdate.emit(self.tr("Matching... %1/%2 sounds").replace("%1", str(current)).replace("%2", str(total)))
+        if hasattr(self, 'audio_match_dialog') and self.audio_match_dialog:
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setProgress",
+                Qt.QueuedConnection, Q_ARG("QVariant", current), Q_ARG("QVariant", total)
+            )
 
     @pyqtSlot(object)
     def _onMatchResults(self, results):
@@ -1993,14 +2118,40 @@ class AudioBrowserBridge(QObject):
         self.matchResultsReady.emit(results)
         count = len(results)
         if count > 0:
-            self.statusUpdate.emit(self.tr("Found %1 match(es) — best score: %2%").replace("%1", str(count)).replace("%2", str(results[0]['score'])))
+            status_msg = self.tr("Found %1 match(es) — best score: %2%").replace("%1", str(count)).replace("%2", str(results[0]['score']))
+            self.statusUpdate.emit(status_msg)
         else:
-            self.statusUpdate.emit(self.tr("No matches found"))
+            status_msg = self.tr("No matches found")
+            self.statusUpdate.emit(status_msg)
+
+        if hasattr(self, 'audio_match_dialog') and self.audio_match_dialog:
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setMatching",
+                Qt.QueuedConnection, Q_ARG("QVariant", False)
+            )
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setStatus",
+                Qt.QueuedConnection, Q_ARG("QVariant", status_msg)
+            )
+
+            from PyQt5.QtCore import QTimer
+            QTimer.singleShot(1000, lambda: QMetaObject.invokeMethod(
+                self.audio_match_dialog, "hide", Qt.QueuedConnection
+            ))
 
     @pyqtSlot(str)
     def _onMatchError(self, message):
         self.matchFinished.emit()
         self.errorOccurred.emit(self.tr("Match Error"), message)
+
+        if hasattr(self, 'audio_match_dialog') and self.audio_match_dialog:
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "setMatching",
+                Qt.QueuedConnection, Q_ARG("QVariant", False)
+            )
+            QMetaObject.invokeMethod(
+                self.audio_match_dialog, "hide", Qt.QueuedConnection
+            )
 
     @pyqtSlot()
     def browseAndImportZzar(self):
@@ -2233,7 +2384,6 @@ class AudioBrowserBridge(QObject):
         self.statusUpdate.emit(self.tr("Index ready - %1 unique file IDs").replace("%1", str(len(self.file_id_index))))
 
     def _find_item_meta(self, item_id, item_type, pck_path):
-
 
         for key, data in self._item_data.items():
             if data.get("type") == "wem" and str(data.get("file_id")) == item_id:

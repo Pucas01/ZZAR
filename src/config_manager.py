@@ -6,7 +6,6 @@ from pathlib import Path
 
 class ConfigManager:
 
-
     def __init__(self):
         self.platform = sys.platform
         self._config_dir = None
@@ -89,6 +88,11 @@ class ConfigManager:
     def sound_database_file(self):
 
         return self.data_dir / 'sound_database.json'
+
+    @property
+    def fingerprint_database_file(self):
+
+        return self.data_dir / 'fingerprint_database.json'
 
     def migrate_old_config(self):
 
@@ -191,3 +195,7 @@ def get_cache_dir():
 def get_sound_database_file():
 
     return _config_manager.sound_database_file
+
+def get_fingerprint_database_file():
+
+    return _config_manager.fingerprint_database_file

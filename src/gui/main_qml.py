@@ -262,6 +262,20 @@ class Application(
             self.mod_conflict_dialog.setProperty("modManager", self.mod_manager_bridge)
             print("[ZZAR] Mod conflict dialog connected")
 
+        self.audio_match_dialog = root.findChild(QObject, "audioMatchDialog")
+        if self.audio_match_dialog:
+            self.audio_match_dialog.fileSelectionRequested.connect(
+                self.audio_browser_bridge.selectRecordingFile
+            )
+            self.audio_match_dialog.matchStartRequested.connect(
+                self.audio_browser_bridge.startMatchingWithFile
+            )
+            self.audio_match_dialog.matchCancelled.connect(
+                self.audio_browser_bridge.cancelMatchingSound
+            )
+            self.audio_browser_bridge.audio_match_dialog = self.audio_match_dialog
+            print("[ZZAR] Audio match dialog connected")
+
         self._connect_welcome_dialog()
 
         print("[ZZAR] Application ready!")

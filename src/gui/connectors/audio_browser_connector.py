@@ -197,13 +197,18 @@ class AudioBrowserConnector:
             )
 
     def _on_audio_navigate_to_item(self, file_id, pck_path):
+        print(f"[Connector] _on_audio_navigate_to_item called: file_id={file_id}, pck_path={pck_path}")
         if self.audio_page:
-            QMetaObject.invokeMethod(
+            print(f"[Connector] audio_page exists, invoking scrollToItem")
+            result = QMetaObject.invokeMethod(
                 self.audio_page, "scrollToItem",
                 Qt.QueuedConnection,
                 Q_ARG("QVariant", file_id),
                 Q_ARG("QVariant", pck_path),
             )
+            print(f"[Connector] invokeMethod returned: {result}")
+        else:
+            print(f"[Connector] audio_page is None!")
 
     def _on_audio_changes(self, changes):
         if self.audio_page:
