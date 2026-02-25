@@ -98,6 +98,8 @@ class SettingsConnector:
             self.on_welcome_audio_tools_status_changed
         )
 
+        self.welcome_dialog.welcomeLanguageChanged.connect(self.on_language_changed)
+
         if hasattr(self.welcome_dialog, 'startTutorialClicked'):
             self.welcome_dialog.startTutorialClicked.connect(self.on_start_tutorial)
 
@@ -138,6 +140,9 @@ class SettingsConnector:
 
     def on_language_changed(self, lang_code):
         self.translation_manager.changeLanguage(lang_code)
+
+        if self.settings_page:
+            self.settings_page.setProperty("currentLanguage", lang_code)
 
         try:
             settings = self.load_settings()

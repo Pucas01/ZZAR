@@ -20,6 +20,7 @@ Item {
     property bool isAutoDetecting: false
 
     signal modeSelected(string mode)
+    signal welcomeLanguageChanged(string langCode)
     signal browseGameDirClicked()
     signal autoDetectClicked()
     signal checkWwiseClicked()
@@ -936,15 +937,124 @@ Item {
                 }
             }
 
-            Text {
-                text: qsTr("You can always change this later in settings")
-                color: "#666666"
-                font.family: "Alatsi"
-                font.pixelSize: 12
-                font.italic: true
+            Item {
                 width: parent.width
-                horizontalAlignment: Text.AlignHCenter
+                height: 30
                 visible: currentPage === 1
+
+                Text {
+                    text: qsTr("You can always change this later in settings")
+                    color: "#666666"
+                    font.family: "Alatsi"
+                    font.pixelSize: 12
+                    font.italic: true
+                    anchors.centerIn: parent
+                }
+
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
+
+                    ComboBox {
+                        id: welcomeLanguageCombo
+                        width: 120
+                        height: 28
+                        model: translationManager.availableLanguages
+                        textRole: "name"
+
+                        currentIndex: {
+                            var langs = translationManager.availableLanguages
+                            for (var i = 0; i < langs.length; i++) {
+                                if (langs[i].code === translationManager.currentLanguage) return i
+                            }
+                            return 0
+                        }
+
+                        onActivated: {
+                            var selectedLang = translationManager.availableLanguages[index]
+                            welcomeLanguageChanged(selectedLang.code)
+                        }
+
+                        background: Rectangle {
+                            color: welcomeLanguageCombo.pressed ? Qt.darker("#333333", 1.2)
+                                 : welcomeLanguageCombo.hovered ? Qt.lighter("#333333", 1.1)
+                                 : "#333333"
+                            radius: 6
+                            border.color: "#555555"
+                            border.width: 1
+                            Behavior on color { ColorAnimation { duration: 150 } }
+                        }
+
+                        contentItem: Text {
+                            text: welcomeLanguageCombo.displayText
+                            color: "#cccccc"
+                            font.family: "Alatsi"
+                            font.pixelSize: 12
+                            verticalAlignment: Text.AlignVCenter
+                            leftPadding: 8
+                            rightPadding: 24
+                        }
+
+                        indicator: Rectangle {
+                            x: welcomeLanguageCombo.width - width - 6
+                            y: (welcomeLanguageCombo.height - height) / 2
+                            width: 16
+                            height: 16
+                            color: "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "\u25BC"
+                                color: "#888888"
+                                font.pixelSize: 8
+                            }
+                        }
+
+                        delegate: ItemDelegate {
+                            width: welcomeLanguageCombo.width - 8
+                            height: 30
+
+                            background: Rectangle {
+                                color: {
+                                    if (parent.highlighted) return Theme.primaryAccent
+                                    if (parent.hovered) return Qt.lighter("#1a1a1a", 1.3)
+                                    return "#1a1a1a"
+                                }
+                                radius: 4
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+
+                            contentItem: Text {
+                                text: modelData.name
+                                color: parent.highlighted ? Theme.textOnAccent : "#cccccc"
+                                font.family: "Alatsi"
+                                font.pixelSize: 12
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 8
+                            }
+                        }
+
+                        popup: Popup {
+                            y: -contentItem.implicitHeight - 4
+                            width: welcomeLanguageCombo.width
+                            padding: 4
+
+                            background: Rectangle {
+                                color: "#1a1a1a"
+                                radius: 6
+                                border.color: "#555555"
+                                border.width: 1
+                            }
+
+                            contentItem: ListView {
+                                implicitHeight: contentHeight
+                                model: welcomeLanguageCombo.popup.visible ? welcomeLanguageCombo.delegateModel : null
+                                clip: true
+                            }
+                        }
+                    }
+                }
             }
         }
     }
