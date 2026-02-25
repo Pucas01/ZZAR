@@ -23,6 +23,7 @@ class AudioBrowserConnector:
         self.audio_page.findMatchingSoundClicked.connect(ab.findMatchingSound)
         self.audio_page.mergeWemToggled.connect(ab.setMergeWem)
         self.audio_page.hideUselessPckToggled.connect(ab.setHideUselessPck)
+        self.audio_page.hideEmptyBnkToggled.connect(ab.setHideEmptyBnk)
         self.audio_page.treeItemExpanded.connect(self.on_audio_tree_expanded)
 
         self.audio_page.treeItemDoubleClicked.connect(ab.onTreeItemDoubleClicked)
@@ -84,6 +85,9 @@ class AudioBrowserConnector:
         ab.changesCountUpdated.connect(self._on_changes_count_updated)
         ab.normalizeAudioChanged.connect(
             lambda enabled: self.audio_page.setProperty("normalizeAudioChecked", enabled)
+        )
+        ab.hideEmptyBnkChanged.connect(
+            lambda enabled: self.audio_page.setProperty("hideEmptyBnkChecked", enabled)
         )
 
         ab.loadFromSettings()

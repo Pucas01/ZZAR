@@ -24,6 +24,7 @@ Item {
     signal findMatchingSoundClicked()
     signal mergeWemToggled(bool checked)
     signal hideUselessPckToggled(bool checked)
+    signal hideEmptyBnkToggled(bool checked)
     signal normalizeAudioToggled(bool checked)
     signal treeItemExpanded(string itemId, string itemType)
 
@@ -60,6 +61,7 @@ Item {
     property bool playbackEnabled: false
     property bool mergeWemChecked: true
     property bool hideUselessPckChecked: true
+    property bool hideEmptyBnkChecked: true
     property bool normalizeAudioChecked: true
     property string highlightItemId: ""
     property int changesCount: 0
@@ -487,6 +489,56 @@ Item {
                                         onClicked: {
                                             hideUselessPckChecked = !hideUselessPckChecked
                                             hideUselessPckToggled(hideUselessPckChecked)
+                                        }
+                                    }
+                                }
+                            }
+
+                            Row {
+                                spacing: Theme.spacingSmall
+
+                                Rectangle {
+                                    width: 20
+                                    height: 20
+                                    radius: 4
+                                    color: hideEmptyBnkChecked ? Theme.primaryAccent : Theme.cardBackground
+                                    border.color: hideEmptyBnkChecked ? Theme.primaryAccent : Theme.textSecondary
+                                    border.width: 1
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "\u2713"
+                                        color: Theme.textOnAccent
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        visible: hideEmptyBnkChecked
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            hideEmptyBnkChecked = !hideEmptyBnkChecked
+                                            hideEmptyBnkToggled(hideEmptyBnkChecked)
+                                        }
+                                    }
+                                }
+
+                                Text {
+                                    text: qsTr("Hide BNK files with no audio")
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            hideEmptyBnkChecked = !hideEmptyBnkChecked
+                                            hideEmptyBnkToggled(hideEmptyBnkChecked)
                                         }
                                     }
                                 }

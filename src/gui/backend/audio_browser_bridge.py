@@ -63,6 +63,7 @@ class AudioBrowserBridge(QObject):
     thumbnailPathSelected = pyqtSignal(str, arguments=["path"])
     changesCountUpdated = pyqtSignal(int, arguments=["count"])
     normalizeAudioChanged = pyqtSignal(bool, arguments=["enabled"])
+    hideEmptyBnkChanged = pyqtSignal(bool, arguments=["enabled"])
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -78,6 +79,7 @@ class AudioBrowserBridge(QObject):
         self.current_language_folder = ""
         self.merge_wem_enabled = True
         self.hide_useless_pck_enabled = True
+        self.hide_empty_bnk_enabled = True
         self.normalize_audio_enabled = True
 
         self.file_id_index = {}
@@ -126,6 +128,10 @@ class AudioBrowserBridge(QObject):
             normalize = settings.get("normalize_audio", True)
             self.normalize_audio_enabled = normalize
             self.normalizeAudioChanged.emit(normalize)
+
+            hide_empty_bnk = settings.get("hide_empty_bnk", True)
+            self.hide_empty_bnk_enabled = hide_empty_bnk
+            self.hideEmptyBnkChanged.emit(hide_empty_bnk)
 
             game_audio_dir = settings.get("game_audio_dir", "")
             if not game_audio_dir:
@@ -480,6 +486,20 @@ class AudioBrowserBridge(QObject):
 
             for bnk_info in indexer.index_data["banks"]:
                 bnk_id = str(bnk_info["id"])
+
+                # Filter: hide BNK files that contain no WEM audio
+                if self.hide_empty_bnk_enabled:
+                    try:
+                        bnk_bytes = indexer.extract_single_file(
+                            bnk_info["id"], "bnk", bnk_info["lang_id"]
+                        )
+                        bnk_idx = BNKIndexer(bnk_bytes)
+                        bnk_idx.parse_didx()
+                        if bnk_idx.get_wem_count() == 0:
+                            continue
+                    except Exception:
+                        pass
+
                 data_key = f"bnk:{pck_path}:{bnk_id}"
                 self._item_data[data_key] = {
                     "type": "bnk",
@@ -798,6 +818,32 @@ class AudioBrowserBridge(QObject):
                 self._load_pck_files(folder_path)
                 state = "enabled" if enabled else "disabled"
                 self.statusUpdate.emit(f"Hide useless PCK {state}")
+
+    @pyqtSlot(bool)
+    def setHideEmptyBnk(self, enabled):
+        if self.hide_empty_bnk_enabled != enabled:
+            self.hide_empty_bnk_enabled = enabled
+            self.hideEmptyBnkChanged.emit(enabled)
+            self._invalidate_caches()
+
+            if self.current_language_folder:
+                folder_path = self.language_folders[self.current_language_folder]["path"]
+                self._load_pck_files(folder_path)
+                state = "enabled" if enabled else "disabled"
+                self.statusUpdate.emit(f"Hide empty BNK {state}")
+
+            try:
+                if self.settings_file.exists():
+                    with open(self.settings_file, "r") as f:
+                        settings = json.load(f)
+                else:
+                    settings = {}
+                settings["hide_empty_bnk"] = enabled
+                self.settings_file.parent.mkdir(parents=True, exist_ok=True)
+                with open(self.settings_file, "w") as f:
+                    json.dump(settings, f, indent=2)
+            except Exception as e:
+                print(f"[Audio Browser] Error saving hide_empty_bnk setting: {e}")
 
     @pyqtSlot(bool)
     def setNormalizeAudio(self, enabled):
