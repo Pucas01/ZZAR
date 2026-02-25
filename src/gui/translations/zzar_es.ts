@@ -563,7 +563,7 @@ Cambios de mods instalados son manejados en el gestor de mods.</translation>
         <message>
             <location filename="../backend/audio_browser_bridge.py" line="2354" />
             <source>Tag database download failed: %1</source>
-            <translation> Falla descargar la base de etiquetas: %1</translation>
+            <translation>Falla descargar la base de etiquetas: %1</translation>
         </message>
         <message>
             <location filename="../backend/audio_browser_bridge.py" line="286" />
