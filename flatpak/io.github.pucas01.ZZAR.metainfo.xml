@@ -48,6 +48,11 @@
   </requires>
 
   <releases>
+    <release version="1.0.2" date="2026-02-25">
+      <description>
+        <p>ZZAR Version 1.0.2.</p>
+      </description>
+    </release>
     <release version="1.0.1" date="2026-02-21">
       <description>
         <p>Initial Flatpak release.</p>
