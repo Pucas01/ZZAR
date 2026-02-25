@@ -92,6 +92,7 @@ class AudioBrowserConnector:
 
         self.audio_page.downloadOfficialTagDbClicked.connect(ab.downloadOfficialTagDb)
         self.audio_page.applyOfficialTagDb.connect(ab.applyOfficialTagDb)
+        self.audio_page.openTagDbFolderClicked.connect(self.on_open_tag_db_folder)
         ab.tagDbDownloadStarted.connect(
             lambda: QMetaObject.invokeMethod(
                 self.audio_page, "onTagDbDownloadStarted", Qt.QueuedConnection
@@ -115,10 +116,16 @@ class AudioBrowserConnector:
                 Qt.QueuedConnection, Q_ARG("QVariant", count)
             )
         )
+        ab.newTagDbAvailable.connect(self._on_new_tag_db_available)
+        self.audio_page.dismissTagDbNotify.connect(ab.dismissTagDbNotify)
 
         ab.loadFromSettings()
+        ab.checkForNewTagDb()
         print("[ZZAR] Audio browser page connected")
 
+
+    def _on_new_tag_db_available(self, count):
+        self.root.setProperty("pendingTagDbCount", count)
 
     def on_audio_tree_expanded(self, item_id, item_type):
         if item_type == "PCK":
@@ -267,3 +274,29 @@ class AudioBrowserConnector:
                 )
         except Exception as e:
             print(f"[Audio Browser] ERROR: Could not open folder: {e}")
+
+    def on_open_tag_db_folder(self):
+        from src.config_manager import get_sound_database_file
+
+        folder = get_sound_database_file().parent
+        folder.mkdir(parents=True, exist_ok=True)
+
+        print(f"[Audio Browser] Opening tag DB folder: {folder}")
+        system = platform.system()
+        try:
+            if system == "Windows":
+                subprocess.Popen(["explorer", str(folder)])
+            elif system == "Darwin":
+                subprocess.Popen(["open", str(folder)])
+            else:
+                env = NativeDialogs._get_clean_env()
+                subprocess.Popen(
+                    ["xdg-open", str(folder)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL,
+                    start_new_session=True,
+                    env=env,
+                )
+        except Exception as e:
+            print(f"[Audio Browser] ERROR: Could not open tag DB folder: {e}")

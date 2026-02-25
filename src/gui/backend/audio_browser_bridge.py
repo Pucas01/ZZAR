@@ -1,5 +1,6 @@
 
 
+import hashlib
 import json
 import os
 import struct
@@ -27,6 +28,13 @@ from gui.backend.update_manager_bridge import _urlopen
 
 OFFICIAL_TAG_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_sound_database.json"
 
+def _get_tag_db_url():
+    from ZZAR import DEV_MODE, get_base_path
+    if DEV_MODE:
+        dev_path = get_base_path() / "data" / "dev_sound_database.json"
+        return dev_path.as_uri()
+    return OFFICIAL_TAG_DB_URL
+
 class _WorkerThread(QThread):
 
     finished = pyqtSignal(bool, object)
@@ -52,7 +60,8 @@ class TagDatabaseDownloadWorker(QThread):
 
     def run(self):
         try:
-            req = urllib.request.Request(OFFICIAL_TAG_DB_URL)
+            url = _get_tag_db_url()
+            req = urllib.request.Request(url)
             req.add_header("User-Agent", "ZZAR-TagDB")
 
             with _urlopen(req, timeout=30) as response:
@@ -79,6 +88,43 @@ class TagDatabaseDownloadWorker(QThread):
             self.errorOccurred.emit(f"Network error: {e.reason}")
         except Exception as e:
             self.errorOccurred.emit(f"Download failed: {e}")
+
+
+class TagDatabaseCheckWorker(QThread):
+
+    newTagsFound = pyqtSignal(int, str)  # entry_count, content_hash
+    noNewTags = pyqtSignal()
+
+    def __init__(self, last_seen_hash):
+        super().__init__()
+        self.last_seen_hash = last_seen_hash
+
+    def run(self):
+        try:
+            url = _get_tag_db_url()
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "ZZAR-TagDB")
+
+            with _urlopen(req, timeout=15) as response:
+                data = response.read()
+
+            content_hash = hashlib.sha256(data).hexdigest()
+
+            if content_hash == self.last_seen_hash:
+                self.noNewTags.emit()
+                return
+
+            db = json.loads(data.decode("utf-8"))
+            entry_count = len(db)
+
+            if entry_count == 0:
+                self.noNewTags.emit()
+                return
+
+            self.newTagsFound.emit(entry_count, content_hash)
+
+        except Exception:
+            pass
 
 
 class AudioBrowserBridge(QObject):
@@ -111,6 +157,7 @@ class AudioBrowserBridge(QObject):
     tagDbDownloadReady = pyqtSignal(int, arguments=["entryCount"])
     tagDbDownloadError = pyqtSignal(str, arguments=["message"])
     tagDbImportComplete = pyqtSignal(int, arguments=["importedCount"])
+    newTagDbAvailable = pyqtSignal(int, arguments=["entryCount"])
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -148,6 +195,10 @@ class AudioBrowserBridge(QObject):
         self._imported_mod_metadata = None
         self._tag_db_worker = None
         self._tag_db_temp_path = None
+        self._tag_db_check_worker = None
+        self._tag_db_notify_dismissed = False
+        self._tag_db_last_seen_hash = ""
+        self._tag_db_check_done = False
 
         self.audio_player.state_changed.connect(self._on_playback_state_changed)
         self.audio_player.position_changed.connect(self._on_position_changed)
@@ -181,6 +232,9 @@ class AudioBrowserBridge(QObject):
             hide_empty_bnk = settings.get("hide_empty_bnk", True)
             self.hide_empty_bnk_enabled = hide_empty_bnk
             self.hideEmptyBnkChanged.emit(hide_empty_bnk)
+
+            self._tag_db_notify_dismissed = settings.get("tag_db_notify_dismissed", False)
+            self._tag_db_last_seen_hash = settings.get("tag_db_last_seen_hash", "")
 
             game_audio_dir = settings.get("game_audio_dir", "")
             if not game_audio_dir:
@@ -2043,8 +2097,10 @@ class AudioBrowserBridge(QObject):
     def _on_tag_db_downloaded(self, temp_path):
         self._tag_db_temp_path = temp_path
         try:
-            with open(temp_path, "r") as f:
-                data = json.load(f)
+            with open(temp_path, "rb") as f:
+                raw = f.read()
+            self._tag_db_latest_hash = hashlib.sha256(raw).hexdigest()
+            data = json.loads(raw.decode("utf-8"))
             entry_count = len(data)
             self.tagDbDownloadReady.emit(entry_count)
             self.statusUpdate.emit(
@@ -2069,6 +2125,19 @@ class AudioBrowserBridge(QObject):
             mode = "Merged" if merge else "Replaced"
             self.tagDbImportComplete.emit(count)
             self.statusUpdate.emit(f"{mode} tag database — {count} entries imported")
+
+            if hasattr(self, "_tag_db_latest_hash"):
+                try:
+                    settings = {}
+                    if self.settings_file.exists():
+                        with open(self.settings_file, "r") as f:
+                            settings = json.load(f)
+                    settings["tag_db_last_seen_hash"] = self._tag_db_latest_hash
+                    self._tag_db_last_seen_hash = self._tag_db_latest_hash
+                    with open(self.settings_file, "w") as f:
+                        json.dump(settings, f, indent=2)
+                except Exception:
+                    pass
         except Exception as e:
             self.tagDbDownloadError.emit(f"Failed to apply tag database: {e}")
             self.statusUpdate.emit(f"Failed to apply tag database: {e}")
@@ -2078,6 +2147,45 @@ class AudioBrowserBridge(QObject):
             except Exception:
                 pass
             self._tag_db_temp_path = None
+
+    @pyqtSlot()
+    def checkForNewTagDb(self):
+        if self._tag_db_notify_dismissed:
+            return
+        if self._tag_db_check_done:
+            return
+        if self._tag_db_check_worker and self._tag_db_check_worker.isRunning():
+            return
+
+        self._tag_db_check_done = True
+        self._tag_db_check_worker = TagDatabaseCheckWorker(self._tag_db_last_seen_hash)
+        self._tag_db_check_worker.newTagsFound.connect(self._on_new_tags_found)
+        self._tag_db_check_worker.start()
+
+    def _on_new_tags_found(self, entry_count, content_hash):
+        self._tag_db_latest_hash = content_hash
+        self.newTagDbAvailable.emit(entry_count)
+
+    @pyqtSlot(bool)
+    def dismissTagDbNotify(self, dont_show_again):
+        try:
+            settings = {}
+            if self.settings_file.exists():
+                with open(self.settings_file, "r") as f:
+                    settings = json.load(f)
+
+            if hasattr(self, "_tag_db_latest_hash"):
+                settings["tag_db_last_seen_hash"] = self._tag_db_latest_hash
+                self._tag_db_last_seen_hash = self._tag_db_latest_hash
+
+            if dont_show_again:
+                settings["tag_db_notify_dismissed"] = True
+                self._tag_db_notify_dismissed = True
+
+            with open(self.settings_file, "w") as f:
+                json.dump(settings, f, indent=2)
+        except Exception as e:
+            print(f"[Audio Browser] Error saving tag DB notify preference: {e}")
 
     def cleanup(self):
 

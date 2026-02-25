@@ -90,6 +90,23 @@ ApplicationWindow {
 
     property string pendingLanguageWarning: ""
     property bool tutorialActive: false
+    property int pendingTagDbCount: 0
+
+    onPendingTagDbCountChanged: pendingTagDbTimer.restart()
+    onTutorialActiveChanged: if (!tutorialActive) pendingTagDbTimer.restart()
+
+    Timer {
+        id: pendingTagDbTimer
+        interval: 2000
+        onTriggered: _tryShowPendingTagDb()
+    }
+
+    function _tryShowPendingTagDb() {
+        if (pendingTagDbCount > 0 && !tutorialActive && !welcomeDialog.visible && !tutorialOverlay.visible) {
+            audioBrowserPage.onNewTagDbAvailable(pendingTagDbCount)
+            pendingTagDbCount = 0
+        }
+    }
 
     property string pendingMoveableFolders: ""
 
@@ -520,6 +537,7 @@ ApplicationWindow {
             id: welcomeDialog
             anchors.fill: parent
             z: 1500
+            onVisibleChanged: if (!visible) mainWindow._tryShowPendingTagDb()
         }
 
         SuccessDialog {

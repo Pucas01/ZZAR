@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.Window 2.15
 import QtGraphicalEffects 1.15
 import "../components"
 import "."
@@ -49,6 +50,8 @@ Item {
     signal openAudioFolderClicked(string folderType)
     signal downloadOfficialTagDbClicked()
     signal applyOfficialTagDb(bool merge)
+    signal dismissTagDbNotify(bool dontShowAgain)
+    signal openTagDbFolderClicked()
 
     property real contextMenuX: 0
     property real contextMenuY: 0
@@ -69,6 +72,8 @@ Item {
     property int changesCount: 0
     property bool tagDbDownloading: false
     property int tagDbEntryCount: 0
+    property bool tagDbNotifyVisible: false
+    property int tagDbNewCount: 0
 
     property string highlightPckPath: ""
     property bool sortBySizeAsc: false
@@ -604,15 +609,80 @@ Item {
                                 color: Theme.cardBackground
                             }
 
+                            Row {
+                                spacing: 8
+
+                                ZZARButton {
+                                    text: tagDbDownloading
+                                        ? qsTr("Downloading...")
+                                        : qsTr("Download Official Tags")
+                                    buttonColor: tagDbDownloading ? Theme.disabledAccent : Theme.secondaryAccent
+                                    enabled: !tagDbDownloading
+                                    onClicked: {
+                                        optionsPopup.close()
+                                        downloadOfficialTagDbClicked()
+                                    }
+                                }
+
+                                Rectangle {
+                                    id: tagInfoCircle
+                                    width: 20
+                                    height: 20
+                                    radius: 10
+                                    color: tagInfoMouse.containsMouse ? Theme.primaryAccent : "#555555"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    Behavior on color { ColorAnimation { duration: 150 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "?"
+                                        color: tagInfoMouse.containsMouse ? Theme.textOnAccent : "#cccccc"
+                                        font.family: "Alatsi"
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                    }
+
+                                    MouseArea {
+                                        id: tagInfoMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onEntered: tagInfoPopup.visible = true
+                                        onExited: tagInfoPopup.visible = false
+                                    }
+
+                                    Rectangle {
+                                        id: tagInfoPopup
+                                        visible: false
+                                        x: parent.width + 8
+                                        y: -height / 2 + parent.height / 2
+                                        width: tagInfoText.implicitWidth + 20
+                                        height: tagInfoText.implicitHeight + 16
+                                        color: "#1a1a1a"
+                                        radius: 8
+                                        border.color: "#555555"
+                                        border.width: 1
+                                        z: 100
+
+                                        Text {
+                                            id: tagInfoText
+                                            anchors.centerIn: parent
+                                            text: qsTr("Tags help you identify and search\nfor audio files. The official tag\ndatabase provides community names\nand labels for game audio.")
+                                            color: "#cccccc"
+                                            font.family: "Alatsi"
+                                            font.pixelSize: 11
+                                            lineHeight: 1.3
+                                        }
+                                    }
+                                }
+                            }
+
                             ZZARButton {
-                                text: tagDbDownloading
-                                    ? qsTr("Downloading...")
-                                    : qsTr("Download Official Tags")
-                                buttonColor: tagDbDownloading ? Theme.disabledAccent : Theme.secondaryAccent
-                                enabled: !tagDbDownloading
+                                text: qsTr("Open Tag Database Folder")
+                                buttonColor: Theme.disabledAccent
                                 onClicked: {
                                     optionsPopup.close()
-                                    downloadOfficialTagDbClicked()
+                                    openTagDbFolderClicked()
                                 }
                             }
                         }
@@ -1371,6 +1441,13 @@ Item {
     }
 
     function onTagDbImportComplete(count) {
+    }
+
+    function onNewTagDbAvailable(entryCount) {
+        tagDbNewCount = entryCount
+        tagDbNotifyVisible = true
+        tagDbNotifyOverlay.closing = false
+        notifyDontShowBox.checked = false
     }
 
     function sortTreeBySize() {
@@ -2771,93 +2848,388 @@ Item {
 
         Rectangle {
             id: tagDbDialog
-            width: Math.min(500, parent.width - 60)
+            width: Math.min(500, parent.width - 40)
             height: tagDbCol.height + 60
             anchors.centerIn: parent
-            color: Theme.surfaceColor
-            radius: Theme.radiusLarge
-            border.color: Theme.cardBackground
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
             border.width: 1
             scale: (!tagDbOverlay.closing && tagDbOverlay.visible) ? 1.0 : 0.9
             opacity: (!tagDbOverlay.closing && tagDbOverlay.visible) ? 1.0 : 0.0
             Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
             Behavior on opacity { NumberAnimation { duration: 200 } }
 
-            ColumnLayout {
+            Column {
                 id: tagDbCol
-                width: parent.width - 40
+                width: parent.width - 60
                 anchors.centerIn: parent
-                spacing: 16
+                spacing: 25
+
+                Item { height: 10; width: 1 }
+
+                Image {
+                    source: "../assets/ZhuYuanWrite.png"
+                    width: 160
+                    height: 160
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
                 Text {
                     text: qsTr("Official Tag Database")
-                    color: Theme.primaryAccent
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeNormal
-                    font.bold: true
-                    Layout.fillWidth: true
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 24
+                    width: parent.width
                     horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
                 }
 
                 Text {
                     text: qsTr("Downloaded %1 tag entries.\n\nHow would you like to apply them?").arg(tagDbEntryCount)
-                    color: Theme.textPrimary
-                    font.family: Theme.fontFamily
-                    font.pixelSize: Theme.fontSizeSmall
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 16
+                    width: parent.width
                     wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                     lineHeight: 1.4
                 }
 
                 Text {
                     text: qsTr("Merge adds new entries and updates existing ones.\nReplace completely replaces your local database.")
-                    color: Theme.textSecondary
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 12
+                    color: "#999999"
+                    font.family: "Alatsi"
+                    font.pixelSize: 13
+                    width: parent.width
                     wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                     lineHeight: 1.3
                 }
 
                 RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Theme.spacingSmall
+                    spacing: 20
+                    width: parent.width
 
                     Item { Layout.fillWidth: true }
 
-                    ZZARButton {
-                        text: qsTr("Cancel")
-                        buttonColor: Theme.disabledAccent
-                        onClicked: {
-                            tagDbOverlay.closing = true
-                            tagDbHideTimer.start()
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: Theme.disabledAccent
+                        radius: Theme.radiusMedium
+                        scale: tagDbCancelMouse.pressed ? 0.97 : (tagDbCancelMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("Cancel")
+                            color: Theme.textPrimary
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: tagDbCancelMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                tagDbOverlay.closing = true
+                                tagDbHideTimer.start()
+                            }
                         }
                     }
 
-                    ZZARButton {
-                        text: qsTr("Replace")
-                        buttonColor: Theme.dangerAccent
-                        onClicked: {
-                            tagDbOverlay.closing = true
-                            tagDbHideTimer.start()
-                            applyOfficialTagDb(false)
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: Theme.dangerAccent
+                        radius: Theme.radiusMedium
+                        scale: tagDbReplaceMouse.pressed ? 0.97 : (tagDbReplaceMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("Replace")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: tagDbReplaceMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                tagDbOverlay.closing = true
+                                tagDbHideTimer.start()
+                                applyOfficialTagDb(false)
+                            }
                         }
                     }
 
-                    ZZARButton {
-                        text: qsTr("Merge")
-                        buttonColor: Theme.primaryAccent
-                        onClicked: {
-                            tagDbOverlay.closing = true
-                            tagDbHideTimer.start()
-                            applyOfficialTagDb(true)
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: Theme.primaryAccent
+                        radius: Theme.radiusMedium
+                        scale: tagDbMergeMouse.pressed ? 0.97 : (tagDbMergeMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("Merge")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: tagDbMergeMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                tagDbOverlay.closing = true
+                                tagDbHideTimer.start()
+                                applyOfficialTagDb(true)
+                            }
                         }
                     }
 
                     Item { Layout.fillWidth: true }
                 }
+
+                Item { height: 5; width: 1 }
+            }
+        }
+    }
+
+    Item {
+        id: tagDbNotifyOverlay
+        visible: tagDbNotifyVisible
+        anchors.fill: parent
+        z: 2004
+        property bool closing: false
+
+        Timer {
+            id: tagDbNotifyHideTimer
+            interval: 200
+            onTriggered: {
+                tagDbNotifyVisible = false
+                tagDbNotifyOverlay.closing = false
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"
+            opacity: (!tagDbNotifyOverlay.closing && tagDbNotifyOverlay.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Image {
+                anchors.fill: parent
+                source: "../assets/gradient.png"
+                fillMode: Image.Stretch
+                mipmap: true
+                opacity: 0.6
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    tagDbNotifyOverlay.closing = true
+                    tagDbNotifyHideTimer.start()
+                    dismissTagDbNotify(false)
+                }
+            }
+        }
+
+        Rectangle {
+            width: Math.min(500, parent.width - 40)
+            height: notifyCol.height + 60
+            anchors.centerIn: parent
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
+            border.width: 1
+            scale: (!tagDbNotifyOverlay.closing && tagDbNotifyOverlay.visible) ? 1.0 : 0.9
+            opacity: (!tagDbNotifyOverlay.closing && tagDbNotifyOverlay.visible) ? 1.0 : 0.0
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Column {
+                id: notifyCol
+                width: parent.width - 60
+                anchors.centerIn: parent
+                spacing: 25
+
+                Item { height: 10; width: 1 }
+
+                Image {
+                    source: "../assets/EvelynCall.png"
+                    width: 160
+                    height: 160
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    text: qsTr("New Official Tags Available!")
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 22
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    text: qsTr("%1 tag entries are available for download.").arg(tagDbNewCount)
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 15
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
+
+                Text {
+                    text: qsTr("You can always download them later from the Options menu on this page.")
+                    color: "#999999"
+                    font.family: "Alatsi"
+                    font.pixelSize: 12
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.3
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 8
+
+                    Rectangle {
+                        id: notifyDontShowBox
+                        width: 20
+                        height: 20
+                        radius: 4
+                        color: notifyDontShowBox.checked ? Theme.primaryAccent : "#3c3d3f"
+                        border.color: notifyDontShowBox.checked ? Theme.primaryAccent : "#555555"
+                        border.width: 1
+                        anchors.verticalCenter: parent.verticalCenter
+                        Behavior on color { ColorAnimation { duration: 100 } }
+
+                        property bool checked: false
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "\u2713"
+                            color: "#ffffff"
+                            font.pixelSize: 14
+                            font.bold: true
+                            visible: notifyDontShowBox.checked
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: notifyDontShowBox.checked = !notifyDontShowBox.checked
+                        }
+                    }
+
+                    Text {
+                        text: qsTr("Don't show this again")
+                        color: "#999999"
+                        font.family: "Alatsi"
+                        font.pixelSize: 12
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: notifyDontShowBox.checked = !notifyDontShowBox.checked
+                        }
+                    }
+                }
+
+                RowLayout {
+                    spacing: 20
+                    width: parent.width
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: Theme.disabledAccent
+                        radius: Theme.radiusMedium
+                        scale: notifyDismissMouse.pressed ? 0.97 : (notifyDismissMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("Dismiss")
+                            color: Theme.textPrimary
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: notifyDismissMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                var dontShow = notifyDontShowBox.checked
+                                tagDbNotifyOverlay.closing = true
+                                tagDbNotifyHideTimer.start()
+                                dismissTagDbNotify(dontShow)
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 150
+                        height: 45
+                        color: Theme.primaryAccent
+                        radius: Theme.radiusMedium
+                        scale: notifyDownloadMouse.pressed ? 0.97 : (notifyDownloadMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("Download Now")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: notifyDownloadMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                var dontShow = notifyDontShowBox.checked
+                                tagDbNotifyOverlay.closing = true
+                                tagDbNotifyHideTimer.start()
+                                dismissTagDbNotify(dontShow)
+                                downloadOfficialTagDbClicked()
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
+
+                Item { height: 5; width: 1 }
             }
         }
     }
