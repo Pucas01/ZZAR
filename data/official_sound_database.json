@@ -1,1 +1,459 @@
-{}
+{
+  "207131e0994388e59d0eb687195ec87f9028231defef4ca0325e058fc76fc2e1": {
+    "name": "Battle Tower: Glory (A-Rank)",
+    "tags": [
+      "battle tower",
+      "glory",
+      "a-rank",
+      "music"
+    ],
+    "notes": "BGM playing when reaching A-Rank in Battle Tower: Glory",
+    "file_ids": [
+      132106366
+    ],
+    "date_added": "2026-02-26T11:07:25.797732",
+    "date_modified": "2026-02-26T11:07:25.797732"
+  },
+  "d021eb4f01544e222988ed7c3e5be17e9c8c84d5608213ec79b70b19421aad75": {
+    "name": "Battle Tower: Glory (S-Rank)",
+    "tags": [
+      "battle tower",
+      "glory",
+      "s-rank",
+      "music"
+    ],
+    "notes": "BGM that plays when reaching S-Rank in Battle Tower: Glory",
+    "file_ids": [
+      260771780
+    ],
+    "date_added": "2026-02-26T11:08:40.075921",
+    "date_modified": "2026-02-26T11:08:40.075921"
+  },
+  "4202e1e840b065e2ce006d5646ece96cd8c11439b0c3569a1f70fb14b756d59f": {
+    "name": "Battle Tower (Endless)",
+    "tags": [
+      "battle tower",
+      "endless",
+      "music"
+    ],
+    "notes": "BGM in Endless Battle Tower",
+    "file_ids": [
+      879091625
+    ],
+    "date_added": "2026-02-26T11:11:00.542113",
+    "date_modified": "2026-02-26T11:11:00.542113"
+  },
+  "8dec83752e8235e53c82d8c1cf8208b0c5b78ce204685f24a3b901b166d2e008": {
+    "name": "Training Room",
+    "tags": [
+      "training",
+      "room",
+      "music"
+    ],
+    "notes": "BGM in Training Room(?)",
+    "file_ids": [
+      51019496
+    ],
+    "date_added": "2026-02-26T11:15:02.349553",
+    "date_modified": "2026-02-26T11:15:02.349553"
+  },
+  "c26eed3c66587948e19a0f2716273585c16678fe7b07cc2137fd9f4f0c2831ee": {
+    "name": "Dead End Butcher A",
+    "tags": [
+      "dead end butcher",
+      "deb",
+      "boss music"
+    ],
+    "notes": "BGM that plays against Dead End Butcher, one of them.",
+    "file_ids": [
+      302742399
+    ],
+    "date_added": "2026-02-26T11:17:05.555775",
+    "date_modified": "2026-02-26T11:52:19.370262"
+  },
+  "f3d9678dbecd11b7646727fc30b63bd148dd20e371ead1938e2bedf6a41cdc61": {
+    "name": "VR Room",
+    "tags": [
+      "vr",
+      "room",
+      "music"
+    ],
+    "notes": "BGM that plays in the VR Room, apparently a dupe..?",
+    "file_ids": [
+      193970784
+    ],
+    "date_added": "2026-02-26T11:20:10.978633",
+    "date_modified": "2026-02-26T11:20:10.978633"
+  },
+  "975f73f293091f60f338c2a86ac515c6ce7b72ac268030c635acdf67cf57e858": {
+    "name": "Dead  End Butcher B",
+    "tags": [
+      "dead end butcher",
+      "deb",
+      "boss music"
+    ],
+    "notes": "BGM that plays against Dead End Butcher, the other one.",
+    "file_ids": [
+      304615682
+    ],
+    "date_added": "2026-02-26T11:21:16.538044",
+    "date_modified": "2026-02-26T11:52:33.693136"
+  },
+  "4b3f4c444b21b1cbd67e8191fffcc6cdb78b48062b88bde034e40acd4ba6158e": {
+    "name": "Unknown Corruption Complex A",
+    "tags": [
+      "unknown corruption complex",
+      "ucc",
+      "boss music"
+    ],
+    "notes": "BGM against U.C.C: Unknown Corruption Complex.",
+    "file_ids": [
+      449898303
+    ],
+    "date_added": "2026-02-26T11:30:21.087142",
+    "date_modified": "2026-02-26T11:52:43.117976"
+  },
+  "46dba68e63b6e39a353fa3cc033470752a9eaf442e8c9c76288382b91d73f28f": {
+    "name": "Unknown Corruption Complex B",
+    "tags": [
+      "unknown corruption complex",
+      "ucc",
+      "boss music"
+    ],
+    "notes": "BGM against U.C.C: Unknown Corruption Complex",
+    "file_ids": [
+      50269771
+    ],
+    "date_added": "2026-02-26T11:31:25.686670",
+    "date_modified": "2026-02-26T11:52:53.205851"
+  },
+  "31c4034786e59884850b4bab73ee8963c959c09f724b0dd24a2d9d2d620fdec9": {
+    "name": "Pompey A",
+    "tags": [
+      "pompey",
+      "boss music"
+    ],
+    "notes": "BGM against Pompey.",
+    "file_ids": [
+      312522376
+    ],
+    "date_added": "2026-02-26T11:32:18.745847",
+    "date_modified": "2026-02-26T11:53:06.491296"
+  },
+  "b76f3418e9eb804d5b7643089c3f5133079104ccf39391768faea1a5a83789b0": {
+    "name": "Pompey B",
+    "tags": [
+      "pompey",
+      "boss music"
+    ],
+    "notes": "BGM against Pompey.",
+    "file_ids": [
+      521277444
+    ],
+    "date_added": "2026-02-26T11:32:57.163314",
+    "date_modified": "2026-02-26T11:53:15.892737"
+  },
+  "dd59e4eaa5f36347ac0479893d24253e8f9c485e134d1207b8d9afbf2bcfce3c": {
+    "name": "Nineveh A (Loop)",
+    "tags": [
+      "nineveh",
+      "boss music"
+    ],
+    "notes": "BGM Loop against Nineveh.",
+    "file_ids": [
+      382181997,
+      798394707
+    ],
+    "date_added": "2026-02-26T11:33:45.216852",
+    "date_modified": "2026-02-26T11:53:29.371476"
+  },
+  "65904438714d24dc654504a28037425d7987d52cbfae1bacf4ac06ddcbd4bb1f": {
+    "name": "NIneveh B (Intro)",
+    "tags": [
+      "nineveh",
+      "boss music"
+    ],
+    "notes": "BGM Intro against Nineveh.",
+    "file_ids": [
+      435329536,
+      604737923
+    ],
+    "date_added": "2026-02-26T11:34:22.554298",
+    "date_modified": "2026-02-26T11:53:45.979420"
+  },
+  "2222a6c7d88f03edb107d39d35d49b2de66291a34a7d14b9f926f20efcb95d6c": {
+    "name": "Nineveh C (Full Song)",
+    "tags": [
+      "nineveh",
+      "boss music"
+    ],
+    "notes": "Full BGM against Nineveh.",
+    "file_ids": [
+      295151107
+    ],
+    "date_added": "2026-02-26T11:36:13.889853",
+    "date_modified": "2026-02-26T11:54:00.333318"
+  },
+  "4341d7567e7a7cba81fae80f03b07eec2ae5b72aaa26a26e970257ee0da48f56": {
+    "name": "Nineveh Stage A",
+    "tags": [
+      "nineveh",
+      "stage"
+    ],
+    "notes": "BGM in NIneveh's Stage (Track A)",
+    "file_ids": [
+      264733667
+    ],
+    "date_added": "2026-02-26T11:37:07.825076",
+    "date_modified": "2026-02-26T11:37:07.825076"
+  },
+  "4547e68257a904d890a1ea39271b9da84aebd893865321e22c433aa136262470": {
+    "name": "Nineveh Stage B",
+    "tags": [
+      "nineveh",
+      "stage"
+    ],
+    "notes": "BGM in Nineveh's Stage (Track B)",
+    "file_ids": [
+      100415743
+    ],
+    "date_added": "2026-02-26T11:37:43.902071",
+    "date_modified": "2026-02-26T11:37:43.902071"
+  },
+  "aa86485216ae72c8b9681e92a03509932f78034fb350596d866f083ecaafd68f": {
+    "name": "Nineveh Stage C",
+    "tags": [
+      "nineveh",
+      "stage"
+    ],
+    "notes": "BGM in Nineveh's Stage, Transition from Track B to Track A.",
+    "file_ids": [
+      778643595
+    ],
+    "date_added": "2026-02-26T11:39:01.020857",
+    "date_modified": "2026-02-26T11:39:01.020857"
+  },
+  "4d6a346604325da01ab767b0d34d9ef89257b245f7d928714e8850d9084097ce": {
+    "name": "Bringer A",
+    "tags": [
+      "bringer",
+      "boss music"
+    ],
+    "notes": "BGM against Bringer (Track A)",
+    "file_ids": [
+      239654136
+    ],
+    "date_added": "2026-02-26T11:39:48.337850",
+    "date_modified": "2026-02-26T11:54:11.772064"
+  },
+  "eb485aa2e1e907e6ef4f6fd8969bdd8a5d5a960ba3f0044636bc26912850a103": {
+    "name": "Bringer B",
+    "tags": [
+      "bringer",
+      "boss music"
+    ],
+    "notes": "BGM against Bringer. (Track B)",
+    "file_ids": [
+      75569167
+    ],
+    "date_added": "2026-02-26T11:40:18.950979",
+    "date_modified": "2026-02-26T11:54:26.451649"
+  },
+  "aa51751cd297ec138fcb54b3c393a002ce0500ed82cd45df23b2a6dad1127510": {
+    "name": "Marionette A",
+    "tags": [
+      "marionette",
+      "boss music"
+    ],
+    "notes": "BGM against Marionette. (Track A)",
+    "file_ids": [
+      101035373
+    ],
+    "date_added": "2026-02-26T11:46:38.186132",
+    "date_modified": "2026-02-26T11:54:36.435748"
+  },
+  "72f6ccbf08e20a2c941a72ef628706f255dbe32bc8ef64eead2a21ea6e43f77f": {
+    "name": "Marionette B",
+    "tags": [
+      "marionette",
+      "boss music"
+    ],
+    "notes": "BGM against Marionette. (Track B)",
+    "file_ids": [
+      128450298
+    ],
+    "date_added": "2026-02-26T11:47:20.367340",
+    "date_modified": "2026-02-26T11:54:44.670308"
+  },
+  "13d1fc18f204ec71364c8c1be1ed4512b5f97e7f2d5e1e17bdb3dc53cb128ab7": {
+    "name": "Miasma Priest A",
+    "tags": [
+      "miasma priest",
+      "boss music"
+    ],
+    "notes": "BGM against Miasma Priest. (Track A)",
+    "file_ids": [
+      49063897
+    ],
+    "date_added": "2026-02-26T11:56:53.085405",
+    "date_modified": "2026-02-26T11:56:53.085405"
+  },
+  "f5218ee9754552eec6e40891e9310665a3772fc2b8524d554e730874c15b492a": {
+    "name": "Miasma Priest B",
+    "tags": [
+      "miasma priest",
+      "boss music"
+    ],
+    "notes": "BGM against Miasma Priest. (Track B)",
+    "file_ids": [
+      106993661
+    ],
+    "date_added": "2026-02-26T11:57:33.768728",
+    "date_modified": "2026-02-26T11:57:33.768728"
+  },
+  "3cdcbad3ce1496075eb1d0bdc8cc751802fd145fa87dc023ab8cd1f829223841": {
+    "name": "Miasmic Fiend A",
+    "tags": [
+      "miasmic fiend",
+      "boss music"
+    ],
+    "notes": "BGM against Miasmic Fiend. (Track A)",
+    "file_ids": [
+      535117323
+    ],
+    "date_added": "2026-02-26T11:59:56.325696",
+    "date_modified": "2026-02-26T11:59:56.325696"
+  },
+  "72c423e44197262957e70801936132c731be5fef645ed5e78a077d29c2355a56": {
+    "name": "Miasmic Fiend B",
+    "tags": [
+      "miasmic fiend",
+      "boss music"
+    ],
+    "notes": "BGM against Miasmic Fiend. (Track B)",
+    "file_ids": [
+      306399053
+    ],
+    "date_added": "2026-02-26T12:00:30.640960",
+    "date_modified": "2026-02-26T12:00:30.640960"
+  },
+  "2a2533ab558bc4649763ff8af2f7876d5fd0b8586d1c757ca7a9015ec8c25bba": {
+    "name": "Withering Garden Intro",
+    "tags": [
+      "withering garden",
+      "music"
+    ],
+    "notes": "BGM Intro for Withering Garden",
+    "file_ids": [
+      775446758
+    ],
+    "date_added": "2026-02-26T12:01:45.788243",
+    "date_modified": "2026-02-26T12:01:45.788243"
+  },
+  "785cd212baf81c8e86af857b06b9b65908ea700654e0d930ed55a894263d6fa4": {
+    "name": "Defiler A",
+    "tags": [
+      "defiler",
+      "boss music"
+    ],
+    "notes": "BGM against Defiler (Track A)",
+    "file_ids": [
+      555027778
+    ],
+    "date_added": "2026-02-26T12:03:55.218572",
+    "date_modified": "2026-02-26T12:03:55.218572"
+  },
+  "c54bc3f6b150935ee715aa8d548673860e8ea8109b358e5a77e7f8546a38580e": {
+    "name": "Defiler B",
+    "tags": [
+      "defiler",
+      "boss music"
+    ],
+    "notes": "BGM against Defiler (Track B)",
+    "file_ids": [
+      670468533
+    ],
+    "date_added": "2026-02-26T12:04:24.368218",
+    "date_modified": "2026-02-26T12:04:24.368218"
+  },
+  "1eb700afef0edbc97a1250ad70e581ad0c07bbbfddd2d5817f08d339b1c21a3c": {
+    "name": "Defiler C",
+    "tags": [
+      "defiler",
+      "boss music"
+    ],
+    "notes": "BGM against Defiler (Track C)",
+    "file_ids": [
+      794566635
+    ],
+    "date_added": "2026-02-26T12:05:00.752870",
+    "date_modified": "2026-02-26T12:05:00.752870"
+  },
+  "50f598a490237aa99f52224337069c3b7f8487b35a0f194df583aaaae83a4538": {
+    "name": "Wandering Hunter",
+    "tags": [
+      "wandering hunter",
+      "boss music"
+    ],
+    "notes": "BGM against Wandering Hunter (Track A)",
+    "file_ids": [
+      39356919
+    ],
+    "date_added": "2026-02-26T12:05:32.729553",
+    "date_modified": "2026-02-26T12:05:32.729553"
+  },
+  "7dfbee5d191d563984f61d7cc6727f375051a166acfae36124413d6a98d11e99": {
+    "name": "Wandering Hunter B",
+    "tags": [
+      "wandering hunter",
+      "boss music"
+    ],
+    "notes": "BGM against Wandering Hunter (Track B)",
+    "file_ids": [
+      837006487
+    ],
+    "date_added": "2026-02-26T12:06:26.480643",
+    "date_modified": "2026-02-26T12:06:26.480643"
+  },
+  "12c5c309a6ab07b8dbaf6dbad2a37d727b09209ef2d9d5f43d13ee4faf6706aa": {
+    "name": "Wandering Hunter C",
+    "tags": [
+      "wandering hunter",
+      "boss music"
+    ],
+    "notes": "BGM against Wandering Hunter (Track C)",
+    "file_ids": [
+      626869670
+    ],
+    "date_added": "2026-02-26T12:07:11.376208",
+    "date_modified": "2026-02-26T12:07:11.376208"
+  },
+  "ca37d8389d7a4fad76865b17cb3e0d10afcb3e80824929a34f855591582a0c09": {
+    "name": "Lost Void Breaktime",
+    "tags": [
+      "lost void",
+      "breaktime",
+      "music"
+    ],
+    "notes": "BGM in Lost Void's Breaktime (Track A?)",
+    "file_ids": [
+      977524051
+    ],
+    "date_added": "2026-02-26T12:08:09.070924",
+    "date_modified": "2026-02-26T12:08:09.070924"
+  },
+  "fe4c4cfd91e48a2602ab992de25d8b830cbef9fbc137bcedb6adaf5a7d606485": {
+    "name": "Lost Void Breaktime B",
+    "tags": [
+      "lost void",
+      "breaktime",
+      "music"
+    ],
+    "notes": "BGM in Lost Void's Breaktime (Track B)",
+    "file_ids": [
+      787963119
+    ],
+    "date_added": "2026-02-26T12:08:43.871155",
+    "date_modified": "2026-02-26T12:08:43.871155"
+  }
+}
