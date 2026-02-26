@@ -76,7 +76,7 @@ Item {
             spacing: 20
 
             Text {
-                text: qsTr("Find Matching Sound")
+                text: qsTranslate("Application", "Find Matching Sound")
                 color: "#d8fa00"
                 font.family: "Alatsi"
                 font.pixelSize: 24
@@ -89,7 +89,7 @@ Item {
                 spacing: 12
 
                 Text {
-                    text: qsTr("Select Recording")
+                    text: qsTranslate("Application", "Select Recording")
                     color: "#ffffff"
                     font.family: "Alatsi"
                     font.pixelSize: 14
@@ -109,7 +109,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.right: browseBtn.left
                         anchors.rightMargin: 10
-                        text: root.selectedFileName || qsTr("No file selected")
+                        text: root.selectedFileName || qsTranslate("Application", "No file selected")
                         color: root.selectedFileName ? "#ffffff" : "#888888"
                         font.family: "Alatsi"
                         font.pixelSize: 13
@@ -131,7 +131,7 @@ Item {
 
                         Text {
                             anchors.centerIn: parent
-                            text: qsTr("Browse...")
+                            text: qsTranslate("Application", "Browse...")
                             color: "#000000"
                             font.family: "Alatsi"
                             font.pixelSize: 13
@@ -177,7 +177,7 @@ Item {
                 }
 
                 Text {
-                    text: root.matchStatus || (qsTr("Matching... %1/%2 sounds").arg(root.matchCurrent).arg(root.matchTotal))
+                    text: root.matchStatus || (qsTranslate("Application", "Matching... %1/%2 sounds").arg(root.matchCurrent).arg(root.matchTotal))
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 13
@@ -203,7 +203,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Cancel")
+                        text: qsTranslate("Application", "Cancel")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -266,7 +266,7 @@ Item {
                         }
 
                         Text {
-                            text: root.isMatching ? qsTr("Matching...") : qsTr("Start Matching")
+                            text: root.isMatching ? qsTranslate("Application", "Matching...") : qsTranslate("Application", "Start Matching")
                             color: (!root.selectedFilePath || root.isMatching) ? "#666666" : "#000000"
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeNormal

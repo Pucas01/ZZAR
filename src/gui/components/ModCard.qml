@@ -68,7 +68,7 @@ Rectangle {
 
             Text {
                 anchors.centerIn: parent
-                text: qsTr("No\nImage")
+                text: qsTranslate("Application", "No\nImage")
                 color: "#888"
                 font.pixelSize: Theme.fontSizeSmall
                 horizontalAlignment: Text.AlignHCenter
@@ -93,7 +93,7 @@ Rectangle {
             }
 
             Text {
-                text: qsTr("By: ") + modAuthor
+                text: qsTranslate("Application", "By: ") + modAuthor
                 color: Theme.textTertiary
                 font.family: Theme.fontFamily
                 font.pixelSize: Theme.fontSizeNormal
@@ -127,7 +127,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: isEnabled ? qsTr("Enabled") : qsTr("Disabled")
+                    text: isEnabled ? qsTranslate("Application", "Enabled") : qsTranslate("Application", "Disabled")
                     color: Theme.textOnAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeMedium
@@ -158,7 +158,7 @@ Rectangle {
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTr("More info")
+                    text: qsTranslate("Application", "More info")
                     color: Theme.textOnAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeMedium

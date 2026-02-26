@@ -88,7 +88,7 @@ Item {
             spacing: 15
 
             Text {
-                text: qsTr("Import Existing Mod")
+                text: qsTranslate("Application", "Import Existing Mod")
                 color: "#CDEE00"
                 font.family: "Stretch Pro"
                 font.pixelSize: 28
@@ -99,7 +99,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Convert PCK or WEM files to .zzar mod package")
+                text: qsTranslate("Application", "Convert PCK or WEM files to .zzar mod package")
                 color: "#888888"
                 font.family: "Alatsi"
                 font.pixelSize: 14
@@ -138,7 +138,7 @@ Item {
                     visible: currentPage === 1 && !isImporting
 
                     Text {
-                        text: qsTr("Step 1: Select Import Mode")
+                        text: qsTranslate("Application", "Step 1: Select Import Mode")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 18
@@ -146,7 +146,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("What type of mod files do you have?")
+                        text: qsTranslate("Application", "What type of mod files do you have?")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 14
@@ -189,7 +189,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Single PCK file (modded game archive)")
+                                    text: qsTranslate("Application", "Single PCK file (modded game archive)")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -237,7 +237,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Folder containing PCK files")
+                                    text: qsTranslate("Application", "Folder containing PCK files")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -285,7 +285,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Single WEM file (audio replacement)")
+                                    text: qsTranslate("Application", "Single WEM file (audio replacement)")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -333,7 +333,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Folder containing WEM files")
+                                    text: qsTranslate("Application", "Folder containing WEM files")
                                     color: "#ffffff"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
@@ -364,7 +364,7 @@ Item {
                                 spacing: 4
 
                                 Text {
-                                    text: qsTr("Warning")
+                                    text: qsTranslate("Application", "Warning")
                                     color: "#ff6b6b"
                                     font.family: "Alatsi"
                                     font.pixelSize: 13
@@ -372,7 +372,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("PCK files must match the current game version. Using PCK files from a different game version will cause issues, if you dont know what your doing use the WEM file option.")
+                                    text: qsTranslate("Application", "PCK files must match the current game version. Using PCK files from a different game version will cause issues, if you dont know what your doing use the WEM file option.")
                                     color: "#cc8888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 12
@@ -391,7 +391,7 @@ Item {
                     visible: currentPage === 2 && !isImporting
 
                     Text {
-                        text: qsTr("Step 2: Select Files")
+                        text: qsTranslate("Application", "Step 2: Select Files")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 18
@@ -403,7 +403,7 @@ Item {
                         spacing: 10
 
                         Text {
-                            text: importMode.indexOf("folder") >= 0 ? qsTr("Folder:") : qsTr("File(s):")
+                            text: importMode.indexOf("folder") >= 0 ? qsTranslate("Application", "Folder:") : qsTranslate("Application", "File(s):")
                             color: "#aaaaaa"
                             font.family: "Alatsi"
                             font.pixelSize: 14
@@ -423,8 +423,8 @@ Item {
                                 anchors.fill: parent
                                 anchors.margins: 10
                                 text: importMode.indexOf("folder") >= 0 ?
-                                      (selectedFolder || qsTr("No folder selected")) :
-                                      (selectedFiles.length > 0 ? qsTr("%1 file(s) selected").arg(selectedFiles.length) : qsTr("No files selected"))
+                                      (selectedFolder || qsTranslate("Application", "No folder selected")) :
+                                      (selectedFiles.length > 0 ? qsTranslate("Application", "%1 file(s) selected").arg(selectedFiles.length) : qsTranslate("Application", "No files selected"))
                                 color: selectedFiles.length > 0 || selectedFolder ? "#ffffff" : "#666666"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -443,7 +443,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("Browse")
+                                text: qsTranslate("Application", "Browse")
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
@@ -466,7 +466,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("Selected files:")
+                        text: qsTranslate("Application", "Selected files:")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 14
@@ -498,7 +498,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("No files selected")
+                                text: qsTranslate("Application", "No files selected")
                                 color: "#555555"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -514,7 +514,7 @@ Item {
                     visible: currentPage === 3 && !isImporting
 
                     Text {
-                        text: qsTr("Step 3: Review Detected Files")
+                        text: qsTranslate("Application", "Step 3: Review Detected Files")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 18
@@ -522,7 +522,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("The following files will be included in the mod:")
+                        text: qsTranslate("Application", "The following files will be included in the mod:")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 14
@@ -561,7 +561,7 @@ Item {
                     visible: currentPage === 4 && !isImporting
 
                     Text {
-                        text: qsTr("Step 4: Mod Information")
+                        text: qsTranslate("Application", "Step 4: Mod Information")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 18
@@ -569,7 +569,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("Enter information about this mod:")
+                        text: qsTranslate("Application", "Enter information about this mod:")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 14
@@ -591,7 +591,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: qsTr("Name:*")
+                                    text: qsTranslate("Application", "Name:*")
                                     color: "#aaaaaa"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -618,7 +618,7 @@ Item {
 
                                         Text {
                                             anchors.fill: parent
-                                            text: qsTr("My Awesome Mod")
+                                            text: qsTranslate("Application", "My Awesome Mod")
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -633,7 +633,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: qsTr("Author:*")
+                                    text: qsTranslate("Application", "Author:*")
                                     color: "#aaaaaa"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -660,7 +660,7 @@ Item {
 
                                         Text {
                                             anchors.fill: parent
-                                            text: qsTr("Your Name")
+                                            text: qsTranslate("Application", "Your Name")
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -675,7 +675,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: qsTr("Version:")
+                                    text: qsTranslate("Application", "Version:")
                                     color: "#aaaaaa"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -709,7 +709,7 @@ Item {
                                 spacing: 5
 
                                 Text {
-                                    text: qsTr("Description:")
+                                    text: qsTranslate("Application", "Description:")
                                     color: "#aaaaaa"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -735,7 +735,7 @@ Item {
 
                                         Text {
                                             anchors.fill: parent
-                                            text: qsTr("Describe what this mod does...")
+                                            text: qsTranslate("Application", "Describe what this mod does...")
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -750,7 +750,7 @@ Item {
                                 spacing: 10
 
                                 Text {
-                                    text: qsTr("Thumbnail:")
+                                    text: qsTranslate("Application", "Thumbnail:")
                                     color: "#aaaaaa"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -768,7 +768,7 @@ Item {
                                     Text {
                                         anchors.fill: parent
                                         anchors.margins: 8
-                                        text: thumbnailPath ? thumbnailPath.split("/").pop() : qsTr("Optional - Browse for image")
+                                        text: thumbnailPath ? thumbnailPath.split("/").pop() : qsTranslate("Application", "Optional - Browse for image")
                                         color: thumbnailPath ? "#ffffff" : "#555555"
                                         font.family: "Alatsi"
                                         font.pixelSize: 14
@@ -787,7 +787,7 @@ Item {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: qsTr("Browse")
+                                        text: qsTranslate("Application", "Browse")
                                         color: Theme.textOnAccent
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeSmall
@@ -806,7 +806,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("* Required fields")
+                        text: qsTranslate("Application", "* Required fields")
                         color: "#666666"
                         font.family: "Alatsi"
                         font.pixelSize: 12
@@ -821,7 +821,7 @@ Item {
                     Item { width: 1; height: 40 }
 
                     Text {
-                        text: qsTr("Importing Mod...")
+                        text: qsTranslate("Application", "Importing Mod...")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 22
@@ -893,7 +893,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("< Back")
+                        text: qsTranslate("Application", "< Back")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -919,7 +919,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Next >")
+                        text: qsTranslate("Application", "Next >")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -945,7 +945,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Create Mod")
+                        text: qsTranslate("Application", "Create Mod")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -970,7 +970,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Cancel")
+                        text: qsTranslate("Application", "Cancel")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -1033,11 +1033,11 @@ Item {
         }
 
         if (currentPage === 2) {
-            var summary = qsTr("Files to be included in the mod:") + "\n\n"
+            var summary = qsTranslate("Application", "Files to be included in the mod:") + "\n\n"
             for (var i = 0; i < selectedFiles.length; i++) {
                 summary += "  - " + selectedFiles[i] + "\n"
             }
-            summary += "\n" + qsTr("Total: %1 file(s)").arg(selectedFiles.length)
+            summary += "\n" + qsTranslate("Application", "Total: %1 file(s)").arg(selectedFiles.length)
             detectedFilesSummary = summary
             detectedFilesCount = selectedFiles.length
         }
@@ -1096,7 +1096,7 @@ Item {
     function startImporting() {
         isImporting = true
         importPercent = 0
-        importStatus = qsTr("Starting...")
+        importStatus = qsTranslate("Application", "Starting...")
     }
 
     function updateImportProgress(percent, status) {

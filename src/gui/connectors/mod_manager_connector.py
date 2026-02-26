@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QCoreApplication
 import json
 import platform
 import subprocess
@@ -77,9 +78,9 @@ class ModManagerConnector:
         start_dir = self._get_last_install_dir()
 
         file_paths = NativeDialogs.get_open_files(
-            self.tr("Select .zzar Mod Package(s)"),
+            QCoreApplication.translate("Application", "Select .zzar Mod Package(s)"),
             start_dir,
-            self.tr("ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)"),
+            QCoreApplication.translate("Application", "ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)"),
         )
 
         if file_paths:
@@ -98,7 +99,7 @@ class ModManagerConnector:
         else:
             print("[Import Wizard] ERROR: Import wizard not found")
             self.mod_manager_bridge.errorOccurred.emit(
-                self.tr("Error"), self.tr("Import wizard component not found")
+                QCoreApplication.translate("Application", "Error"), QCoreApplication.translate("Application", "Import wizard component not found")
             )
 
     def on_remove_mods_clicked(self, mod_uuids):
@@ -106,7 +107,7 @@ class ModManagerConnector:
         if not uuids:
             print("[Mod Manager] No mods selected for removal")
             self.mod_manager_bridge.progressUpdate.emit(
-                self.tr("Select one or more mods from the list first")
+                QCoreApplication.translate("Application", "Select one or more mods from the list first")
             )
             return
 
@@ -115,11 +116,11 @@ class ModManagerConnector:
         print(f"[Mod Manager] Requesting removal of {count} mod(s)")
 
         if count == 1:
-            title = self.tr("Remove Mod?")
-            message = self.tr("Are you sure you want to remove this mod? This cannot be undone.")
+            title = QCoreApplication.translate("Application", "Remove Mod?")
+            message = QCoreApplication.translate("Application", "Are you sure you want to remove this mod? This cannot be undone.")
         else:
-            title = self.tr("Remove %1 Mods?").replace("%1", str(count))
-            message = self.tr("Are you sure you want to remove %1 mods? This cannot be undone.").replace("%1", str(count))
+            title = QCoreApplication.translate("Application", "Remove %1 Mods?").replace("%1", str(count))
+            message = QCoreApplication.translate("Application", "Are you sure you want to remove %1 mods? This cannot be undone.").replace("%1", str(count))
 
         QMetaObject.invokeMethod(
             self.root,
@@ -206,7 +207,7 @@ class ModManagerConnector:
         except Exception as e:
             print(f"[Mod Manager] ERROR: Could not open folder: {e}")
             self.mod_manager_bridge.errorOccurred.emit(
-                self.tr("Error"), self.tr("Could not open folder: %1").replace("%1", str(e))
+                QCoreApplication.translate("Application", "Error"), QCoreApplication.translate("Application", "Could not open folder: %1").replace("%1", str(e))
             )
 
     def on_mod_toggled(self, mod_uuid, enabled):

@@ -140,14 +140,14 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("By %1").arg(modAuthor)
+                        text: qsTranslate("Application", "By %1").arg(modAuthor)
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 16
                     }
 
                     Text {
-                        text: qsTr("Version %1").arg(modVersion)
+                        text: qsTranslate("Application", "Version %1").arg(modVersion)
                         color: "#888888"
                         font.family: "Alatsi"
                         font.pixelSize: 14
@@ -166,7 +166,7 @@ Item {
                 spacing: 8
 
                 Text {
-                    text: qsTr("Description")
+                    text: qsTranslate("Application", "Description")
                     color: "#ffffff"
                     font.family: "Alatsi"
                     font.pixelSize: 16
@@ -185,7 +185,7 @@ Item {
                         clip: true
 
                         Text {
-                            text: modDescription || qsTr("No description provided.")
+                            text: modDescription || qsTranslate("Application", "No description provided.")
                             color: modDescription ? "#cccccc" : "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 14
@@ -201,7 +201,7 @@ Item {
                 spacing: 8
 
                 Text {
-                    text: qsTr("Details")
+                    text: qsTranslate("Application", "Details")
                     color: "#ffffff"
                     font.family: "Alatsi"
                     font.pixelSize: 16
@@ -222,7 +222,7 @@ Item {
                         Row {
                             spacing: 10
                             Text {
-                                text: qsTr("UUID:")
+                                text: qsTranslate("Application", "UUID:")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -241,14 +241,14 @@ Item {
                         Row {
                             spacing: 10
                             Text {
-                                text: qsTr("Created:")
+                                text: qsTranslate("Application", "Created:")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
                                 width: 100
                             }
                             Text {
-                                text: modCreatedDate || qsTr("Unknown")
+                                text: modCreatedDate || qsTranslate("Application", "Unknown")
                                 color: "#cccccc"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -258,14 +258,14 @@ Item {
                         Row {
                             spacing: 10
                             Text {
-                                text: qsTr("Audio Files:")
+                                text: qsTranslate("Application", "Audio Files:")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
                                 width: 100
                             }
                             Text {
-                                text: modFileCount + " " + qsTr("replacement(s)")
+                                text: modFileCount + " " + qsTranslate("Application", "replacement(s)")
                                 color: "#cccccc"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -275,14 +275,14 @@ Item {
                         Row {
                             spacing: 10
                             Text {
-                                text: qsTr("Target PCKs:")
+                                text: qsTranslate("Application", "Target PCKs:")
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
                                 width: 100
                             }
                             Text {
-                                text: Object.keys(modReplacements).length + " " + qsTr("PCK file(s)")
+                                text: Object.keys(modReplacements).length + " " + qsTranslate("Application", "PCK file(s)")
                                 color: "#cccccc"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -311,7 +311,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Export to .zzar")
+                        text: qsTranslate("Application", "Export to .zzar")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
@@ -338,7 +338,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Close")
+                        text: qsTranslate("Application", "Close")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium

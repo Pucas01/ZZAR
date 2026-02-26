@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QCoreApplication
 import platform
 import subprocess
 from pathlib import Path
@@ -278,7 +279,7 @@ class AudioBrowserConnector:
             print(f"[Audio Browser] Folder does not exist: {folder}")
             QMetaObject.invokeMethod(
                 self.root, "showErrorToast", Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Folder does not exist:\n%1").replace("%1", str(folder))),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Folder does not exist:\n%1").replace("%1", str(folder))),
             )
             return
 

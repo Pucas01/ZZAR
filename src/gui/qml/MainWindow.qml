@@ -15,7 +15,7 @@ ApplicationWindow {
     height: 1024
     minimumWidth: 1024
     minimumHeight: 768
-    title: qsTr("ZZAR - Zenless Zone Zero Audio Replacer")
+    title: qsTranslate("Application", "ZZAR - Zenless Zone Zero Audio Replacer")
 
     property int currentTab: 0
     property bool modCreationEnabled: false
@@ -53,8 +53,8 @@ ApplicationWindow {
         customDialog.message = message
         customDialog.actionId = actionId
         customDialog.isConfirmation = true
-        customDialog.confirmText = qsTr("Confirm")
-        customDialog.cancelText = qsTr("Cancel")
+        customDialog.confirmText = qsTranslate("Application", "Confirm")
+        customDialog.cancelText = qsTranslate("Application", "Cancel")
         customDialog.customStickerPath = customSticker || ""
         customDialog.visible = true
     }
@@ -64,7 +64,7 @@ ApplicationWindow {
         customDialog.message = message
         customDialog.actionId = ""
         customDialog.isConfirmation = false
-        customDialog.confirmText = qsTr("OK")
+        customDialog.confirmText = qsTranslate("Application", "OK")
         customDialog.customStickerPath = customSticker || ""
         customDialog.visible = true
     }
@@ -175,10 +175,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageTitle
-                        text: currentTab === 0 ? qsTr("Mod Manager") :
-                              currentTab === 1 ? qsTr("Browser") :
-                              currentTab === 2 ? qsTr("Converter") :
-                              qsTr("Settings")
+                        text: currentTab === 0 ? qsTranslate("Application", "Mod Manager") :
+                              currentTab === 1 ? qsTranslate("Application", "Browser") :
+                              currentTab === 2 ? qsTranslate("Application", "Converter") :
+                              qsTranslate("Application", "Settings")
                         color: "#ffffff"
                         font.family: "Audiowide"
                         font.letterSpacing: 4
@@ -191,10 +191,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageSubtitle
-                        text: currentTab === 0 ? qsTr("Install and manage .zzar mods") :
-                              currentTab === 1 ? qsTr("Browse and manage audio files") :
-                              currentTab === 2 ? qsTr("Convert audio files") :
-                              qsTr("Configure application settings")
+                        text: currentTab === 0 ? qsTranslate("Application", "Install and manage .zzar mods") :
+                              currentTab === 1 ? qsTranslate("Application", "Browse and manage audio files") :
+                              currentTab === 2 ? qsTranslate("Application", "Convert audio files") :
+                              qsTranslate("Application", "Configure application settings")
                         color: "#666666"
                         font.family: "Audiowide"
                         font.letterSpacing: 1.60
@@ -656,7 +656,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTr("Oops! We found some files in the wrong place!")
+                        text: qsTranslate("Application", "Oops! We found some files in the wrong place!")
                         color: "#d8fa00"
                         font.family: "Alatsi"
                         font.pixelSize: 22
@@ -667,7 +667,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTr("Some language audio folders are in the Persistent folder instead of StreamingAssets.")
+                        text: qsTranslate("Application", "Some language audio folders are in the Persistent folder instead of StreamingAssets.")
                         color: "#ffffff"
                         font.family: "Alatsi"
                         font.pixelSize: 15
@@ -693,7 +693,7 @@ ApplicationWindow {
                             spacing: 6
 
                             Text {
-                                text: qsTr("Folders that need to be moved:")
+                                text: qsTranslate("Application", "Folders that need to be moved:")
                                 color: "#aaaaaa"
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
@@ -738,7 +738,7 @@ ApplicationWindow {
 
                                             Text {
                                                 anchors.centerIn: parent
-                                                text: qsTr("Move to Streaming")
+                                                text: qsTranslate("Application", "Move to Streaming")
                                                 color: "#000000"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -768,7 +768,7 @@ ApplicationWindow {
 
                                             Text {
                                                 anchors.centerIn: parent
-                                                text: qsTr("Moving...")
+                                                text: qsTranslate("Application", "Moving...")
                                                 color: "#aaaaaa"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -781,7 +781,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTr("ZZAR needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically.")
+                        text: qsTranslate("Application", "ZZAR needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically.")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 13
@@ -792,7 +792,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTr("If you experience any audio oddities after moving, please repair your game files.")
+                        text: qsTranslate("Application", "If you experience any audio oddities after moving, please repair your game files.")
                         color: "#888888"
                         font.family: "Alatsi"
                         font.pixelSize: 12
@@ -836,7 +836,7 @@ ApplicationWindow {
                         }
 
                         Text {
-                            text: qsTr("Don't show this warning again")
+                            text: qsTranslate("Application", "Don't show this warning again")
                             color: "#ffffff"
                             font.family: "Alatsi"
                             font.pixelSize: 14
@@ -867,7 +867,7 @@ ApplicationWindow {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("Got it")
+                                text: qsTranslate("Application", "Got it")
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeNormal

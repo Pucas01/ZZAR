@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QCoreApplication
 import json
 import platform
 from pathlib import Path
@@ -168,16 +169,14 @@ class SettingsConnector:
             self.settings_page.setProperty("isInstallingWwise", False)
 
     def on_wwise_setup_confirmation(self):
-        title = self.tr("Wwise Setup Warning")
-        message = self.tr(
-            "You are about to download licensed software from Audiokinetic.\n\n"
+        title = QCoreApplication.translate("Application", "Wwise Setup Warning")
+        message = QCoreApplication.translate("Application", "You are about to download licensed software from Audiokinetic.\n\n"
             "By proceeding, you acknowledge that:\n"
             "• You are downloading software directly from Audiokinetic\n"
             "• This software is subject to Audiokinetic's licensing terms\n"
             "• You use this software at your own risk\n"
             "• Pucas01 and other ZZAR contributors are not responsible for any issues\n\n"
-            "Do you want to continue?"
-        )
+            "Do you want to continue?")
         QMetaObject.invokeMethod(
             self.root,
             "showConfirmDialog",
@@ -236,7 +235,7 @@ class SettingsConnector:
         start_dir = current if current and Path(current).exists() else str(Path.home())
 
         dirname = NativeDialogs.get_directory(
-            self.tr("Select ZenlessZoneZero_Data Folder"), start_dir
+            QCoreApplication.translate("Application", "Select ZenlessZoneZero_Data Folder"), start_dir
         )
 
         if dirname:
@@ -250,10 +249,10 @@ class SettingsConnector:
                     self.root,
                     "showAlertDialog",
                     Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Invalid Directory")),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
                     Q_ARG(
                         "QVariant",
-                        self.tr("Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
+                        QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
                     ),
                     Q_ARG("QVariant", ""),
                 )
@@ -266,7 +265,7 @@ class SettingsConnector:
         start_dir = current if current and Path(current).exists() else str(Path.home())
 
         dirname = NativeDialogs.get_directory(
-            self.tr("Select Mods Directory"), start_dir
+            QCoreApplication.translate("Application", "Select Mods Directory"), start_dir
         )
 
         if dirname:
@@ -297,7 +296,7 @@ class SettingsConnector:
             self.root,
             "showSuccessToast",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", self.tr("Found game directory:\n%1").replace("%1", game_data_dir)),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "Found game directory:\n%1").replace("%1", game_data_dir)),
         )
 
     def on_auto_detect_not_found_settings(self):
@@ -308,10 +307,10 @@ class SettingsConnector:
             self.root,
             "showAlertDialog",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", self.tr("Not Found")),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "Not Found")),
             Q_ARG(
                 "QVariant",
-                self.tr("Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
+                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
             ),
             Q_ARG("QVariant", ""),
         )
@@ -325,8 +324,8 @@ class SettingsConnector:
                 self.root,
                 "showAlertDialog",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Invalid Directory")),
-                Q_ARG("QVariant", self.tr("Please select a valid ZenlessZoneZero_Data folder.")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Please select a valid ZenlessZoneZero_Data folder.")),
                 Q_ARG("QVariant", ""),
             )
             return
@@ -339,8 +338,8 @@ class SettingsConnector:
                 self.root,
                 "showAlertDialog",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Invalid Directory")),
-                Q_ARG("QVariant", self.tr("The selected directory does not exist.")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "The selected directory does not exist.")),
                 Q_ARG("QVariant", ""),
             )
             return
@@ -354,10 +353,10 @@ class SettingsConnector:
                 self.root,
                 "showAlertDialog",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Invalid Directory")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
                 Q_ARG(
                     "QVariant",
-                    self.tr("Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
+                    QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
                 ),
                 Q_ARG("QVariant", ""),
             )
@@ -400,7 +399,7 @@ class SettingsConnector:
                 self.root,
                 "showSuccessToast",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Settings have been saved successfully!")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Settings have been saved successfully!")),
             )
 
             if self.mod_manager_bridge:
@@ -414,8 +413,8 @@ class SettingsConnector:
                 self.root,
                 "showAlertDialog",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Error")),
-                Q_ARG("QVariant", self.tr("Failed to save settings:\n\n%1").replace("%1", str(e))),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Error")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Failed to save settings:\n\n%1").replace("%1", str(e))),
                 Q_ARG("QVariant", ""),
             )
 
@@ -536,7 +535,7 @@ class SettingsConnector:
             if not persistent_dir or not streaming_dir:
                 QMetaObject.invokeMethod(
                     self.root, "showErrorToast", Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Game directories not configured")),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Game directories not configured")),
                 )
                 return
 
@@ -548,21 +547,21 @@ class SettingsConnector:
             if not source.exists():
                 QMetaObject.invokeMethod(
                     self.root, "showErrorToast", Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Folder '%1' not found in Persistent").replace("%1", folder_name)),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Folder '%1' not found in Persistent").replace("%1", folder_name)),
                 )
                 return
 
             if destination.exists() and any(destination.glob("*.pck")):
                 QMetaObject.invokeMethod(
                     self.root, "showErrorToast", Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Folder '%1' already exists in StreamingAssets").replace("%1", folder_name)),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Folder '%1' already exists in StreamingAssets").replace("%1", folder_name)),
                 )
                 return
 
             if not self._is_original_language_folder(source):
                 QMetaObject.invokeMethod(
                     self.root, "showErrorToast", Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Folder '%1' does not contain original game files").replace("%1", folder_name)),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Folder '%1' does not contain original game files").replace("%1", folder_name)),
                 )
                 return
 
@@ -589,7 +588,7 @@ class SettingsConnector:
 
             QMetaObject.invokeMethod(
                 self.root, "showSuccessToast", Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Moved '%1' to StreamingAssets successfully!").replace("%1", folder_name)),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Moved '%1' to StreamingAssets successfully!").replace("%1", folder_name)),
             )
 
             self.check_multiple_languages()
@@ -598,7 +597,7 @@ class SettingsConnector:
             print(f"[ZZAR] Error moving language folder: {e}")
             QMetaObject.invokeMethod(
                 self.root, "showErrorToast", Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Failed to move '%1': %2").replace("%1", folder_name).replace("%2", str(e))),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Failed to move '%1': %2").replace("%1", folder_name).replace("%2", str(e))),
             )
 
     def on_welcome_mode_selected(self, mode):
@@ -650,7 +649,7 @@ class SettingsConnector:
                 self.root,
                 "showSuccessToast",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Welcome setup complete! Settings have been saved.")),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Welcome setup complete! Settings have been saved.")),
             )
 
             self.check_multiple_languages()
@@ -661,7 +660,7 @@ class SettingsConnector:
                 self.root,
                 "showErrorToast",
                 Qt.QueuedConnection,
-                Q_ARG("QVariant", self.tr("Error saving settings: %1").replace("%1", str(e))),
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Error saving settings: %1").replace("%1", str(e))),
             )
 
     def on_start_tutorial(self):
@@ -684,7 +683,7 @@ class SettingsConnector:
             QApplication.processEvents()
 
         dirname = NativeDialogs.get_directory(
-            self.tr("Select ZenlessZoneZero_Data Folder"), start_dir
+            QCoreApplication.translate("Application", "Select ZenlessZoneZero_Data Folder"), start_dir
         )
 
         if was_visible:
@@ -701,10 +700,10 @@ class SettingsConnector:
                     self.root,
                     "showAlertDialog",
                     Qt.QueuedConnection,
-                    Q_ARG("QVariant", self.tr("Invalid Directory")),
+                    Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
                     Q_ARG(
                         "QVariant",
-                        self.tr("Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
+                        QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
                     ),
                     Q_ARG("QVariant", ""),
                 )
@@ -746,7 +745,7 @@ class SettingsConnector:
             self.root,
             "showSuccessToast",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", self.tr("Found game directory!")),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "Found game directory!")),
         )
 
     def on_auto_detect_not_found_welcome(self):
@@ -757,10 +756,10 @@ class SettingsConnector:
             self.root,
             "showAlertDialog",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", self.tr("Not Found")),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "Not Found")),
             Q_ARG(
                 "QVariant",
-                self.tr("Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
+                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
             ),
             Q_ARG("QVariant", ""),
         )

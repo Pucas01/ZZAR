@@ -83,6 +83,7 @@ def extract_tr_calls(py_path: Path) -> dict[str, list[tuple[str, int]]]:
         strings: list[tuple[str, int]] = []
 
         for child in ast.walk(node):
+            # Check for self.tr("text")
             if (
                 isinstance(child, ast.Call)
                 and isinstance(child.func, ast.Attribute)
@@ -96,6 +97,22 @@ def extract_tr_calls(py_path: Path) -> dict[str, list[tuple[str, int]]]:
                 if isinstance(value, str):
                     strings.append((value, child.lineno))
 
+            # Also check for QCoreApplication.translate("Application", "text")
+            elif (
+                isinstance(child, ast.Call)
+                and isinstance(child.func, ast.Attribute)
+                and child.func.attr == "translate"
+                and isinstance(child.func.value, ast.Name)
+                and child.func.value.id == "QCoreApplication"
+                and len(child.args) >= 2
+                and isinstance(child.args[0], ast.Constant)
+                and child.args[0].value == "Application"
+                and isinstance(child.args[1], ast.Constant)
+            ):
+                value = child.args[1].value
+                if isinstance(value, str):
+                    strings.append((value, child.lineno))
+
         if strings:
             results[class_name] = strings
 
@@ -104,7 +121,7 @@ def extract_tr_calls(py_path: Path) -> dict[str, list[tuple[str, int]]]:
 def get_relative_path(py_path: Path) -> str:
     return str(py_path.relative_to(TRANSLATIONS_DIR.parent)).replace("\\", "/")
 
-def inject_python_entries(ts_path: Path, saved_translations: dict[str, dict[str, str]]) -> int:
+def inject_python_entries(ts_path: Path, saved_translations: dict[str, dict[str, str]]) -> tuple[int, int]:
 
     all_strings: list[tuple[str, str, int]] = []
     for py_file in PYTHON_FILES:
@@ -116,7 +133,7 @@ def inject_python_entries(ts_path: Path, saved_translations: dict[str, dict[str,
                 all_strings.append((source_str, rel_path, lineno))
 
     if not all_strings:
-        return 0
+        return 0, 0
 
     tree = ET.parse(ts_path)
     root = tree.getroot()
@@ -216,6 +233,43 @@ def remove_obsolete_python(ts_path: Path, python_source_strings: set[str], pytho
 
     return removed
 
+def remove_vanished(ts_path: Path) -> int:
+    """Remove all entries marked as vanished or obsolete."""
+    tree = ET.parse(ts_path)
+    root = tree.getroot()
+
+    removed = 0
+    empty_contexts = []
+
+    for ctx in root.findall("context"):
+        to_remove = []
+        for msg in ctx.findall("message"):
+            trans_elem = msg.find("translation")
+            if trans_elem is not None and trans_elem.get("type") in ("obsolete", "vanished"):
+                to_remove.append(msg)
+        for msg in to_remove:
+            ctx.remove(msg)
+            removed += 1
+        # Mark context for removal if it has no messages left
+        if not ctx.findall("message"):
+            empty_contexts.append(ctx)
+
+    for ctx in empty_contexts:
+        root.remove(ctx)
+
+    if removed > 0:
+        ET.indent(tree, space="    ")
+        tree.write(ts_path, encoding="utf-8", xml_declaration=True)
+        text = ts_path.read_text(encoding="utf-8")
+        text = text.replace(
+            '<?xml version=\'1.0\' encoding=\'utf-8\'?>',
+            '<?xml version="1.0" encoding="utf-8"?>\n<!DOCTYPE TS>',
+        )
+        ts_path.write_text(text, encoding="utf-8")
+
+    return removed
+
+
 def count_translations(ts_path: Path) -> tuple[int, int, int]:
     tree = ET.parse(ts_path)
     root = tree.getroot()
@@ -280,6 +334,10 @@ def main():
     for ts_file in ts_files:
         saved = saved_per_file.get(ts_file.name, {})
         print(f"  {ts_file.name}:")
+
+        vanished = remove_vanished(ts_file)
+        if vanished:
+            print(f"    - {vanished} vanished/obsolete entries removed")
 
         removed = remove_obsolete_python(ts_file, all_python_strings, python_class_names)
         if removed:

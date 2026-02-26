@@ -43,7 +43,7 @@ Item {
                 spacing: Theme.spacingMedium
 
                 Text {
-                    text: qsTr("Conversion Mode")
+                    text: qsTranslate("Application", "Conversion Mode")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -56,9 +56,9 @@ Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightLarge
                     model: [
-                        qsTr("WEM → WAV"),
-                        qsTr("MP3/FLAC/OGG → WAV"),
-                        qsTr("WAV → WEM")
+                        qsTranslate("Application", "WEM → WAV"),
+                        qsTranslate("Application", "MP3/FLAC/OGG → WAV"),
+                        qsTranslate("Application", "WAV → WEM")
                     ]
                     currentIndex: currentMode
                     onCurrentIndexChanged: {
@@ -196,7 +196,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("Normalize Audio")
+                        text: qsTranslate("Application", "Normalize Audio")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -214,7 +214,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("Input")
+                    text: qsTranslate("Application", "Input")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -247,7 +247,7 @@ Item {
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
-                            text: qsTr("Select file or directory")
+                            text: qsTranslate("Application", "Select file or directory")
                             visible: !inputField.text && !inputField.activeFocus
                         }
                     }
@@ -259,18 +259,18 @@ Item {
                     spacing: Theme.spacingSmall
 
                     ZZARButton {
-                        text: qsTr("Browse File")
+                        text: qsTranslate("Application", "Browse File")
                         onClicked: browseInputFileClicked()
                     }
 
                     ZZARButton {
-                        text: qsTr("Browse Directory")
+                        text: qsTranslate("Application", "Browse Directory")
                         onClicked: browseInputDirectoryClicked()
                     }
                 }
 
                 Text {
-                    text: qsTr("Output Settings")
+                    text: qsTranslate("Application", "Output Settings")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -279,7 +279,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("Output Directory:")
+                    text: qsTranslate("Application", "Output Directory:")
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeSmall
@@ -314,14 +314,14 @@ Item {
                                 color: Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
-                                text: qsTr("Auto (same as input)")
+                                text: qsTranslate("Application", "Auto (same as input)")
                                 visible: !outputField.text && !outputField.activeFocus
                             }
                         }
                     }
 
                     ZZARButton {
-                        text: qsTr("Browse")
+                        text: qsTranslate("Application", "Browse")
                         onClicked: browseOutputDirectoryClicked()
                     }
                 }
@@ -331,7 +331,7 @@ Item {
                     spacing: Theme.spacingSmall
 
                     Text {
-                        text: qsTr("Sample Rate (Hz):")
+                        text: qsTranslate("Application", "Sample Rate (Hz):")
                         color: Theme.textSecondary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -449,7 +449,7 @@ Item {
                     objectName: "tutorialConvertBtn"
                     Layout.fillWidth: true
                     Layout.preferredHeight: Theme.buttonHeightLarge
-                    text: converting ? qsTr("Converting...") : qsTr("Convert Audio")
+                    text: converting ? qsTranslate("Application", "Converting...") : qsTranslate("Application", "Convert Audio")
                     enabled: !converting && inputPath !== ""
                     buttonColor: enabled ? Theme.primaryAccent : Theme.disabledAccent
                     fontSize: Theme.fontSizeNormal
@@ -494,7 +494,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("Log:")
+                    text: qsTranslate("Application", "Log:")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeNormal
@@ -529,7 +529,7 @@ Item {
 
                             Text {
                                 anchors.centerIn: parent
-                                text: qsTr("Conversion log will appear here...")
+                                text: qsTranslate("Application", "Conversion log will appear here...")
                                 color: Theme.textSecondary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall

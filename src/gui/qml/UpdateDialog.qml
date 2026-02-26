@@ -88,7 +88,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Update Available!")
+                text: qsTranslate("Application", "Update Available!")
                 color: "#d8fa00"
                 font.family: "Alatsi"
                 font.pixelSize: 24
@@ -97,7 +97,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Version %1 is ready to download.").arg(root.version)
+                text: qsTranslate("Application", "Version %1 is ready to download.").arg(root.version)
                 color: "#ffffff"
                 font.family: "Alatsi"
                 font.pixelSize: 16
@@ -111,7 +111,7 @@ Item {
                 visible: root.changelog.length > 0
 
                 Text {
-                    text: qsTr("What's New")
+                    text: qsTranslate("Application", "What's New")
                     color: "#d8fa00"
                     font.family: "Alatsi"
                     font.pixelSize: 16
@@ -179,7 +179,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("Downloading... %1%").arg(root.downloadPercent)
+                    text: qsTranslate("Application", "Downloading... %1%").arg(root.downloadPercent)
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 13
@@ -204,7 +204,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Later")
+                        text: qsTranslate("Application", "Later")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -265,7 +265,7 @@ Item {
                         }
 
                         Text {
-                            text: root.isDownloading ? qsTr("Updating...") : qsTr("Update Now")
+                            text: root.isDownloading ? qsTranslate("Application", "Updating...") : qsTranslate("Application", "Update Now")
                             color: Theme.textOnAccent
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeNormal

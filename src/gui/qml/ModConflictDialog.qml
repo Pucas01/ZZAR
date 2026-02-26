@@ -71,21 +71,21 @@ Item {
                 spacing: 4
 
                 Text {
-                    text: qsTr("Mod Conflicts Detected")
+                    text: qsTranslate("Application", "Mod Conflicts Detected")
                     color: Theme.primaryAccent
                     font.family: Theme.fontFamilyTitle
                     font.pixelSize: 22
                 }
 
                 Text {
-                    text: root.modConflicts.length + " " + (root.modConflicts.length !== 1 ? qsTr("conflicts") : qsTr("conflict")) + " " + qsTr("between mods")
+                    text: root.modConflicts.length + " " + (root.modConflicts.length !== 1 ? qsTranslate("Application", "conflicts") : qsTranslate("Application", "conflict")) + " " + qsTranslate("Application", "between mods")
                     color: Theme.textPrimary
                     font.family: Theme.fontFamily
                     font.pixelSize: 15
                 }
 
                 Text {
-                    text: qsTr("Select which mod should take priority for each conflict")
+                    text: qsTranslate("Application", "Select which mod should take priority for each conflict")
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
                     font.pixelSize: 13
@@ -165,7 +165,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: modelData.conflict_count + " " + (modelData.conflict_count !== 1 ? qsTr("conflicting files") : qsTr("conflicting file"))
+                                        text: modelData.conflict_count + " " + (modelData.conflict_count !== 1 ? qsTranslate("Application", "conflicting files") : qsTranslate("Application", "conflicting file"))
                                         color: Theme.textSecondary
                                         font.family: Theme.fontFamily
                                         font.pixelSize: 11
@@ -250,7 +250,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Apply & Save")
+                        text: qsTranslate("Application", "Apply & Save")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal
@@ -300,7 +300,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("Cancel")
+                        text: qsTranslate("Application", "Cancel")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal

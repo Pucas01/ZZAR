@@ -9,8 +9,8 @@ Item {
     anchors.fill: parent
     z: 2000
 
-    property string title: qsTr("Success")
-    property string message: qsTr("Operation completed successfully")
+    property string title: qsTranslate("Application", "Success")
+    property string message: qsTranslate("Application", "Operation completed successfully")
     property string customStickerPath: ""
     property bool closing: false
 
@@ -128,7 +128,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("OK")
+                        text: qsTranslate("Application", "OK")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeNormal

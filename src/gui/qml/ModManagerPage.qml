@@ -23,7 +23,7 @@ Item {
     property var modManager: null
     property var selectedModUuids: []
     property int currentSortMode: 0
-    property var sortOptions: [qsTr("Default"), qsTr("Name (A-Z)"), qsTr("Name (Z-A)"), qsTr("Author (A-Z)"), qsTr("Author (Z-A)"), qsTr("Newest First"), qsTr("Oldest First"), qsTr("Enabled First")]
+    property var sortOptions: [qsTranslate("Application", "Default"), qsTranslate("Application", "Name (A-Z)"), qsTranslate("Application", "Name (Z-A)"), qsTranslate("Application", "Author (A-Z)"), qsTranslate("Application", "Author (Z-A)"), qsTranslate("Application", "Newest First"), qsTranslate("Application", "Oldest First"), qsTranslate("Application", "Enabled First")]
 
     Settings {
         id: modManagerSettings
@@ -81,7 +81,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTr("Install .zzar Mod")
+                        text: qsTranslate("Application", "Install .zzar Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -116,7 +116,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTr("Import Non-ZZAR Mod")
+                        text: qsTranslate("Application", "Import Non-ZZAR Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -151,7 +151,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: selectedModUuids.length > 1 ? qsTr("Remove Mods (") + selectedModUuids.length + ")" : qsTr("Remove Mod")
+                        text: selectedModUuids.length > 1 ? qsTranslate("Application", "Remove Mods (") + selectedModUuids.length + ")" : qsTranslate("Application", "Remove Mod")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -185,7 +185,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTr("Refresh")
+                        text: qsTranslate("Application", "Refresh")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -219,7 +219,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTr("Open Mod Folder")
+                        text: qsTranslate("Application", "Open Mod Folder")
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -269,7 +269,7 @@ Item {
                     }
 
                     contentItem: Text {
-                        text: qsTr("Sort: ") + sortCombo.displayText
+                        text: qsTranslate("Application", "Sort: ") + sortCombo.displayText
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
@@ -373,7 +373,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTr("No mods installed.\nClick 'Install .zzar Mod' to get started.")
+                    text: qsTranslate("Application", "No mods installed.\nClick 'Install .zzar Mod' to get started.")
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 18
@@ -484,7 +484,7 @@ Item {
                                 font.pixelSize: 16
                                 font.weight: Font.Normal
                                 horizontalAlignment: Text.AlignLeft
-                                text: qsTr("By: ") + model.author
+                                text: qsTranslate("Application", "By: ") + model.author
                                 textFormat: Text.PlainText
                                 verticalAlignment: Text.AlignVCenter
                                 elide: Text.ElideRight
@@ -539,7 +539,7 @@ Item {
                                     font.pixelSize: 20
                                     font.weight: Font.Normal
                                     horizontalAlignment: Text.AlignHCenter
-                                    text: model.enabled ? qsTr("Enabled") : qsTr("Disabled")
+                                    text: model.enabled ? qsTranslate("Application", "Enabled") : qsTranslate("Application", "Disabled")
                                     textFormat: Text.PlainText
                                     verticalAlignment: Text.AlignVCenter
                                 }
@@ -576,7 +576,7 @@ Item {
                                     font.pixelSize: 20
                                     font.weight: Font.Normal
                                     horizontalAlignment: Text.AlignHCenter
-                                    text: qsTr("More info")
+                                    text: qsTranslate("Application", "More info")
                                     textFormat: Text.PlainText
                                     verticalAlignment: Text.AlignVCenter
                                 }
@@ -646,7 +646,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("Apply Mods")
+                        text: qsTranslate("Application", "Apply Mods")
                         color: "#000000"
                         font.family: "Alatsi"
                         font.pixelSize: 22

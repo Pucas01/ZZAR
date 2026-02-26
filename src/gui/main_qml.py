@@ -1,3 +1,4 @@
+from PyQt5.QtCore import QCoreApplication
 
 
 import os
@@ -398,8 +399,8 @@ class Application(
             self.root,
             "showSuccessDialog",
             Qt.QueuedConnection,
-            Q_ARG("QVariant", self.tr("Work in Progress")),
-            Q_ARG("QVariant", self.tr("This feature is not yet implemented.\n\nThis will be added in a future update. (i hope)")),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "Work in Progress")),
+            Q_ARG("QVariant", QCoreApplication.translate("Application", "This feature is not yet implemented.\n\nThis will be added in a future update. (i hope)")),
             Q_ARG("QVariant", "../assets/YuzuhaSilly.png")
         )
 

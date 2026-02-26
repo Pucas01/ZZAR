@@ -79,7 +79,7 @@ Item {
             spacing: 20
 
             Text {
-                text: qsTr("Welcome to ZZAR!")
+                text: qsTranslate("Application", "Welcome to ZZAR!")
                 color: "#CDEE00"
                 font.family: "Stretch Pro"
                 font.pixelSize: 36
@@ -90,11 +90,11 @@ Item {
             }
 
             Text {
-                text: currentPage === 1 ? qsTr("Choose how you want to use ZZAR") :
-                        currentPage === 2 ? qsTr("Let's set up your game directory") :
-                        currentPage === 3 ? qsTr("Set up Wwise for mod creation") :
-                        currentPage === 4 ? qsTr("Install audio conversion tools") :
-                        qsTr("Everything looks good!")
+                text: currentPage === 1 ? qsTranslate("Application", "Choose how you want to use ZZAR") :
+                        currentPage === 2 ? qsTranslate("Application", "Let's set up your game directory") :
+                        currentPage === 3 ? qsTranslate("Application", "Set up Wwise for mod creation") :
+                        currentPage === 4 ? qsTranslate("Application", "Install audio conversion tools") :
+                        qsTranslate("Application", "Everything looks good!")
 
                 color: "#aaaaaa"
                 font.family: "Alatsi"
@@ -161,7 +161,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Mod Manager")
+                                    text: qsTranslate("Application", "Mod Manager")
                                     color: "#ffffff"
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
@@ -169,7 +169,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Download and install\n.zzar mod packages")
+                                    text: qsTranslate("Application", "Download and install\n.zzar mod packages")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -218,7 +218,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Mod Creator")
+                                    text: qsTranslate("Application", "Mod Creator")
                                     color: "#ffffff"
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
@@ -226,7 +226,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTr("Create and export your\nown .zzar mod packages")
+                                    text: qsTranslate("Application", "Create and export your\nown .zzar mod packages")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -274,14 +274,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: qsTr("Game Directory")
+                                    text: qsTranslate("Application", "Game Directory")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: qsTr("Select the ZenlessZoneZero_Data folder from your game installation.")
+                                    text: qsTranslate("Application", "Select the ZenlessZoneZero_Data folder from your game installation.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -319,7 +319,7 @@ Item {
                                             Text {
                                                 anchors.fill: parent
                                                 verticalAlignment: Text.AlignVCenter
-                                                text: qsTr("Path to ZenlessZoneZero_Data folder...")
+                                                text: qsTranslate("Application", "Path to ZenlessZoneZero_Data folder...")
                                                 color: "#555555"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -340,7 +340,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: qsTr("Browse")
+                                            text: qsTranslate("Application", "Browse")
                                             color: Theme.textOnAccent
                                             font.family: Theme.fontFamily
                                             font.pixelSize: Theme.fontSizeMedium
@@ -404,7 +404,7 @@ Item {
 
                                             Text {
                                                 anchors.verticalCenter: parent.verticalCenter
-                                                text: root.isAutoDetecting ? qsTr("Searching...") : qsTr("Auto-Detect")
+                                                text: root.isAutoDetecting ? qsTranslate("Application", "Searching...") : qsTranslate("Application", "Auto-Detect")
                                                 color: Theme.textOnAccent
                                                 font.family: Theme.fontFamily
                                                 font.pixelSize: Theme.fontSizeMedium
@@ -427,7 +427,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: gameDirectory.length > 0 ? qsTr("✓ Game directory set") : qsTr("⚠ No game directory configured")
+                                    text: gameDirectory.length > 0 ? qsTranslate("Application", "✓ Game directory set") : qsTranslate("Application", "⚠ No game directory configured")
                                     color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 13
@@ -436,7 +436,7 @@ Item {
                         }
 
                         Text {
-                            text: qsTr("You can configure this later from the Settings page")
+                            text: qsTranslate("Application", "You can configure this later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -470,14 +470,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: qsTr("Wwise Setup")
+                                    text: qsTranslate("Application", "Wwise Setup")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: qsTr("Wwise is required to convert audio files for Zenless Zone Zero.")
+                                    text: qsTranslate("Application", "Wwise is required to convert audio files for Zenless Zone Zero.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -490,14 +490,14 @@ Item {
                                     width: parent.width
 
                                     Text {
-                                        text: qsTr("Status:")
+                                        text: qsTranslate("Application", "Status:")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
 
                                     Text {
-                                        text: wwiseInstalled ? qsTr("INSTALLED ✓") : qsTr("NOT INSTALLED")
+                                        text: wwiseInstalled ? qsTranslate("Application", "INSTALLED ✓") : qsTranslate("Application", "NOT INSTALLED")
                                         color: wwiseInstalled ? "#92fa00" : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -516,7 +516,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: qsTr("Check")
+                                            text: qsTranslate("Application", "Check")
                                             color: "#ffffff"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -574,7 +574,7 @@ Item {
                                         }
 
                                         Text {
-                                            text: isInstallingWwise ? qsTr("Installing...") : qsTr("Run Automated Setup")
+                                            text: isInstallingWwise ? qsTranslate("Application", "Installing...") : qsTranslate("Application", "Run Automated Setup")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
@@ -600,8 +600,8 @@ Item {
 
                         Text {
                             text: wwiseInstalled ?
-                                  qsTr("Wwise is installed and ready! You can start creating mods.") :
-                                  qsTr("You can install Wwise later from the Settings page")
+                                  qsTranslate("Application", "Wwise is installed and ready! You can start creating mods.") :
+                                  qsTranslate("Application", "You can install Wwise later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -635,14 +635,14 @@ Item {
                                 spacing: 15
 
                                 Text {
-                                    text: qsTr("Windows Audio Tools")
+                                    text: qsTranslate("Application", "Windows Audio Tools")
                                     color: "#CDEE00"
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
 
                                 Text {
-                                    text: qsTr("FFmpeg and vgmstream are required to convert audio files.")
+                                    text: qsTranslate("Application", "FFmpeg and vgmstream are required to convert audio files.")
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -655,14 +655,14 @@ Item {
                                     width: parent.width
 
                                     Text {
-                                        text: qsTr("Status:")
+                                        text: qsTranslate("Application", "Status:")
                                         color: "#ffffff"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
 
                                     Text {
-                                        text: audioToolsInstalled ? qsTr("INSTALLED ✓") : qsTr("NOT INSTALLED")
+                                        text: audioToolsInstalled ? qsTranslate("Application", "INSTALLED ✓") : qsTranslate("Application", "NOT INSTALLED")
                                         color: audioToolsInstalled ? "#92fa00" : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
@@ -681,7 +681,7 @@ Item {
 
                                         Text {
                                             anchors.centerIn: parent
-                                            text: qsTr("Check")
+                                            text: qsTranslate("Application", "Check")
                                             color: "#ffffff"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -739,7 +739,7 @@ Item {
                                         }
 
                                         Text {
-                                            text: isInstallingAudioTools ? qsTr("Installing...") : qsTr("Install Audio Tools")
+                                            text: isInstallingAudioTools ? qsTranslate("Application", "Installing...") : qsTranslate("Application", "Install Audio Tools")
                                             color: "#000000"
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
@@ -765,8 +765,8 @@ Item {
 
                         Text {
                             text: audioToolsInstalled ?
-                                  qsTr("Audio tools are installed! You can now convert audio files.") :
-                                  qsTr("You can install these tools later from the Settings page")
+                                  qsTranslate("Application", "Audio tools are installed! You can now convert audio files.") :
+                                  qsTranslate("Application", "You can install these tools later from the Settings page")
                             color: "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 12
@@ -794,7 +794,7 @@ Item {
                         }
 
                         Text {
-                            text: qsTr("You're all set!")
+                            text: qsTranslate("Application", "You're all set!")
                             color: "#CDEE00"
                             font.family: "Audiowide"
                             font.pixelSize: 32
@@ -803,8 +803,8 @@ Item {
 
                         Text {
                             text: selectedMode === "maker" ?
-                                qsTr("ZZAR is configured for mod creation. Go make something!!") :
-                                qsTr("ZZAR is ready to manage some mods. Install something!")
+                                qsTranslate("Application", "ZZAR is configured for mod creation. Go make something!!") :
+                                qsTranslate("Application", "ZZAR is ready to manage some mods. Install something!")
                             color: "#aaaaaa"
                             font.family: "Alatsi"
                             font.pixelSize: 16
@@ -834,7 +834,7 @@ Item {
 
                     Text {
                         anchors.centerIn: parent
-                        text: qsTr("< Back")
+                        text: qsTranslate("Application", "< Back")
                         color: Theme.textPrimary
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
@@ -870,7 +870,7 @@ Item {
                     Text {
                         anchors.centerIn: parent
 
-                        text: currentPage === 5 ? qsTr("Start Tutorial") : qsTr("Continue >")
+                        text: currentPage === 5 ? qsTranslate("Application", "Start Tutorial") : qsTranslate("Application", "Continue >")
                         color: Theme.textOnAccent
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeMedium
@@ -916,7 +916,7 @@ Item {
             }
 
             Text {
-                text: qsTr("Skip tutorial")
+                text: qsTranslate("Application", "Skip tutorial")
                 color: skipTutorialMouse.containsMouse ? "#d8fa00" : "#888888"
                 font.family: "Alatsi"
                 font.pixelSize: 13
@@ -943,7 +943,7 @@ Item {
                 visible: currentPage === 1
 
                 Text {
-                    text: qsTr("You can always change this later in settings")
+                    text: qsTranslate("Application", "You can always change this later in settings")
                     color: "#666666"
                     font.family: "Alatsi"
                     font.pixelSize: 12

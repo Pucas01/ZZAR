@@ -19,48 +19,48 @@ Item {
     property var tutorialData: [
         {
             tabIndex: 0,
-            sectionTitle: qsTr("Mod Manager"),
+            sectionTitle: qsTranslate("Application", "Mod Manager"),
             messages: [
-                { text: qsTr("You're here. i'll show you how this works."), highlight: "" },
-                { text: qsTr("These buttons. use them."), highlight: "tutorialButtonRow" },
-                { text: qsTr("This installs .zzar mod packages. self explanatory."), highlight: "tutorialInstallBtn" },
-                { text: qsTr("This one imports non-ZZAR mods and converts them."), highlight: "tutorialImportBtn" },
-                { text: qsTr("Remove button. select a mod first, then press it."), highlight: "tutorialRemoveBtn" },
-                { text: qsTr("When you're done picking mods, apply. nothing happens until you do."), highlight: "tutorialApplyBtn" },
+                { text: qsTranslate("Application", "You're here. i'll show you how this works."), highlight: "" },
+                { text: qsTranslate("Application", "These buttons. use them."), highlight: "tutorialButtonRow" },
+                { text: qsTranslate("Application", "This installs .zzar mod packages. self explanatory."), highlight: "tutorialInstallBtn" },
+                { text: qsTranslate("Application", "This one imports non-ZZAR mods and converts them."), highlight: "tutorialImportBtn" },
+                { text: qsTranslate("Application", "Remove button. select a mod first, then press it."), highlight: "tutorialRemoveBtn" },
+                { text: qsTranslate("Application", "When you're done picking mods, apply. nothing happens until you do."), highlight: "tutorialApplyBtn" },
                 { text: "", highlight: "tutorialApplyBtn", sticker: "MiyabiMelon.png" },
-                { text: qsTr("Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github)."), highlight: "tutorialApplyBtn" },
+                { text: qsTranslate("Application", "Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github)."), highlight: "tutorialApplyBtn" },
             ]
         },
         {
             tabIndex: 1,
-            sectionTitle: qsTr("Audio Browser"),
+            sectionTitle: qsTranslate("Application", "Audio Browser"),
             messages: [
-                { text: qsTr("Audio Browser. Yanagi's favorite tab, apparently."), highlight: "" },
-                { text: qsTr("These tabs switch between music / sfx, and voice audio. pick one."), highlight: "tutorialLangTabs" },
-                { text: qsTr("Search bar. type an ID, name, or tag. it finds things."), highlight: "tutorialSearchInput" },
-                { text: qsTr("The audio tree. every sound file in the game is in here."), highlight: "tutorialTreeList" },
-                { text: qsTr("Open a PCK File then a BNK file and then play a WEM file (WEM files are the audio)."), highlight: "tutorialTreeList" },
-                { text: qsTr("Right-click a file to replace it or mute it."), highlight: "tutorialTreeList" },
-                { text: qsTr("You can also rename and tag a sound by right-clicking."), highlight: "tutorialTreeList" },
-                { text: qsTr("Audio player. play, pause, stop. you've seen one before."), highlight: "tutorialAudioPlayer" },
-                { text: qsTr("Got a .zzar mod already? import it here if you want to keep editing it."), highlight: "tutorialImportZzarBtn" },
-                { text: qsTr("Shows your changes. also where you apply them for in-game testing."), highlight: "tutorialShowChangesBtn" },
-                { text: qsTr("Export. packages everything into a .zzar mod."), highlight: "tutorialExportBtn" },
-                { text: qsTr("Reset. wipes all changes. also required if you have mods enabled in the mod manager."), highlight: "tutorialResetBtn" }
+                { text: qsTranslate("Application", "Audio Browser. Yanagi's favorite tab, apparently."), highlight: "" },
+                { text: qsTranslate("Application", "These tabs switch between music / sfx, and voice audio. pick one."), highlight: "tutorialLangTabs" },
+                { text: qsTranslate("Application", "Search bar. type an ID, name, or tag. it finds things."), highlight: "tutorialSearchInput" },
+                { text: qsTranslate("Application", "The audio tree. every sound file in the game is in here."), highlight: "tutorialTreeList" },
+                { text: qsTranslate("Application", "Open a PCK File then a BNK file and then play a WEM file (WEM files are the audio)."), highlight: "tutorialTreeList" },
+                { text: qsTranslate("Application", "Right-click a file to replace it or mute it."), highlight: "tutorialTreeList" },
+                { text: qsTranslate("Application", "You can also rename and tag a sound by right-clicking."), highlight: "tutorialTreeList" },
+                { text: qsTranslate("Application", "Audio player. play, pause, stop. you've seen one before."), highlight: "tutorialAudioPlayer" },
+                { text: qsTranslate("Application", "Got a .zzar mod already? import it here if you want to keep editing it."), highlight: "tutorialImportZzarBtn" },
+                { text: qsTranslate("Application", "Shows your changes. also where you apply them for in-game testing."), highlight: "tutorialShowChangesBtn" },
+                { text: qsTranslate("Application", "Export. packages everything into a .zzar mod."), highlight: "tutorialExportBtn" },
+                { text: qsTranslate("Application", "Reset. wipes all changes. also required if you have mods enabled in the mod manager."), highlight: "tutorialResetBtn" }
             ]
         },
         {
             tabIndex: 2,
-            sectionTitle: qsTr("Audio Conversion"),
+            sectionTitle: qsTranslate("Application", "Audio Conversion"),
             messages: [
-                { text: qsTr("Audio Converter. last one."), highlight: "" },
-                { text: qsTr("Conversion mode. WEM to WAV, WAV to WEM. pick whichever."), highlight: "tutorialModeCombo" },
-                { text: qsTr("Input goes here. file or folder, doesn't matter."), highlight: "tutorialInputField" },
-                { text: qsTr("Or just use these."), highlight: "tutorialBrowseRow" },
-                { text: qsTr("Output directory. leave it empty and it saves next to the original."), highlight: "tutorialOutputField" },
-                { text: qsTr("Sample rate. 48000 is fine. don't change it unless you actually know why."), highlight: "tutorialSampleRate" },
-                { text: qsTr("Press convert. done."), highlight: "tutorialConvertBtn" },
-                { text: qsTr("..that's everything."), highlight: "" }
+                { text: qsTranslate("Application", "Audio Converter. last one."), highlight: "" },
+                { text: qsTranslate("Application", "Conversion mode. WEM to WAV, WAV to WEM. pick whichever."), highlight: "tutorialModeCombo" },
+                { text: qsTranslate("Application", "Input goes here. file or folder, doesn't matter."), highlight: "tutorialInputField" },
+                { text: qsTranslate("Application", "Or just use these."), highlight: "tutorialBrowseRow" },
+                { text: qsTranslate("Application", "Output directory. leave it empty and it saves next to the original."), highlight: "tutorialOutputField" },
+                { text: qsTranslate("Application", "Sample rate. 48000 is fine. don't change it unless you actually know why."), highlight: "tutorialSampleRate" },
+                { text: qsTranslate("Application", "Press convert. done."), highlight: "tutorialConvertBtn" },
+                { text: qsTranslate("Application", "..that's everything."), highlight: "" }
             ]
         }
     ]
@@ -334,7 +334,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTr("ZZAR Expert - Chief of Hollow Special Operations Section 6")
+                        text: qsTranslate("Application", "ZZAR Expert - Chief of Hollow Special Operations Section 6")
                         color: "#888888"
                         font.family: "inpin hongmengti"
                         font.pixelSize: 12
@@ -464,14 +464,14 @@ Item {
                         text: {
                             var sections = getVisibleSections()
                             var sec = sections[currentSection]
-                            if (!sec) return qsTr("Got it!")
+                            if (!sec) return qsTranslate("Application", "Got it!")
 
                             if (currentMessageIndex < sec.messages.length - 1) {
-                                return qsTr("Next")
+                                return qsTranslate("Application", "Next")
                             } else if (currentSection < sections.length - 1) {
-                                return qsTr("Next Page") + " \u2192"
+                                return qsTranslate("Application", "Next Page") + " \u2192"
                             } else {
-                                return qsTr("Got it!")
+                                return qsTranslate("Application", "Got it!")
                             }
                         }
                         color: "#000000"
@@ -489,7 +489,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("Skip tutorial")
+                    text: qsTranslate("Application", "Skip tutorial")
                     color: "#888888"
                     font.family: "inpin hongmengti"
                     font.pixelSize: 12
