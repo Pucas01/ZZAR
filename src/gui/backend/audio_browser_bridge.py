@@ -1144,16 +1144,6 @@ class AudioBrowserBridge(QObject):
                 lang_id = meta.get("lang_id", 0)
                 bnk_id = meta["bnk_id"]
 
-                pck_str = str(pck_file_path)
-                if "/En/" in pck_str or "SoundBank_En_" in pck_filename:
-                    lang_id = 1
-                elif "/Cn/" in pck_str or "SoundBank_Cn_" in pck_filename:
-                    lang_id = 2
-                elif "/Jp/" in pck_str or "SoundBank_Jp_" in pck_filename:
-                    lang_id = 3
-                elif "/Kr/" in pck_str or "SoundBank_Kr_" in pck_filename:
-                    lang_id = 4
-
             custom_file = Path(filename)
             if custom_file.suffix.lower() == ".wem":
                 wem_file = custom_file
@@ -1265,16 +1255,6 @@ class AudioBrowserBridge(QObject):
                 file_id = meta["wem_id"]
                 lang_id = meta.get("lang_id", 0)
                 bnk_id = meta["bnk_id"]
-
-                pck_str = str(pck_file_path)
-                if "/En/" in pck_str or "SoundBank_En_" in pck_filename:
-                    lang_id = 1
-                elif "/Cn/" in pck_str or "SoundBank_Cn_" in pck_filename:
-                    lang_id = 2
-                elif "/Jp/" in pck_str or "SoundBank_Jp_" in pck_filename:
-                    lang_id = 3
-                elif "/Kr/" in pck_str or "SoundBank_Kr_" in pck_filename:
-                    lang_id = 4
 
                 print(f"[DEBUG] muteAudio: Detected lang_id={lang_id} for pck: {pck_filename}")
 
