@@ -75,6 +75,17 @@ Item {
             anchors.topMargin: 30
             spacing: 20
 
+            Item { height: 10; width: 1 }
+
+            Image {
+                source: "../assets/AriaScared.png"
+                width: 160
+                height: 160
+                fillMode: Image.PreserveAspectFit
+                mipmap: true
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
+
             Text {
                 text: qsTranslate("Application", "Find Matching Sound")
                 color: "#d8fa00"
@@ -82,6 +93,44 @@ Item {
                 font.pixelSize: 24
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
+            }
+
+            Column {
+                width: parent.width
+                spacing: 8
+
+                Text {
+                    text: qsTranslate("Application", "⚠️ Experimental Beta Feature")
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 14
+                    font.bold: true
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Audio matching is still being tested. Results may not always be accurate.")
+                    color: "#cccccc"
+                    font.family: "Alatsi"
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Note: First time matching can take up to an hour as audio fingerprints are being cached.")
+                    color: "#888888"
+                    font.family: "Alatsi"
+                    font.pixelSize: 12
+                    font.italic: true
+                    wrapMode: Text.WordWrap
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
             }
 
             Column {

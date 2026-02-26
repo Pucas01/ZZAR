@@ -636,6 +636,7 @@ Item {
                                     radius: 10
                                     color: tagInfoMouse.containsMouse ? Theme.primaryAccent : "#555555"
                                     anchors.verticalCenter: parent.verticalCenter
+                                    z: 200
                                     Behavior on color { ColorAnimation { duration: 150 } }
 
                                     Text {
@@ -660,14 +661,14 @@ Item {
                                         id: tagInfoPopup
                                         visible: false
                                         x: parent.width + 8
-                                        y: -height / 2 + parent.height / 2
+                                        y: -height / 2 + parent.height / 2 - 35
                                         width: tagInfoText.implicitWidth + 20
                                         height: tagInfoText.implicitHeight + 16
                                         color: "#1a1a1a"
                                         radius: 8
                                         border.color: "#555555"
                                         border.width: 1
-                                        z: 100
+                                        z: 1000
 
                                         Text {
                                             id: tagInfoText
@@ -685,6 +686,7 @@ Item {
                             ZZARButton {
                                 text: qsTranslate("Application", "Open Tag Database Folder")
                                 buttonColor: Theme.disabledAccent
+                                z: 10
                                 onClicked: {
                                     optionsPopup.close()
                                     openTagDbFolderClicked()
