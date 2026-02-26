@@ -180,17 +180,19 @@ Item {
                     color: "#1a1a1a"
 
                     ScrollView {
+                        id: descScrollView
                         anchors.fill: parent
                         anchors.margins: 10
                         clip: true
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
                         Text {
                             text: modDescription || qsTranslate("Application", "No description provided.")
                             color: modDescription ? "#cccccc" : "#666666"
                             font.family: "Alatsi"
                             font.pixelSize: 14
-                            wrapMode: Text.Wrap
-                            width: parent.width - 20
+                            wrapMode: Text.WordWrap
+                            width: descScrollView.availableWidth
                         }
                     }
                 }

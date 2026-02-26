@@ -53,6 +53,75 @@ class _WorkerThread(QThread):
             import traceback
             self.finished.emit(False, f"{e}\n{traceback.format_exc()}")
 
+class ReplaceAudioWorker(QThread):
+
+    progress = pyqtSignal(str)
+    finished = pyqtSignal(bool, str)
+
+    def __init__(self, custom_file_path, meta, normalize, mod_manager):
+        super().__init__()
+        self.custom_file_path = custom_file_path
+        self.meta = meta
+        self.normalize = normalize
+        self.mod_manager = mod_manager
+
+    def run(self):
+        try:
+            pck_file_path = Path(self.meta["pck_path"])
+            pck_filename = pck_file_path.name
+
+            if self.meta["type"] == "wem":
+                file_id = self.meta["file_id"]
+                lang_id = self.meta["lang_id"]
+                bnk_id = None
+            else:
+                file_id = self.meta["wem_id"]
+                lang_id = self.meta.get("lang_id", 0)
+                bnk_id = self.meta["bnk_id"]
+
+            custom_file = Path(self.custom_file_path)
+            if custom_file.suffix.lower() == ".wem":
+                wem_file = custom_file
+            else:
+                self.progress.emit(
+                    QCoreApplication.translate("Application", "Converting %1 to WEM...").replace("%1", custom_file.suffix)
+                )
+                converter = AudioConverter()
+                if custom_file.suffix.lower() == ".wav":
+                    wav_file = custom_file
+                else:
+                    wav_file = converter.any_to_wav(str(custom_file), normalize=self.normalize)
+                wem_file = converter.wav_to_wem(str(wav_file))
+
+            self.progress.emit(
+                QCoreApplication.translate("Application", "Staging replacement...")
+            )
+            self.mod_manager.add_replacement(
+                pck_filename, file_id, str(wem_file),
+                "wem" if bnk_id is None else "bnk",
+                lang_id, bnk_id,
+            )
+
+            streaming_path = pck_file_path.parent
+            persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
+            self.mod_manager.set_persistent_path(str(persistent_path))
+
+            self.finished.emit(True,
+                QCoreApplication.translate("Application", "Replacement staged: %1 (ID: %2) - Click 'Apply Changes' to activate").replace("%1", pck_filename).replace("%2", str(file_id))
+            )
+
+        except RuntimeError as e:
+            error_msg = str(e)
+            if "Wwise is not installed" in error_msg or "Wwise Not" in error_msg:
+                self.finished.emit(False, "WWISE:" + error_msg)
+            else:
+                self.finished.emit(False, error_msg)
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self.finished.emit(False, str(e))
+
+
 class TagDatabaseDownloadWorker(QThread):
 
     downloadFinished = pyqtSignal(str)
@@ -150,6 +219,8 @@ class AudioBrowserBridge(QObject):
     changesCountUpdated = pyqtSignal(int, arguments=["count"])
     normalizeAudioChanged = pyqtSignal(bool, arguments=["enabled"])
     hideEmptyBnkChanged = pyqtSignal(bool, arguments=["enabled"])
+    loadingStarted = pyqtSignal(str, arguments=["message"])
+    loadingFinished = pyqtSignal()
     tagDbDownloadStarted = pyqtSignal()
     tagDbDownloadReady = pyqtSignal(int, arguments=["entryCount"])
     tagDbDownloadError = pyqtSignal(str, arguments=["message"])
@@ -1129,60 +1200,36 @@ class AudioBrowserBridge(QObject):
         if not filename:
             return
 
-        try:
-            pck_file_path = Path(meta["pck_path"])
-            pck_filename = pck_file_path.name
+        self.loadingStarted.emit(QCoreApplication.translate("Application", "Converting audio..."))
+        self.statusUpdate.emit(QCoreApplication.translate("Application", "Processing your custom audio..."))
 
-            self.statusUpdate.emit(QCoreApplication.translate("Application", "Processing your custom audio..."))
+        self._replace_worker = ReplaceAudioWorker(filename, meta, normalize, self.mod_manager)
+        self._replace_worker.progress.connect(self._on_replace_progress)
+        self._replace_worker.finished.connect(self._on_replace_finished)
+        self._replace_worker.start()
 
-            if meta["type"] == "wem":
-                file_id = meta["file_id"]
-                lang_id = meta["lang_id"]
-                bnk_id = None
-            else:
-                file_id = meta["wem_id"]
-                lang_id = meta.get("lang_id", 0)
-                bnk_id = meta["bnk_id"]
+    def _on_replace_progress(self, message):
+        self.loadingStarted.emit(message)
+        self.statusUpdate.emit(message)
 
-            custom_file = Path(filename)
-            if custom_file.suffix.lower() == ".wem":
-                wem_file = custom_file
-            else:
-                self.statusUpdate.emit(QCoreApplication.translate("Application", "Converting %1 to WEM...").replace("%1", custom_file.suffix))
-                converter = AudioConverter()
-                try:
-                    if custom_file.suffix.lower() == ".wav":
-                        wav_file = custom_file
-                    else:
-                        wav_file = converter.any_to_wav(str(custom_file), normalize=normalize)
-                    wem_file = converter.wav_to_wem(str(wav_file))
-                except RuntimeError as e:
-                    error_msg = str(e)
+    def _on_replace_finished(self, success, message):
+        self.loadingFinished.emit()
+        self._replace_worker = None
 
-                    if "Wwise is not installed" in error_msg or "Wwise Not" in error_msg:
-                        self.wwiseErrorDialog.emit(QCoreApplication.translate("Application", "Wwise Required"), error_msg)
-                        return
-                    else:
-                        raise
-
-            self.mod_manager.add_replacement(
-                pck_filename, file_id, str(wem_file),
-                "wem" if bnk_id is None else "bnk",
-                lang_id, bnk_id,
-            )
-
-            streaming_path = pck_file_path.parent
-            persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
-            self.mod_manager.set_persistent_path(str(persistent_path))
-
-            self.statusUpdate.emit(QCoreApplication.translate("Application", "Replacement staged: %1 (ID: %2) - Click 'Apply Changes' to activate").replace("%1", pck_filename).replace("%2", str(file_id)))
+        if success:
+            self.statusUpdate.emit(message)
             self._emit_changes_count()
-
-        except Exception as e:
+        elif message.startswith("WWISE:"):
+            self.wwiseErrorDialog.emit(
+                QCoreApplication.translate("Application", "Wwise Required"),
+                message[6:]
+            )
+        else:
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Error: Failed to stage replacement"))
-            self.errorOccurred.emit(QCoreApplication.translate("Application", "Error"), QCoreApplication.translate("Application", "Failed to stage replacement:\n%1").replace("%1", str(e)))
-            import traceback
-            traceback.print_exc()
+            self.errorOccurred.emit(
+                QCoreApplication.translate("Application", "Error"),
+                QCoreApplication.translate("Application", "Failed to stage replacement:\n%1").replace("%1", message)
+            )
 
     @pyqtSlot(str, str, str)
     def exportAsWav(self, item_id, item_type, pck_path):

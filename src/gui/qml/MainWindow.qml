@@ -136,6 +136,29 @@ ApplicationWindow {
         tutorialOverlay.start()
     }
 
+    function showLoadingPopup(message) {
+        loadingPopup.message = message || qsTranslate("Application", "Processing...")
+        loadingPopup.closing = false
+        loadingPopup.visible = true
+    }
+
+    function hideLoadingPopup() {
+        loadingPopup.closing = true
+        loadingHideTimer.start()
+    }
+
+    property bool isDraggingMod: false
+
+    function urlToLocalPath(url) {
+        var path = url.toString()
+        if (Qt.platform.os === "windows") {
+            path = path.replace(/^file:\/\/\//, "")
+        } else {
+            path = path.replace(/^file:\/\//, "")
+        }
+        return decodeURIComponent(path)
+    }
+
     Rectangle {
         id: mainContent
         anchors.fill: parent
@@ -984,6 +1007,236 @@ ApplicationWindow {
                     to: -80
                     duration: 300
                     easing.type: Easing.InQuad
+                }
+            }
+        }
+
+        Item {
+            id: loadingPopup
+            anchors.fill: parent
+            z: 2600
+            visible: false
+
+            property string message: qsTranslate("Application", "Processing...")
+            property bool closing: false
+
+            Timer {
+                id: loadingHideTimer
+                interval: 200
+                onTriggered: {
+                    loadingPopup.visible = false
+                    loadingPopup.closing = false
+                }
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                color: "#80000000"
+                opacity: (!loadingPopup.closing && loadingPopup.visible) ? 1.0 : 0.0
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {}
+                }
+            }
+
+            Rectangle {
+                width: Math.min(340, parent.width - 40)
+                height: loadingCol.height + 50
+                anchors.centerIn: parent
+                color: "#252525"
+                radius: 20
+                border.color: "#3c3d3f"
+                border.width: 1
+                scale: (!loadingPopup.closing && loadingPopup.visible) ? 1.0 : 0.9
+                opacity: (!loadingPopup.closing && loadingPopup.visible) ? 1.0 : 0.0
+                Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+                Behavior on opacity { NumberAnimation { duration: 200 } }
+
+                Column {
+                    id: loadingCol
+                    width: parent.width - 50
+                    anchors.centerIn: parent
+                    spacing: 18
+
+                    Item {
+                        width: 40
+                        height: 40
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        Rectangle {
+                            id: spinner
+                            width: 40
+                            height: 40
+                            radius: 20
+                            color: "transparent"
+                            border.color: "#3c3d3f"
+                            border.width: 4
+
+                            Rectangle {
+                                width: 40
+                                height: 40
+                                radius: 20
+                                color: "transparent"
+                                border.color: "#d8fa00"
+                                border.width: 4
+
+                                visible: false
+                                layer.enabled: true
+                                layer.effect: Item {}
+                            }
+
+                            Canvas {
+                                id: spinnerArc
+                                anchors.fill: parent
+                                property real angle: 0
+
+                                onPaint: {
+                                    var ctx = getContext("2d")
+                                    ctx.reset()
+                                    ctx.beginPath()
+                                    ctx.arc(width / 2, height / 2, 18, angle, angle + Math.PI * 0.75)
+                                    ctx.strokeStyle = "#d8fa00"
+                                    ctx.lineWidth = 4
+                                    ctx.lineCap = "round"
+                                    ctx.stroke()
+                                }
+
+                                NumberAnimation on angle {
+                                    from: 0
+                                    to: Math.PI * 2
+                                    duration: 1000
+                                    loops: Animation.Infinite
+                                }
+
+                                onAngleChanged: requestPaint()
+                            }
+                        }
+                    }
+
+                    Text {
+                        text: loadingPopup.message
+                        color: "#ffffff"
+                        font.family: "Alatsi"
+                        font.pixelSize: 17
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                    }
+                }
+            }
+        }
+
+        DropArea {
+            id: globalDropArea
+            anchors.fill: parent
+            z: 900
+
+            onEntered: {
+                var hasZzar = false
+                if (drag.hasUrls) {
+                    for (var i = 0; i < drag.urls.length; i++) {
+                        if (drag.urls[i].toString().toLowerCase().endsWith(".zzar")) {
+                            hasZzar = true
+                            break
+                        }
+                    }
+                }
+                if (hasZzar) {
+                    drag.accept()
+                    mainWindow.isDraggingMod = true
+                } else {
+                    drag.accepted = false
+                }
+            }
+
+            onExited: {
+                mainWindow.isDraggingMod = false
+            }
+
+            onDropped: {
+                mainWindow.isDraggingMod = false
+                if (drop.hasUrls) {
+                    var installed = 0
+                    for (var i = 0; i < drop.urls.length; i++) {
+                        var filePath = mainWindow.urlToLocalPath(drop.urls[i])
+                        if (filePath.toLowerCase().endsWith(".zzar")) {
+                            console.log("[Drag & Drop] Installing mod: " + filePath)
+                            modManagerBackend.installMod(filePath)
+                            installed++
+                        }
+                    }
+                    if (installed > 0) {
+                        currentTab = 0
+                        drop.accept()
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            id: dropOverlay
+            anchors.fill: parent
+            z: 901
+            visible: false
+            opacity: 0
+            color: "#CC131416"
+
+            property bool showOverlay: mainWindow.isDraggingMod
+
+            onShowOverlayChanged: {
+                if (showOverlay) {
+                    fadeOut.stop()
+                    visible = true
+                    fadeIn.start()
+                } else {
+                    fadeIn.stop()
+                    fadeOut.start()
+                }
+            }
+
+            NumberAnimation {
+                id: fadeIn
+                target: dropOverlay
+                property: "opacity"
+                to: 1.0
+                duration: 200
+                easing.type: Easing.OutQuad
+            }
+
+            SequentialAnimation {
+                id: fadeOut
+                NumberAnimation { target: dropOverlay; property: "opacity"; to: 0.0; duration: 250; easing.type: Easing.InQuad }
+                ScriptAction { script: dropOverlay.visible = false }
+            }
+
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 30
+                color: "transparent"
+                radius: 20
+                border.color: "#d8fa00"
+                border.width: 3
+
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 16
+
+                    Text {
+                        text: "\u2B07"
+                        color: "#d8fa00"
+                        font.pixelSize: 64
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    Text {
+                        text: qsTranslate("Application", "Drop .zzar mod(s) here to install")
+                        color: "#d8fa00"
+                        font.family: "Alatsi"
+                        font.pixelSize: 28
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
                 }
             }
         }

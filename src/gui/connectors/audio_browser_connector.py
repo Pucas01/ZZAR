@@ -142,6 +142,18 @@ class AudioBrowserConnector:
         )
         ab.matchResultsReady.connect(self._on_match_results)
 
+        ab.loadingStarted.connect(
+            lambda msg: QMetaObject.invokeMethod(
+                self.root, "showLoadingPopup",
+                Qt.QueuedConnection, Q_ARG("QVariant", msg)
+            )
+        )
+        ab.loadingFinished.connect(
+            lambda: QMetaObject.invokeMethod(
+                self.root, "hideLoadingPopup", Qt.QueuedConnection
+            )
+        )
+
         ab.loadFromSettings()
         ab.checkForNewTagDb()
         print("[ZZAR] Audio browser page connected")
