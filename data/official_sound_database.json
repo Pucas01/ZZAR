@@ -455,5 +455,150 @@
     ],
     "date_added": "2026-02-26T12:08:43.871155",
     "date_modified": "2026-02-26T12:08:43.871155"
+  },
+  "378afc02badd467ddbd2a4117d998a540e00bcde787f4180d7481219863e980a": {
+    "name": "Astra ULT song A",
+    "tags": [
+      "astra",
+      "ultimate",
+      "song"
+    ],
+    "notes": "",
+    "file_ids": [
+      134133939
+    ],
+    "date_added": "2026-02-26T19:38:02.817827",
+    "date_modified": "2026-02-26T19:38:02.817827"
+  },
+  "e5beccac1dfb031edaa367678fb4f0ff62d76ab2367236f2e0fb56646090323e": {
+    "name": "Astra ULT song B",
+    "tags": [
+      "astra",
+      "ultimate",
+      "song"
+    ],
+    "notes": "",
+    "file_ids": [
+      18063035
+    ],
+    "date_added": "2026-02-26T19:38:21.234944",
+    "date_modified": "2026-02-26T19:38:21.234944"
+  },
+  "8f935da9e6250983e507047ee52574fbe499863e8725f82b18f9cbc5503cdeb8": {
+    "name": "Lighter ULT A",
+    "tags": [
+      "lighter",
+      "ultimate"
+    ],
+    "notes": "make way for the undefeated champion",
+    "file_ids": [
+      276624000
+    ],
+    "date_added": "2026-02-26T19:20:00.651210",
+    "date_modified": "2026-02-26T19:20:00.651210"
+  },
+  "962fa0c807fa460b94f3ec83ae22ffbde4cdf33f39b322e9834834e59d22eabe": {
+    "name": "Lighter ULT B",
+    "tags": [
+      "lighter",
+      "ultimate"
+    ],
+    "notes": "im unstoppable",
+    "file_ids": [
+      753622389
+    ],
+    "date_added": "2026-02-26T19:20:31.042016",
+    "date_modified": "2026-02-26T19:20:31.042016"
+  },
+  "e0a5569e272d1b331b04bd6b4e5381d04c003569fb4a6e7452685bd53d4e1e97": {
+    "name": "Lighter ULT C",
+    "tags": [
+      "lighter",
+      "ultimate"
+    ],
+    "notes": "i pledge my honor",
+    "file_ids": [
+      960485643
+    ],
+    "date_added": "2026-02-26T19:20:53.822886",
+    "date_modified": "2026-02-26T19:20:53.822886"
+  },
+  "d82d993f5c26f4201e2fe0466c149bfa22a27999f56bd6167f7008bc44447930": {
+    "name": "Ye shunguang ULT A (part 1)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "the sword follows my will",
+    "file_ids": [
+      109327721
+    ],
+    "date_added": "2026-02-26T19:26:01.453213",
+    "date_modified": "2026-02-26T19:26:01.453213"
+  },
+  "e39475590e420dc7ed2312f918783dcb9c56c6926f122f58cc10dd3eb2a635cb": {
+    "name": "Ye shunguang ULT A (part 2)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "amd winds howl in the heavens",
+    "file_ids": [
+      901331583
+    ],
+    "date_added": "2026-02-26T19:28:21.165310",
+    "date_modified": "2026-02-26T19:28:21.165310"
+  },
+  "b28a42784edea6c50e44bb26eaffe2847f27e1470d0f771065d1ae7fb3d12c6d": {
+    "name": "Ye shunguang ULT B (part 1)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "my blade cuts down evil",
+    "file_ids": [
+      876818285
+    ],
+    "date_added": "2026-02-26T19:29:30.092520",
+    "date_modified": "2026-02-26T19:29:30.092520"
+  },
+  "125e8dfd5b9f753f946aa70795b3c25e1b92f289e7953fc16189a73e24f0df92": {
+    "name": "Ye shunguang ULT B (part 2)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "my spirit soars in the sky",
+    "file_ids": [
+      130599571
+    ],
+    "date_added": "2026-02-26T19:30:00.798281",
+    "date_modified": "2026-02-26T19:30:00.798281"
+  },
+  "8fc8258e166b986b7830a06072f1478feb6f0add4191548b2d2cf448a11cb2d6": {
+    "name": "Ye shunguang ULT C (part 1)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "a measure of steel",
+    "file_ids": [
+      552688114
+    ],
+    "date_added": "2026-02-26T19:31:10.506551",
+    "date_modified": "2026-02-26T19:31:10.506551"
+  },
+  "46eb9b2e8125c85dcc6891dabc49ba6884d68431b7ffcebfd9274ba21c17437b": {
+    "name": "Ye shunguang ULT C (part 2)",
+    "tags": [
+      "ye shunguang",
+      "ultimate"
+    ],
+    "notes": "slices the world through",
+    "file_ids": [
+      1013430388
+    ],
+    "date_added": "2026-02-26T19:31:40.076184",
+    "date_modified": "2026-02-26T19:31:40.076184"
   }
 }
