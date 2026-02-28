@@ -979,11 +979,12 @@ class AudioBrowserBridge(QObject):
         try:
             if "streaming_wem" in meta and "streaming_pck_path" in meta:
                 sw = meta["streaming_wem"]
+                wem_id = sw["id"]
                 indexer = PCKIndexer(meta["streaming_pck_path"])
                 indexer.build_index()
-                wem_bytes = indexer.extract_single_file(sw["id"], "wem", sw["lang_id"])
+                wem_bytes = indexer.extract_single_file(wem_id, "wem", sw["lang_id"])
                 cache_key = self.cache_manager.get_cache_key(
-                    meta["pck_path"], sw["id"], "wem_streaming"
+                    meta["pck_path"], wem_id, "wem_streaming"
                 )
             else:
                 if "bnk_bytes" not in meta:
@@ -1006,7 +1007,7 @@ class AudioBrowserBridge(QObject):
 
             self.audio_player.play_wem(wem_bytes, cache_key)
             self.nowPlayingUpdate.emit(
-                QCoreApplication.translate("Application", "Playing: %1.wem (from BNK %2)").replace("%1", str(wem_id)).replace("%2", str(meta['bnk_id']))
+                QCoreApplication.translate("Application", "Playing: %1.wem (from BNK %2)").replace("%1", str(wem_id)).replace("%2", str(meta.get('bnk_id', '')))
             )
             self.playbackStateUpdate.emit(True, False, True)
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Playing %1.wem from BNK").replace("%1", str(wem_id)))
