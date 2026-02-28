@@ -600,5 +600,574 @@
     ],
     "date_added": "2026-02-26T19:31:40.076184",
     "date_modified": "2026-02-26T19:31:40.076184"
+  },
+  "ec60c882e0f021e4df9b102f085d471417b22440b93dd5cb209fa8080f4f8b78": {
+    "name": "Wipeout A",
+    "tags": [
+      "ui",
+      "menu",
+      "wipeout"
+    ],
+    "notes": "",
+    "file_ids": [
+      637259058
+    ],
+    "date_added": "2026-02-28T10:20:57.644618",
+    "date_modified": "2026-02-28T11:36:02.469061"
+  },
+  "b732d390a522c68876b9f0edf42eb537bddce7d8dccbc5c4fcdb023ebdd711c4": {
+    "name": "VR Room - Intro Static SFX",
+    "tags": [
+      "vr",
+      "room",
+      "combat",
+      "intro"
+    ],
+    "notes": "",
+    "file_ids": [
+      1066819587
+    ],
+    "date_added": "2026-02-28T10:22:03.215367",
+    "date_modified": "2026-02-28T10:22:03.215367"
+  },
+  "3132c04338a02109932e2f30e031e70cab5d5291783322932001d7068fa5631e": {
+    "name": "Vital View SFX",
+    "tags": [
+      "combat",
+      "vital view"
+    ],
+    "notes": "",
+    "file_ids": [
+      724512719
+    ],
+    "date_added": "2026-02-28T10:22:42.858877",
+    "date_modified": "2026-02-28T10:22:42.858877"
+  },
+  "e223901c6723cba4010a13a1bebbc76823c3f1f093c4eb7c8451a809a7d13411": {
+    "name": "Evasive Assist SFX",
+    "tags": [
+      "combat",
+      "evasive assist"
+    ],
+    "notes": "duplicate in 11th soundbank?",
+    "file_ids": [
+      508539704
+    ],
+    "date_added": "2026-02-28T10:23:37.352655",
+    "date_modified": "2026-02-28T10:23:37.352655"
+  },
+  "37d00b447fbaad715e6d75b1d5f4a9112b20bbe42b098181cabc7e1fd446e752": {
+    "name": "Gacha Intro",
+    "tags": [
+      "gacha",
+      "music"
+    ],
+    "notes": "BGM Intro for Gacha",
+    "file_ids": [
+      270031234
+    ],
+    "date_added": "2026-02-28T10:38:44.631943",
+    "date_modified": "2026-02-28T10:38:44.631943"
+  },
+  "b7d1e392f6133fa265fbd64300562028bafd36dfa981f7c52dbd88d666e0629d": {
+    "name": "Gacha Music (No S-Ranks)",
+    "tags": [
+      "gacha",
+      "music"
+    ],
+    "notes": "BGM for Gacha without any S-Ranks (b-b-b-bummer)",
+    "file_ids": [
+      498553226
+    ],
+    "date_added": "2026-02-28T10:39:30.128688",
+    "date_modified": "2026-02-28T10:39:30.128688"
+  },
+  "3dcc3d4a776f2b65005ddb84f34e764ec4458f9f59d172fbf0527b7a1f31c18e": {
+    "name": "Gacha Music (Female Rapper)",
+    "tags": [
+      "gacha",
+      "music"
+    ],
+    "notes": "BGM for Gacha when you win (with a rapper girl!)",
+    "file_ids": [
+      737826899
+    ],
+    "date_added": "2026-02-28T10:40:06.413851",
+    "date_modified": "2026-02-28T10:40:06.413851"
+  },
+  "40b8fa059904f67c21938df85f00ad782da22af6fda0c860963ad7e48713ee49": {
+    "name": "Gacha Music (Male Rapper)",
+    "tags": [
+      "gacha. music"
+    ],
+    "notes": "BGM for Gacha wihen you win (with a rapper boy!)",
+    "file_ids": [
+      850661973
+    ],
+    "date_added": "2026-02-28T10:40:34.828003",
+    "date_modified": "2026-02-28T10:40:34.828003"
+  },
+  "0ab0ae8276e576547d5193a65460a4678d996ece940192907b5bea14f81e6ed4": {
+    "name": "Gacha Light Switch",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      1018730643
+    ],
+    "date_added": "2026-02-28T10:41:39.740975",
+    "date_modified": "2026-02-28T11:36:26.089946"
+  },
+  "22848d9f73164f8cd7eddb606c3cc0d5cd40eed8d69117e06d7d5fecfc0524b4": {
+    "name": "Gacha TV S-Rank Static",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu",
+      "tv"
+    ],
+    "notes": "",
+    "file_ids": [
+      805036154
+    ],
+    "date_added": "2026-02-28T10:42:11.905773",
+    "date_modified": "2026-02-28T11:36:39.468786"
+  },
+  "26d20adaa4c03c1b7c492ecdac94b9da39e5d088526dacd3ec20591827887b56": {
+    "name": "Gacha Swoosh A",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      880977774
+    ],
+    "date_added": "2026-02-28T11:30:04.268829",
+    "date_modified": "2026-02-28T11:30:04.268829"
+  },
+  "2d725a11953066364a3881ed1e1c729211b1a65b3f9f31a1b65c7560cd5e2da6": {
+    "name": "Gacha Swoosh B",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      795407328
+    ],
+    "date_added": "2026-02-28T11:30:45.824766",
+    "date_modified": "2026-02-28T11:30:45.824766"
+  },
+  "7a9e572804353a6834a381ff6d8581a97192c2894fa6fc3bee631b2c80bcf0b0": {
+    "name": "Gacha Swoosh B2",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      1052105857
+    ],
+    "date_added": "2026-02-28T11:31:08.366499",
+    "date_modified": "2026-02-28T11:31:08.366499"
+  },
+  "2bcec287a39732e5d9e0307f98ecb5882057b07e0f22fd5bf947fad7e1724ded": {
+    "name": "Gacha Swoosh C",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      834543563
+    ],
+    "date_added": "2026-02-28T11:31:38.837067",
+    "date_modified": "2026-02-28T11:31:38.837067"
+  },
+  "282bdfdaeb401bcf221f66e67895f8c9aff4f1d1631b5b5a3a072fa07c043452": {
+    "name": "Gacha Pullback Static",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      1067430077
+    ],
+    "date_added": "2026-02-28T11:32:44.029582",
+    "date_modified": "2026-02-28T11:32:44.029582"
+  },
+  "b01d4b08787c33d3b14bbe65acf4d7833c47d30c0656e335c775996e760d9e19": {
+    "name": "Gacha Lightflash",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      780593364
+    ],
+    "date_added": "2026-02-28T11:33:30.140425",
+    "date_modified": "2026-02-28T11:33:30.140425"
+  },
+  "f6387bb6e060acb92c437075be0e821bc9fe01299029bc971c7d09a58e07ed43": {
+    "name": "Gacha Pullback (S-Rank)",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      596815218
+    ],
+    "date_added": "2026-02-28T11:33:55.824890",
+    "date_modified": "2026-02-28T11:33:55.824890"
+  },
+  "967897a43094fc256c39d2cd7d12a9c71a92cf66b737cddff0463f6497208a02": {
+    "name": "Gacha S-Rank Ping",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      372781687
+    ],
+    "date_added": "2026-02-28T11:34:21.224300",
+    "date_modified": "2026-02-28T11:34:21.224300"
+  },
+  "7dba727ad744f485cc62c843022bb234ffd381e22ae60b228a210ba0ba3407ae": {
+    "name": "Gacha A-Rank Transition",
+    "tags": [
+      "gacha",
+      "ui",
+      "menu"
+    ],
+    "notes": "",
+    "file_ids": [
+      1039760094
+    ],
+    "date_added": "2026-02-28T11:34:52.107108",
+    "date_modified": "2026-02-28T11:34:52.107108"
+  },
+  "f7f38faedcd1c3e7af6fd170d0244190b8c2fe2aa55f1546cdf80a9a813e7ff1": {
+    "name": "Wipeout B",
+    "tags": [
+      "ui",
+      "menu",
+      "wipeout"
+    ],
+    "notes": "",
+    "file_ids": [
+      963496217
+    ],
+    "date_added": "2026-02-28T11:35:46.305457",
+    "date_modified": "2026-02-28T11:35:46.305457"
+  },
+  "5e5b79ec9cbe7e0b82a43cfc2c1c34de1eb91efae3ea685bdf43118d771e15c5": {
+    "name": "Astra M1 Block",
+    "tags": [
+      "combat",
+      "astra",
+      "block"
+    ],
+    "notes": "SFX for Astra's M1",
+    "file_ids": [
+      882400176
+    ],
+    "date_added": "2026-02-28T11:39:31.089538",
+    "date_modified": "2026-02-28T11:41:12.112216"
+  },
+  "1d86c494971463f377c5418ccd5d92a2397d874be77f35d764da7e0972a1b856": {
+    "name": "Astra Unused Quick Assist (?)",
+    "tags": [
+      "astra",
+      "combat",
+      "assist",
+      "unused"
+    ],
+    "notes": "",
+    "file_ids": [
+      535765791
+    ],
+    "date_added": "2026-02-28T11:40:26.643251",
+    "date_modified": "2026-02-28T11:51:08.094859"
+  },
+  "72a6efaeec040a692602e8498871c99188af453c573abdc9e512a401ecd551f7": {
+    "name": "Entering Lost Void Breaktime",
+    "tags": [
+      "combat",
+      "lost void"
+    ],
+    "notes": "",
+    "file_ids": [
+      875459729
+    ],
+    "date_added": "2026-02-28T11:44:21.283439",
+    "date_modified": "2026-02-28T11:44:21.283439"
+  },
+  "508d94858891017e2eddc2aaa2bdb0c5457b64ae05215625424b7340c611b550": {
+    "name": "Lost Void Clear A",
+    "tags": [
+      "combat",
+      "lost void",
+      "jingle"
+    ],
+    "notes": "",
+    "file_ids": [
+      92935510
+    ],
+    "date_added": "2026-02-28T11:45:09.388914",
+    "date_modified": "2026-02-28T11:45:16.584868"
+  },
+  "9871e6ab6cb2534dbaeb7e57cc3898580b6c5837700e2a0c684dade94d923d27": {
+    "name": "Lost Void Clear B",
+    "tags": [
+      "combat",
+      "lost void",
+      "jingle"
+    ],
+    "notes": "",
+    "file_ids": [
+      158484661
+    ],
+    "date_added": "2026-02-28T11:45:33.666903",
+    "date_modified": "2026-02-28T11:45:33.666903"
+  },
+  "e191ea86d191797cb02ab149d81b8c5e2935afaad1e5563721b81594b11d5df9": {
+    "name": "Lost Void Clear C",
+    "tags": [
+      "combat",
+      "lost void",
+      "jingle"
+    ],
+    "notes": "",
+    "file_ids": [
+      301378950
+    ],
+    "date_added": "2026-02-28T11:45:52.351029",
+    "date_modified": "2026-02-28T11:45:52.351029"
+  },
+  "4937a7b85c0e04e6046faf4d7be7142dac2fecc1b51cf11f6a4141f84981e545": {
+    "name": "Lost Void Slot Machine (Lucky)",
+    "tags": [
+      "ui",
+      "combat",
+      "lost void"
+    ],
+    "notes": "",
+    "file_ids": [
+      199884604
+    ],
+    "date_added": "2026-02-28T11:46:41.798364",
+    "date_modified": "2026-02-28T11:47:23.046909"
+  },
+  "e8feb7a82a6c8bcb7c9867e1fec76edab5e56af8ca6804240fdbdff522595055": {
+    "name": "Lost Void Slot Machine (Unlucky)",
+    "tags": [
+      "combat",
+      "ui",
+      "lost void"
+    ],
+    "notes": "",
+    "file_ids": [
+      38812959
+    ],
+    "date_added": "2026-02-28T11:47:58.433529",
+    "date_modified": "2026-02-28T11:47:58.433529"
+  },
+  "9d4edc126ebfe622798c85becdecfd5c879bd9169dfa1398db3f4d08873fdbb9": {
+    "name": "Lost Void Card Selection",
+    "tags": [
+      "ui",
+      "combat",
+      "lost void"
+    ],
+    "notes": "",
+    "file_ids": [
+      26849681
+    ],
+    "date_added": "2026-02-28T11:48:32.796616",
+    "date_modified": "2026-02-28T11:48:32.796616"
+  },
+  "d96446fde06c24208ae7dafce5a9b28ffe0105fc67aac92fbe0753b6a6bc8a40": {
+    "name": "Astra Quick Assist A",
+    "tags": [
+      "astra",
+      "assist",
+      "combat"
+    ],
+    "notes": "",
+    "file_ids": [
+      291618137
+    ],
+    "date_added": "2026-02-28T11:50:50.844108",
+    "date_modified": "2026-02-28T11:50:50.844108"
+  },
+  "e7c1765189fffdae2f61db9a4aa1e3715de7ef68228717e0791985a205b661df": {
+    "name": "Astra Quick Assist B",
+    "tags": [
+      "astra",
+      "combat",
+      "assist"
+    ],
+    "notes": "",
+    "file_ids": [
+      672600139
+    ],
+    "date_added": "2026-02-28T11:51:31.759079",
+    "date_modified": "2026-02-28T11:51:31.759079"
+  },
+  "431a2cd5012137cd7a4578804676e1013fc05d9165544407b70dd250cb75d51f": {
+    "name": "Battle Tower B-Announcer",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      999513433
+    ],
+    "date_added": "2026-02-28T11:52:34.240397",
+    "date_modified": "2026-02-28T11:52:34.240397"
+  },
+  "1311546f58c09eb33d909e5977c37dd98295f0e4d340202987fd2eda3278ef07": {
+    "name": "Battle Tower S-Annonucer A",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      169399134
+    ],
+    "date_added": "2026-02-28T11:53:55.853526",
+    "date_modified": "2026-02-28T11:53:55.853526"
+  },
+  "de87ae3e7411ce47cfdaf7c7c74b6d178c9ec3e5de56b1390ffb2a48ee3f041d": {
+    "name": "Battle Tower S-Announcer B",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      425358053
+    ],
+    "date_added": "2026-02-28T11:54:12.254069",
+    "date_modified": "2026-02-28T11:54:12.254069"
+  },
+  "aaca17a57ae61c3939ad488b1d4025c66a3ff03400fee08312dbbdf7e7cc1678": {
+    "name": "Battle Tower A-Announcer A",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      692327789
+    ],
+    "date_added": "2026-02-28T11:54:43.102120",
+    "date_modified": "2026-02-28T11:54:43.102120"
+  },
+  "90bbcf129d4a41c6d6c825c64b98b9b508f79542de3647a11c9df6d9ed31e1cd": {
+    "name": "Battle Tower A-Announcer B",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      866482915
+    ],
+    "date_added": "2026-02-28T11:54:56.262667",
+    "date_modified": "2026-02-28T11:54:56.262667"
+  },
+  "3c79264da1b3db7a79f7022c220077a50ef843198b533ae5d4651f867360fc44": {
+    "name": "\"Extraordinary\" Announcer Line",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "unclear where this is from",
+    "file_ids": [
+      1002984568
+    ],
+    "date_added": "2026-02-28T12:00:15.302659",
+    "date_modified": "2026-02-28T12:00:15.302659"
+  },
+  "15cce6b33526f8ef8b6ec16a58c9033e4cc5119206b4a0e12a7f4fb17c4b0894": {
+    "name": "\"Unstoppable\" Announcer Line",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      977444034
+    ],
+    "date_added": "2026-02-28T12:00:30.959178",
+    "date_modified": "2026-02-28T12:00:30.959178"
+  },
+  "b97f12e387787ce067c5150b2de6d36d52e971829f732393c8f1a833523cdfd3": {
+    "name": "\"Nice One!\" Announcer Line",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      881684299
+    ],
+    "date_added": "2026-02-28T12:01:14.287056",
+    "date_modified": "2026-02-28T12:01:14.287056"
+  },
+  "137d65875014bcef8a2b21bee72103277691510490b5af653e04a87a1595b118": {
+    "name": "\"Stunning!\" Announcer Line",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      46125215
+    ],
+    "date_added": "2026-02-28T12:01:32.456901",
+    "date_modified": "2026-02-28T12:01:32.456901"
+  },
+  "42506dcc67b4fc150b37f48131775e474f468e16f7cde83587c263c1e048a525": {
+    "name": "\"Epic!\" Announcer Line",
+    "tags": [
+      "ui",
+      "combat",
+      "battle tower"
+    ],
+    "notes": "",
+    "file_ids": [
+      511322321
+    ],
+    "date_added": "2026-02-28T12:01:45.158165",
+    "date_modified": "2026-02-28T12:01:45.158165"
   }
 }
