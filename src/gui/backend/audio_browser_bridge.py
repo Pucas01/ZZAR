@@ -28,6 +28,7 @@ from src.config_manager import get_settings_file, get_config_dir
 from gui.backend.update_manager_bridge import _urlopen
 
 OFFICIAL_TAG_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_sound_database.json"
+OFFICIAL_FINGERPRINT_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_fingerprint_database.json"
 
 def _get_tag_db_url():
     from ZZAR import DEV_MODE, get_base_path
@@ -35,6 +36,13 @@ def _get_tag_db_url():
         dev_path = get_base_path() / "data" / "dev_sound_database.json"
         return dev_path.as_uri()
     return OFFICIAL_TAG_DB_URL
+
+def _get_fingerprint_db_url():
+    from ZZAR import DEV_MODE, get_base_path
+    if DEV_MODE:
+        dev_path = get_base_path() / "data" / "dev_fingerprint_database.json"
+        return dev_path.as_uri()
+    return OFFICIAL_FINGERPRINT_DB_URL
 
 class _WorkerThread(QThread):
 
@@ -194,6 +202,42 @@ class TagDatabaseCheckWorker(QThread):
         except Exception:
             pass
 
+class FingerprintDatabaseDownloadWorker(QThread):
+
+    downloadFinished = pyqtSignal(str)
+    errorOccurred = pyqtSignal(str)
+
+    def run(self):
+        try:
+            url = _get_fingerprint_db_url()
+            req = urllib.request.Request(url)
+            req.add_header("User-Agent", "ZZAR-FingerprintDB")
+
+            with _urlopen(req, timeout=30) as response:
+                data = response.read()
+
+            json.loads(data.decode("utf-8"))
+
+            temp_file = tempfile.NamedTemporaryFile(
+                suffix=".json", prefix="zzar_fingerprintdb_", delete=False
+            )
+            temp_file.write(data)
+            temp_file.close()
+
+            self.downloadFinished.emit(temp_file.name)
+
+        except json.JSONDecodeError:
+            self.errorOccurred.emit(QCoreApplication.translate("Application", "Downloaded file is not valid JSON"))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                self.errorOccurred.emit(QCoreApplication.translate("Application", "Official fingerprint database not found on GitHub"))
+            else:
+                self.errorOccurred.emit(QCoreApplication.translate("Application", "HTTP error: %1 %2").replace("%1", str(e.code)).replace("%2", str(e.reason)))
+        except urllib.error.URLError as e:
+            self.errorOccurred.emit(QCoreApplication.translate("Application", "Network error: %1").replace("%1", str(e.reason)))
+        except Exception as e:
+            self.errorOccurred.emit(QCoreApplication.translate("Application", "Download failed: %1").replace("%1", str(e)))
+
 class AudioBrowserBridge(QObject):
 
     statusUpdate = pyqtSignal(str, arguments=["message"])
@@ -226,6 +270,11 @@ class AudioBrowserBridge(QObject):
     tagDbDownloadError = pyqtSignal(str, arguments=["message"])
     tagDbImportComplete = pyqtSignal(int, arguments=["importedCount"])
     newTagDbAvailable = pyqtSignal(int, arguments=["entryCount"])
+    fingerprintDbPrompt = pyqtSignal(int, arguments=["entryCount"])
+    fingerprintDbDownloadStarted = pyqtSignal()
+    fingerprintDbDownloadReady = pyqtSignal(int, arguments=["entryCount"])
+    fingerprintDbDownloadError = pyqtSignal(str, arguments=["message"])
+    fingerprintDbImportComplete = pyqtSignal(int, arguments=["importedCount"])
     matchProgressUpdate = pyqtSignal(int, int, arguments=["current", "total"])
     matchResultsReady = pyqtSignal(list, arguments=["results"])
     matchStarted = pyqtSignal()
@@ -275,6 +324,10 @@ class AudioBrowserBridge(QObject):
         self._tag_db_notify_dismissed = False
         self._tag_db_last_seen_hash = ""
         self._tag_db_check_done = False
+        self._fingerprint_db_worker = None
+        self._fingerprint_db_temp_path = None
+        self._fingerprint_db_prompt_shown = False
+        self._pending_match_path = None
 
         self.audio_player.state_changed.connect(self._on_playback_state_changed)
         self.audio_player.position_changed.connect(self._on_position_changed)
@@ -933,19 +986,30 @@ class AudioBrowserBridge(QObject):
                     meta["pck_path"], sw["id"], "wem_streaming"
                 )
             else:
-                bnk_indexer = BNKIndexer(meta["bnk_bytes"])
+                if "bnk_bytes" not in meta:
+                    self.statusUpdate.emit(QCoreApplication.translate("Application", "Extracting BNK from PCK..."))
+                    indexer = PCKIndexer(meta["pck_path"])
+                    indexer.build_index()
+                    bnk_bytes = indexer.extract_single_file(
+                        meta["bnk_id"], "bnk", meta.get("lang_id", 0)
+                    )
+                else:
+                    bnk_bytes = meta["bnk_bytes"]
+
+                bnk_indexer = BNKIndexer(bnk_bytes)
                 bnk_indexer.parse_didx()
-                wem_bytes = bnk_indexer.extract_wem(meta["wem_id"])
+                wem_id = meta.get("wem_id") or meta.get("file_id")
+                wem_bytes = bnk_indexer.extract_wem(wem_id)
                 cache_key = self.cache_manager.get_cache_key(
-                    meta["pck_path"], f"{meta['bnk_id']}_{meta['wem_id']}", "wem_bnk"
+                    meta["pck_path"], f"{meta['bnk_id']}_{wem_id}", "wem_bnk"
                 )
 
             self.audio_player.play_wem(wem_bytes, cache_key)
             self.nowPlayingUpdate.emit(
-                QCoreApplication.translate("Application", "Playing: %1.wem (from BNK %2)").replace("%1", str(meta['wem_id'])).replace("%2", str(meta['bnk_id']))
+                QCoreApplication.translate("Application", "Playing: %1.wem (from BNK %2)").replace("%1", str(wem_id)).replace("%2", str(meta['bnk_id']))
             )
             self.playbackStateUpdate.emit(True, False, True)
-            self.statusUpdate.emit(QCoreApplication.translate("Application", "Playing %1.wem from BNK").replace("%1", str(meta['wem_id'])))
+            self.statusUpdate.emit(QCoreApplication.translate("Application", "Playing %1.wem from BNK").replace("%1", str(wem_id)))
 
         except Exception as e:
             self.errorOccurred.emit(QCoreApplication.translate("Application", "Playback Error"), str(e))
@@ -1914,6 +1978,12 @@ class AudioBrowserBridge(QObject):
             self.statusUpdate.emit(QCoreApplication.translate("Application", "A match is already in progress"))
             return
 
+        if not self._fingerprint_db_prompt_shown and len(self.fingerprint_db.database) == 0:
+            self._fingerprint_db_prompt_shown = True
+            self._pending_match_path = recording_path
+            self.fingerprintDbPrompt.emit(0)
+            return
+
         self._match_cancel = threading.Event()
 
         self._match_thread = threading.Thread(
@@ -2607,6 +2677,95 @@ class AudioBrowserBridge(QObject):
                 json.dump(settings, f, indent=2)
         except Exception as e:
             print(f"[Audio Browser] Error saving tag DB notify preference: {e}")
+
+    @pyqtSlot()
+    def downloadOfficialFingerprintDb(self):
+        if self._fingerprint_db_worker and self._fingerprint_db_worker.isRunning():
+            return
+
+        self.statusUpdate.emit(QCoreApplication.translate("Application", "Downloading official fingerprint database..."))
+        self.fingerprintDbDownloadStarted.emit()
+
+        self._fingerprint_db_worker = FingerprintDatabaseDownloadWorker()
+        self._fingerprint_db_worker.downloadFinished.connect(self._on_fingerprint_db_downloaded)
+        self._fingerprint_db_worker.errorOccurred.connect(self._on_fingerprint_db_error)
+        self._fingerprint_db_worker.start()
+
+    def _on_fingerprint_db_downloaded(self, temp_path):
+        self._fingerprint_db_temp_path = temp_path
+        try:
+            with open(temp_path, "rb") as f:
+                raw = f.read()
+            data = json.loads(raw.decode("utf-8"))
+            entry_count = len(data)
+            self.fingerprintDbDownloadReady.emit(entry_count)
+            self.statusUpdate.emit(
+                QCoreApplication.translate("Application", "Official fingerprint database downloaded (%1 entries)").replace("%1", str(entry_count))
+            )
+        except Exception as e:
+            self.fingerprintDbDownloadError.emit(QCoreApplication.translate("Application", "Failed to read downloaded database: %1").replace("%1", str(e)))
+
+    def _on_fingerprint_db_error(self, message):
+        self._fingerprint_db_temp_path = None
+        self.fingerprintDbDownloadError.emit(message)
+        self.statusUpdate.emit(QCoreApplication.translate("Application", "Fingerprint database download failed: %1").replace("%1", message))
+
+    @pyqtSlot(bool)
+    def applyOfficialFingerprintDb(self, merge):
+        if not self._fingerprint_db_temp_path:
+            self.fingerprintDbDownloadError.emit(QCoreApplication.translate("Application", "No downloaded database available"))
+            return
+
+        try:
+            with open(self._fingerprint_db_temp_path, 'r') as f:
+                imported_data = json.load(f)
+
+            if merge:
+                count = 0
+                for sound_hash, info in imported_data.items():
+                    if sound_hash not in self.fingerprint_db.database:
+                        count += 1
+                    self.fingerprint_db.database[sound_hash] = info
+            else:
+                count = len(imported_data)
+                self.fingerprint_db.database = imported_data
+
+            self.fingerprint_db.save()
+
+            mode = QCoreApplication.translate("Application", "Merged") if merge else QCoreApplication.translate("Application", "Replaced")
+            self.fingerprintDbImportComplete.emit(count)
+            self.statusUpdate.emit(QCoreApplication.translate("Application", "%1 fingerprint database — %2 entries imported").replace("%1", mode).replace("%2", str(count)))
+
+            if self._pending_match_path:
+                QMetaObject.invokeMethod(
+                    self, "continueMatchWithoutFingerprintDb",
+                    Qt.QueuedConnection
+                )
+
+        except Exception as e:
+            self.fingerprintDbDownloadError.emit(QCoreApplication.translate("Application", "Failed to apply fingerprint database: %1").replace("%1", str(e)))
+            self.statusUpdate.emit(QCoreApplication.translate("Application", "Failed to apply fingerprint database: %1").replace("%1", str(e)))
+        finally:
+            try:
+                os.unlink(self._fingerprint_db_temp_path)
+            except Exception:
+                pass
+            self._fingerprint_db_temp_path = None
+
+    @pyqtSlot()
+    def continueMatchWithoutFingerprintDb(self):
+        if self._pending_match_path:
+            recording_path = self._pending_match_path
+            self._pending_match_path = None
+
+            self._match_cancel = threading.Event()
+
+            self._match_thread = threading.Thread(
+                target=self._run_matching_threaded,
+                args=(recording_path, self._match_cancel),
+                daemon=True,
+            )
+            self._match_thread.start()
 
     def cleanup(self):
 

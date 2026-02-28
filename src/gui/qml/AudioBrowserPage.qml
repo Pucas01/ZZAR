@@ -52,6 +52,10 @@ Item {
     signal applyOfficialTagDb(bool merge)
     signal dismissTagDbNotify(bool dontShowAgain)
     signal openTagDbFolderClicked()
+    signal downloadOfficialFingerprintDbClicked()
+    signal applyOfficialFingerprintDb(bool merge)
+    signal dismissFingerprintDbPrompt()
+    signal continueMatchWithoutFingerprintDb()
     signal cancelMatchClicked()
     signal matchResultNavigateClicked(string fileId, string itemType, string pckPath, string bnkId)
 
@@ -76,6 +80,9 @@ Item {
     property int tagDbEntryCount: 0
     property bool tagDbNotifyVisible: false
     property int tagDbNewCount: 0
+    property bool fingerprintDbPromptVisible: false
+    property int fingerprintDbEntryCount: 0
+    property bool fingerprintDbDownloading: false
     property bool matchInProgress: false
     property int matchCurrent: 0
     property int matchTotal: 0
@@ -1488,6 +1495,31 @@ Item {
     }
 
     function onTagDbImportComplete(count) {
+    }
+
+    function onFingerprintDbPrompt(entryCount) {
+        fingerprintDbEntryCount = entryCount
+        fingerprintDbPromptVisible = true
+        fingerprintDbPromptOverlay.visible = true
+        fingerprintDbPromptOverlay.closing = false
+    }
+
+    function onFingerprintDbDownloadStarted() {
+        fingerprintDbDownloading = true
+    }
+
+    function onFingerprintDbDownloadReady(entryCount) {
+        fingerprintDbDownloading = false
+        fingerprintDbEntryCount = entryCount
+        fingerprintDbApplyOverlay.visible = true
+        fingerprintDbApplyOverlay.closing = false
+    }
+
+    function onFingerprintDbDownloadError(message) {
+        fingerprintDbDownloading = false
+    }
+
+    function onFingerprintDbImportComplete(count) {
     }
 
     function onNewTagDbAvailable(entryCount) {
@@ -3505,6 +3537,349 @@ Item {
                                 tagDbNotifyHideTimer.start()
                                 dismissTagDbNotify(dontShow)
                                 downloadOfficialTagDbClicked()
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
+
+                Item { height: 5; width: 1 }
+            }
+        }
+    }
+
+    Item {
+        id: fingerprintDbPromptOverlay
+        visible: false
+        anchors.fill: parent
+        z: 2005
+        property bool closing: false
+
+        Timer {
+            id: fingerprintDbPromptHideTimer
+            interval: 200
+            onTriggered: {
+                fingerprintDbPromptOverlay.visible = false
+                fingerprintDbPromptOverlay.closing = false
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"
+            opacity: (!fingerprintDbPromptOverlay.closing && fingerprintDbPromptOverlay.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Image {
+                anchors.fill: parent
+                source: "../assets/gradient.png"
+                fillMode: Image.Stretch
+                mipmap: true
+                opacity: 0.6
+            }
+        }
+
+        Rectangle {
+            width: Math.min(500, parent.width - 40)
+            height: fingerprintPromptCol.height + 60
+            anchors.centerIn: parent
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
+            border.width: 1
+            scale: (!fingerprintDbPromptOverlay.closing && fingerprintDbPromptOverlay.visible) ? 1.0 : 0.9
+            opacity: (!fingerprintDbPromptOverlay.closing && fingerprintDbPromptOverlay.visible) ? 1.0 : 0.0
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Column {
+                id: fingerprintPromptCol
+                width: parent.width - 60
+                anchors.centerIn: parent
+                spacing: 25
+
+                Item { height: 10; width: 1 }
+
+                Image {
+                    source: "../assets/PiperHmm.png"
+                    width: 160
+                    height: 160
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Audio Fingerprint Found!")
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 22
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    text: qsTranslate("Application", "We found a premade fingerprint database!\n\nDownloading it will significantly speed up audio matching by using pre-computed fingerprints.")
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 15
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Would you like to download it now?")
+                    color: "#999999"
+                    font.family: "Alatsi"
+                    font.pixelSize: 13
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.3
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: 15
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: "#3a3a3a"
+                        radius: Theme.radiusMedium
+                        scale: fingerprintPromptNoMouse.pressed ? 0.97 : (fingerprintPromptNoMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTranslate("Application", "No Thanks")
+                            color: "#ffffff"
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: fingerprintPromptNoMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                fingerprintDbPromptOverlay.closing = true
+                                fingerprintDbPromptHideTimer.start()
+                                dismissFingerprintDbPrompt()
+                                continueMatchWithoutFingerprintDb()
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 150
+                        height: 45
+                        color: fingerprintDbDownloading ? Theme.disabledAccent : Theme.primaryAccent
+                        radius: Theme.radiusMedium
+                        scale: fingerprintPromptYesMouse.pressed ? 0.97 : (fingerprintPromptYesMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: fingerprintDbDownloading ? qsTranslate("Application", "Downloading...") : qsTranslate("Application", "Download")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: fingerprintPromptYesMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            enabled: !fingerprintDbDownloading
+                            onClicked: {
+                                downloadOfficialFingerprintDbClicked()
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
+
+                Item { height: 5; width: 1 }
+            }
+        }
+    }
+
+    Item {
+        id: fingerprintDbApplyOverlay
+        visible: false
+        anchors.fill: parent
+        z: 2006
+        property bool closing: false
+
+        Timer {
+            id: fingerprintDbApplyHideTimer
+            interval: 200
+            onTriggered: {
+                fingerprintDbApplyOverlay.visible = false
+                fingerprintDbApplyOverlay.closing = false
+            }
+        }
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#80000000"
+            opacity: (!fingerprintDbApplyOverlay.closing && fingerprintDbApplyOverlay.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Image {
+                anchors.fill: parent
+                source: "../assets/gradient.png"
+                fillMode: Image.Stretch
+                mipmap: true
+                opacity: 0.6
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    fingerprintDbApplyOverlay.closing = true
+                    fingerprintDbApplyHideTimer.start()
+                }
+            }
+        }
+
+        Rectangle {
+            id: fingerprintDbApplyDialog
+            width: Math.min(500, parent.width - 40)
+            height: fingerprintDbApplyCol.height + 60
+            anchors.centerIn: parent
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
+            border.width: 1
+            scale: (!fingerprintDbApplyOverlay.closing && fingerprintDbApplyOverlay.visible) ? 1.0 : 0.9
+            opacity: (!fingerprintDbApplyOverlay.closing && fingerprintDbApplyOverlay.visible) ? 1.0 : 0.0
+            Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Column {
+                id: fingerprintDbApplyCol
+                width: parent.width - 60
+                anchors.centerIn: parent
+                spacing: 25
+
+                Item { height: 10; width: 1 }
+
+                Image {
+                    source: "../assets/ZhuYuanWrite.png"
+                    width: 160
+                    height: 160
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Official Fingerprint Database")
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 24
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Downloaded %1 fingerprint entries.\n\nHow would you like to apply them?").arg(fingerprintDbEntryCount)
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 16
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.4
+                }
+
+                Text {
+                    text: qsTranslate("Application", "Merge adds new entries and updates existing ones.\nReplace completely replaces your local database.")
+                    color: "#999999"
+                    font.family: "Alatsi"
+                    font.pixelSize: 13
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    lineHeight: 1.3
+                }
+
+                RowLayout {
+                    width: parent.width
+                    spacing: 15
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        width: 130
+                        height: 45
+                        color: Theme.secondaryAccent
+                        radius: Theme.radiusMedium
+                        scale: fingerprintMergeMouse.pressed ? 0.97 : (fingerprintMergeMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTranslate("Application", "Merge")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: fingerprintMergeMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                fingerprintDbApplyOverlay.closing = true
+                                fingerprintDbApplyHideTimer.start()
+                                fingerprintDbPromptOverlay.closing = true
+                                fingerprintDbPromptHideTimer.start()
+                                applyOfficialFingerprintDb(true)
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 130
+                        height: 45
+                        color: Theme.primaryAccent
+                        radius: Theme.radiusMedium
+                        scale: fingerprintReplaceMouse.pressed ? 0.97 : (fingerprintReplaceMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTranslate("Application", "Replace")
+                            color: Theme.textOnAccent
+                            font.family: "Alatsi"
+                            font.pixelSize: Theme.fontSizeNormal
+                        }
+
+                        MouseArea {
+                            id: fingerprintReplaceMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                fingerprintDbApplyOverlay.closing = true
+                                fingerprintDbApplyHideTimer.start()
+                                fingerprintDbPromptOverlay.closing = true
+                                fingerprintDbPromptHideTimer.start()
+                                applyOfficialFingerprintDb(false)
                             }
                         }
                     }

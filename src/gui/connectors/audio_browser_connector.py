@@ -120,6 +120,39 @@ class AudioBrowserConnector:
         ab.newTagDbAvailable.connect(self._on_new_tag_db_available)
         self.audio_page.dismissTagDbNotify.connect(ab.dismissTagDbNotify)
 
+        self.audio_page.downloadOfficialFingerprintDbClicked.connect(ab.downloadOfficialFingerprintDb)
+        self.audio_page.applyOfficialFingerprintDb.connect(ab.applyOfficialFingerprintDb)
+        self.audio_page.continueMatchWithoutFingerprintDb.connect(ab.continueMatchWithoutFingerprintDb)
+        ab.fingerprintDbPrompt.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.audio_page, "onFingerprintDbPrompt",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+        ab.fingerprintDbDownloadStarted.connect(
+            lambda: QMetaObject.invokeMethod(
+                self.audio_page, "onFingerprintDbDownloadStarted", Qt.QueuedConnection
+            )
+        )
+        ab.fingerprintDbDownloadReady.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.audio_page, "onFingerprintDbDownloadReady",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+        ab.fingerprintDbDownloadError.connect(
+            lambda msg: QMetaObject.invokeMethod(
+                self.audio_page, "onFingerprintDbDownloadError",
+                Qt.QueuedConnection, Q_ARG("QVariant", msg)
+            )
+        )
+        ab.fingerprintDbImportComplete.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.audio_page, "onFingerprintDbImportComplete",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+
         self.audio_page.cancelMatchClicked.connect(ab.cancelMatchingSound)
         self.audio_page.matchResultNavigateClicked.connect(ab.navigateToSearchResult)
         ab.matchStarted.connect(
