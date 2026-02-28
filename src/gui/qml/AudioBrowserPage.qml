@@ -646,6 +646,8 @@ Item {
                                     z: 200
                                     Behavior on color { ColorAnimation { duration: 150 } }
 
+                                    property bool popupHovered: tagInfoMouse.containsMouse || tagInfoPopupMouse.containsMouse
+
                                     Text {
                                         anchors.centerIn: parent
                                         text: "?"
@@ -660,8 +662,23 @@ Item {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
-                                        onEntered: tagInfoPopup.visible = true
-                                        onExited: tagInfoPopup.visible = false
+                                        onEntered: {
+                                            tagInfoHideTimer.stop()
+                                            tagInfoPopup.visible = true
+                                        }
+                                        onExited: {
+                                            tagInfoHideTimer.restart()
+                                        }
+                                    }
+
+                                    Timer {
+                                        id: tagInfoHideTimer
+                                        interval: 100
+                                        onTriggered: {
+                                            if (!tagInfoCircle.popupHovered) {
+                                                tagInfoPopup.visible = false
+                                            }
+                                        }
                                     }
 
                                     Rectangle {
@@ -669,22 +686,69 @@ Item {
                                         visible: false
                                         x: parent.width + 8
                                         y: -height / 2 + parent.height / 2 - 35
-                                        width: tagInfoText.implicitWidth + 20
-                                        height: tagInfoText.implicitHeight + 16
+                                        width: 280
+                                        height: tagInfoColumn.implicitHeight + 24
                                         color: "#1a1a1a"
                                         radius: 8
                                         border.color: "#555555"
                                         border.width: 1
                                         z: 1000
 
-                                        Text {
-                                            id: tagInfoText
+                                        MouseArea {
+                                            id: tagInfoPopupMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            onEntered: {
+                                                tagInfoHideTimer.stop()
+                                                tagInfoPopup.visible = true
+                                            }
+                                            onExited: {
+                                                tagInfoHideTimer.restart()
+                                            }
+                                        }
+
+                                        Column {
+                                            id: tagInfoColumn
                                             anchors.centerIn: parent
-                                            text: qsTranslate("Application", "Tags help you identify and search\nfor audio files. The official tag\ndatabase provides community names\nand labels for game audio.")
-                                            color: "#cccccc"
-                                            font.family: "Alatsi"
-                                            font.pixelSize: 11
-                                            lineHeight: 1.3
+                                            width: parent.width - 20
+                                            spacing: 12
+
+                                            Text {
+                                                id: tagInfoText
+                                                width: parent.width
+                                                text: qsTranslate("Application", "Tags help you identify and search\nfor audio files. The official tag\ndatabase provides community names\nand labels for game audio.")
+                                                color: "#cccccc"
+                                                font.family: "Alatsi"
+                                                font.pixelSize: 15
+                                                lineHeight: 1.4
+                                                wrapMode: Text.WordWrap
+                                            }
+
+                                            Text {
+                                                id: contributeLink
+                                                width: parent.width
+                                                text: qsTranslate("Application", "Want to contribute?")
+                                                color: "#4a9eff"
+                                                font.family: "Alatsi"
+                                                font.pixelSize: 15
+                                                font.underline: contributeMouse.containsMouse
+                                                horizontalAlignment: Text.AlignHCenter
+
+                                                MouseArea {
+                                                    id: contributeMouse
+                                                    anchors.fill: parent
+                                                    hoverEnabled: true
+                                                    cursorShape: Qt.PointingHandCursor
+                                                    onEntered: {
+                                                        tagInfoHideTimer.stop()
+                                                        tagInfoPopup.visible = true
+                                                    }
+                                                    onExited: {
+                                                        tagInfoHideTimer.restart()
+                                                    }
+                                                    onClicked: Qt.openUrlExternally("https://github.com/Pucas01/ZZAR/blob/main/data/CONTRIBUTING_TAGS.md")
+                                                }
+                                            }
                                         }
                                     }
                                 }
