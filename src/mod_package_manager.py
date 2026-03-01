@@ -567,13 +567,21 @@ class ModPackageManager:
                     bnk_dir = temp_dir / str(bnk_id)
                     bnk_dir.mkdir(parents=True, exist_ok=True)
 
-                    lang_id = 0
                     for wem_id, wem_path in wem_map.items():
                         dest_path = bnk_dir / f"{wem_id}.wem"
                         shutil.copy2(wem_path, dest_path)
 
-                        if lang_id == 0:
-                            lang_id = resolved[pck_name][str(wem_id)].get('lang_id', 0)
+                    # Auto-detect the correct lang_id for this BNK in the target PCK
+                    lang_id = None
+                    for search_lang_id, bnks in packer.soundbank_titles.items():
+                        if bnk_id in bnks:
+                            lang_id = search_lang_id
+                            break
+
+                    if lang_id is None:
+                        # Fallback to stored lang_id if BNK not found
+                        lang_id = resolved[pck_name][str(list(wem_map.keys())[0])].get('lang_id', 0)
+                        print(f"Warning: BNK {bnk_id} not found in PCK, using stored lang_id={lang_id}")
 
                     packer.replace_bnk_wems(bnk_id, str(bnk_dir), lang_id=lang_id)
 

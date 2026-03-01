@@ -104,7 +104,7 @@ class PCKPacker:
                         else:
                             lang_id_for_name = self.language_def[lang_name_upper]
 
-                        self.language_names[lang_id_for_name] = lang_name
+                        self.language_names[lang_id] = lang_name
 
                     f.seek(current_pos)
 
@@ -204,10 +204,11 @@ class PCKPacker:
 
     def replace_bnk_wems(self, bnk_id, bnk_wems_dir, lang_id=0):
 
-        print(f"\n  Modifying BNK {bnk_id}...")
+        lang_name = self.language_names.get(lang_id, f'lang_{lang_id}')
+        print(f"\n  Modifying BNK {bnk_id} (lang_id={lang_id}, {lang_name})...")
 
         if lang_id not in self.soundbank_titles or bnk_id not in self.soundbank_titles[lang_id]:
-            print(f"    Warning: BNK {bnk_id} not found in original PCK (lang {lang_id})")
+            print(f"    Error: BNK {bnk_id} not found in original PCK with lang_id={lang_id} ({lang_name})")
             print(f"    Available BNKs: {list(self.soundbank_titles.get(lang_id, {}).keys())[:10]}...")
             return
 

@@ -1585,6 +1585,10 @@ class AudioBrowserBridge(QObject):
                 packer = PCKPacker(str(pck_file_path), str(output_pck))
                 packer.load_original_pck()
 
+                print(f"[Apply] Packing {pck_filename}")
+                print(f"[Apply] Original PCK: {pck_file_path}")
+                print(f"[Apply] Language map: {packer.language_names}")
+
                 self.statusUpdate.emit(QCoreApplication.translate("Application", "Adding %1 replacement(s) to %2...").replace("%1", str(len(files))).replace("%2", pck_filename))
 
                 for file_id, repl_info in files.items():
@@ -1592,6 +1596,8 @@ class AudioBrowserBridge(QObject):
                     if not repl_wem.exists():
                         self.statusUpdate.emit(QCoreApplication.translate("Application", "Warning: %1 not found, skipping").replace("%1", repl_wem.name))
                         continue
+
+                    print(f"[Apply] Replacing file_id={file_id}, lang_id={repl_info['lang_id']}, type={repl_info['file_type']}")
 
                     if repl_info["file_type"] == "wem":
                         packer.replace_file(int(file_id), str(repl_wem), repl_info["lang_id"])

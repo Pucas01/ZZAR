@@ -1381,16 +1381,6 @@ Item {
         console.log("[QML] scrollToItem called: fileId=", fileId, "pckPath=", pckPath)
         console.log("[QML] treeModel.count=", treeModel.count)
 
-        for (var p = 0; p < treeModel.count; p++) {
-            var item = treeModel.get(p)
-            if (item.pckPath === pckPath &&
-                (item.itemType === "PCK" || item.itemType === "BNK") &&
-                item.hasChildren && !(item.expanded || false)) {
-                console.log("[QML] Expanding item at index", p, "type=", item.itemType)
-                treeModel.setProperty(p, "expanded", true)
-            }
-        }
-
         for (var i = 0; i < treeModel.count; i++) {
             if (treeModel.get(i).itemId === fileId && treeModel.get(i).pckPath === pckPath) {
                 console.log("[QML] Found item at index", i, "scrolling to it")
