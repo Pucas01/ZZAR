@@ -1565,8 +1565,7 @@ Item {
     function onFingerprintDbDownloadReady(entryCount) {
         fingerprintDbDownloading = false
         fingerprintDbEntryCount = entryCount
-        fingerprintDbApplyOverlay.visible = true
-        fingerprintDbApplyOverlay.closing = false
+        applyOfficialFingerprintDb(false)
     }
 
     function onFingerprintDbDownloadError(message) {
@@ -3755,6 +3754,8 @@ Item {
                             cursorShape: Qt.PointingHandCursor
                             enabled: !fingerprintDbDownloading
                             onClicked: {
+                                fingerprintDbPromptOverlay.closing = true
+                                fingerprintDbPromptHideTimer.start()
                                 downloadOfficialFingerprintDbClicked()
                             }
                         }
