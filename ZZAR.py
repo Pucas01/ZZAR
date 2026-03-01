@@ -8,7 +8,7 @@ if sys.platform.startswith('linux') and 'QT_QPA_PLATFORM' not in os.environ:
 
 os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false'
 
-__version__ = "1.0.2"
+__version__ = "1.1.0"
 DEV_MODE = False 
 
 def get_base_path():
