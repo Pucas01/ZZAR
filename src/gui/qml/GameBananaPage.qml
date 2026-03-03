@@ -10,15 +10,21 @@ Item {
 
     property bool isLoading: false
     property var modsList: []
+    property var installedModIds: []
 
     signal loadModsRequested(int page, string sort)
     signal modCardClicked(int modId)
     signal refreshRequested()
-    signal downloadModRequested(string downloadUrl, string filename, string modName)
+    signal downloadModRequested(string downloadUrl, string filename, string modName, int modId)
+    signal installChosenZZARRequested(string zipPath, string zzarName)
 
     function onModsLoaded(mods) {
         modsList = mods
         isLoading = false
+        installedModIds = gameBananaBackend.getInstalledModIds()
+        modDialog.installedModNames = gameBananaBackend.getInstalledModNames()
+        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
+        modDialog.installedVersion += 1
     }
 
     function onModDetailsLoaded(details) {
@@ -33,8 +39,19 @@ Item {
                 }
             }
         }
+        modDialog.installedModNames = gameBananaBackend.getInstalledModNames()
+        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
+        modDialog.installedVersion += 1
+        installedModIds = gameBananaBackend.getInstalledModIds()
         modDialog.showModDetails(details)
         isLoading = false
+    }
+
+    function onInstalledModsChanged(names) {
+        modDialog.installedModNames = names
+        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
+        modDialog.installedVersion += 1
+        installedModIds = gameBananaBackend.getInstalledModIds()
     }
 
     function setLoadingState(loading) {
@@ -43,6 +60,14 @@ Item {
 
     function onDownloadProgress(progress) {
         modDialog.setDownloadProgress(progress)
+    }
+
+    function setInstallState(installing) {
+        modDialog.setInstallState(installing)
+    }
+
+    function showZZARChooser(names, zipPath) {
+        modDialog.showZZARChooser(names, zipPath)
     }
 
     function onThumbnailUpdated(modId, thumbnailUrl) {
@@ -459,20 +484,40 @@ Item {
                                                     anchors.margins: 8
                                                     height: 22
                                                     width: zzarBadgeLabel.implicitWidth + 14
-                                                    radius: 6
+                                                    radius: Theme.radiusMedium
                                                     color: Theme.primaryAccent
                                                     visible: modelData.zzar_supported === true
 
                                                     Text {
                                                         id: zzarBadgeLabel
                                                         anchors.centerIn: parent
-                                                        text: "ZZAR"
+                                                        text: "ZZAR Native"
                                                         color: Theme.textOnAccent
                                                         font.family: Theme.fontFamilyTitle
                                                         font.pixelSize: 10
-                                                        font.bold: true
                                                     }
                                                 }
+
+                                                Rectangle {
+                                                    anchors.top: parent.top
+                                                    anchors.right: parent.right
+                                                    anchors.margins: 8
+                                                    height: 22
+                                                    width: installedCardBadgeLabel.implicitWidth + 14
+                                                    radius: Theme.radiusMedium
+                                                    color: Theme.primaryAccent
+                                                    visible: gameBananaPage.installedModIds.indexOf(modelData.id) !== -1
+
+                                                    Text {
+                                                        id: installedCardBadgeLabel
+                                                        anchors.centerIn: parent
+                                                        text: "Installed"
+                                                        color: Theme.textOnAccent
+                                                        font.family: Theme.fontFamilyTitle
+                                                        font.pixelSize: 10
+                                                    }
+                                                }
+
                                             }
 
                                             ColumnLayout {
@@ -572,7 +617,10 @@ Item {
     GameBananaModDialog {
         id: modDialog
         onDownloadRequested: {
-            downloadModRequested(downloadUrl, filename, modName)
+            downloadModRequested(downloadUrl, filename, modName, modId)
+        }
+        onInstallChosenZZAR: {
+            installChosenZZARRequested(zipPath, zzarName)
         }
     }
 }

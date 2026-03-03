@@ -15,10 +15,19 @@ Rectangle {
     property var modData: null
     property int downloadProgress: 0
     property bool isDownloading: false
+    property bool isInstalling: false
     property int previewIndex: 0
     property bool closing: false
 
-    signal downloadRequested(string downloadUrl, string filename, string modName)
+    property var pendingZZARNames: []
+    property string pendingZipPath: ""
+    property string activeDownloadUrl: ""
+    property var installedModNames: []
+    property var installedUrlMap: ({})   // {download_url: mod_name}
+    property int installedVersion: 0     // bumped on every install update to force binding re-eval
+
+    signal downloadRequested(string downloadUrl, string filename, string modName, int modId)
+    signal installChosenZZAR(string zipPath, string zzarName)
 
     Timer {
         id: hideTimer
@@ -41,6 +50,16 @@ Rectangle {
         if (progress >= 100) {
             isDownloading = false
         }
+    }
+
+    function setInstallState(installing) {
+        isInstalling = installing
+        if (!installing) activeDownloadUrl = ""
+    }
+
+    function showZZARChooser(names, zipPath) {
+        pendingZZARNames = names
+        pendingZipPath = zipPath
     }
 
     Rectangle {
@@ -118,18 +137,17 @@ Rectangle {
                         Rectangle {
                             height: 24
                             width: zzarDialogBadgeText.implicitWidth + 16
-                            radius: 8
+                            radius: Theme.radiusMedium
                             color: Theme.primaryAccent
                             visible: modData && modData.zzar_supported === true
 
                             Text {
                                 id: zzarDialogBadgeText
                                 anchors.centerIn: parent
-                                text: "ZZAR Supported"
+                                text: "ZZAR Native"
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamilyTitle
                                 font.pixelSize: 11
-                                font.bold: true
                             }
                         }
 
@@ -281,9 +299,13 @@ Rectangle {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "\u2039"
+                                        text: "<"
                                         color: Theme.textPrimary
-                                        font.pixelSize: 20
+                                        font.pixelSize: 18
+                                        width: parent.width
+                                        height: parent.height
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
                                     }
                                     MouseArea {
                                         id: prevMouse
@@ -308,9 +330,13 @@ Rectangle {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "\u203A"
+                                        text: ">"
                                         color: Theme.textPrimary
-                                        font.pixelSize: 20
+                                        font.pixelSize: 18
+                                        width: parent.width
+                                        height: parent.height
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
                                     }
                                     MouseArea {
                                         id: nextMouse
@@ -482,8 +508,18 @@ Rectangle {
                                     font.pixelSize: 15
                                 }
 
+                                // ZZAR Files section header
+                                Text {
+                                    visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar })
+                                    text: "ZZAR Files"
+                                    color: Theme.primaryAccent
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    opacity: 0.7
+                                }
+
                                 Repeater {
-                                    model: modData ? modData.files : []
+                                    model: modData ? modData.files.filter(function(f) { return f.has_zzar }) : []
 
                                     Rectangle {
                                         width: parent.width
@@ -492,8 +528,164 @@ Rectangle {
                                         radius: Theme.radiusMedium
                                         Behavior on color { ColorAnimation { duration: 100 } }
 
+                                        property bool isActiveRow: modDialog.activeDownloadUrl === modelData.download_url
+                                        property bool rowDownloading: isActiveRow && modDialog.isDownloading
+                                        property bool rowInstalling: isActiveRow && modDialog.isInstalling
+                                        property bool isInstalled: {
+                                            modDialog.installedVersion  // force re-eval on update
+                                            var ids = gameBananaPage.installedModIds
+                                            var mid = modDialog.modData ? modDialog.modData.id : -1
+                                            console.log("[isInstalled] modData.id=", mid, "installedModIds=", JSON.stringify(ids))
+                                            return mid !== -1 && ids.indexOf(mid) !== -1
+                                        }
+
                                         MouseArea {
                                             id: fileRowMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                        }
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 16
+                                            anchors.rightMargin: 12
+                                            anchors.topMargin: 10
+                                            anchors.bottomMargin: 10
+                                            spacing: 14
+
+                                            Column {
+                                                Layout.fillWidth: true
+                                                Layout.alignment: Qt.AlignVCenter
+                                                spacing: 3
+
+                                                Text {
+                                                    width: parent.width
+                                                    text: modelData.name
+                                                    color: Theme.textOnAccent
+                                                    font.family: Theme.fontFamily
+                                                    font.pixelSize: 15
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                Row {
+                                                    spacing: 8
+
+                                                    Text {
+                                                        text: (modelData.size / 1024 / 1024).toFixed(2) + " MB"
+                                                        color: Theme.textTertiary
+                                                        font.family: Theme.fontFamily
+                                                        font.pixelSize: 12
+                                                    }
+                                                    Text {
+                                                        text: "\u2022"
+                                                        color: Theme.textTertiary
+                                                        font.pixelSize: 12
+                                                    }
+                                                    Text {
+                                                        text: modelData.downloads + " downloads"
+                                                        color: Theme.textTertiary
+                                                        font.family: Theme.fontFamily
+                                                        font.pixelSize: 12
+                                                    }
+                                                }
+                                            }
+
+                                            Item {
+                                                height: Theme.buttonHeightLarge
+                                                width: dlBtnLabel.implicitWidth + 32
+
+                                                property bool busy: parent.parent.parent.rowDownloading || parent.parent.parent.rowInstalling
+                                                property bool installed: parent.parent.parent.isInstalled
+
+                                                Rectangle {
+                                                    id: dlBtnBg
+                                                    anchors.fill: parent
+                                                    color: parent.installed ? "#555555"
+                                                        : dlMouse.pressed ? "#a8c800" : dlMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                                    radius: Theme.radiusMedium
+                                                    scale: dlMouse.pressed && !parent.installed ? 0.95 : 1.0
+                                                    opacity: parent.busy ? 0.7 : 1.0
+                                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                                    Behavior on scale { NumberAnimation { duration: 100 } }
+
+                                                    Rectangle {
+                                                        visible: parent.parent.parent.parent.rowDownloading
+                                                        anchors.left: parent.left
+                                                        anchors.top: parent.top
+                                                        anchors.bottom: parent.bottom
+                                                        width: parent.width * (downloadProgress / 100)
+                                                        radius: Theme.radiusMedium
+                                                        color: Theme.secondaryAccent
+                                                        Behavior on width { NumberAnimation { duration: 100 } }
+                                                    }
+                                                }
+
+                                                Text {
+                                                    id: dlBtnLabel
+                                                    anchors.centerIn: parent
+                                                    text: parent.parent.parent.rowDownloading ? (downloadProgress + "%")
+                                                        : parent.parent.parent.rowInstalling ? "Installing..."
+                                                        : parent.installed ? "Installed"
+                                                        : "\u2193  Install"
+                                                    color: Theme.textOnAccent
+                                                    font.family: Theme.fontFamily
+                                                    font.pixelSize: Theme.fontSizeNormal
+                                                    font.bold: false
+                                                }
+
+                                                MouseArea {
+                                                    id: dlMouse
+                                                    anchors.fill: parent
+                                                    hoverEnabled: true
+                                                    cursorShape: parent.installed ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                                    enabled: !parent.busy && !parent.installed
+                                                    onClicked: {
+                                                        modDialog.activeDownloadUrl = modelData.download_url
+                                                        modDialog.isDownloading = true
+                                                        modDialog.downloadProgress = 0
+                                                        downloadRequested(
+                                                            modelData.download_url,
+                                                            modelData.name,
+                                                            modData.name,
+                                                            modData.id
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Other Files section header
+                                Text {
+                                    visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar }) && modData.files.some(function(f) { return !f.has_zzar })
+                                    text: "Other Files"
+                                    color: "#888888"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    opacity: 0.7
+                                }
+
+                                Repeater {
+                                    model: modData ? modData.files.filter(function(f) { return !f.has_zzar }) : []
+
+                                    Rectangle {
+                                        width: parent.width
+                                        height: 72
+                                        color: fileRowMouse2.containsMouse ? Qt.lighter(Theme.cardBackground, 1.1) : Theme.cardBackground
+                                        radius: Theme.radiusMedium
+                                        Behavior on color { ColorAnimation { duration: 100 } }
+
+                                        property bool isActiveRow: modDialog.activeDownloadUrl === modelData.download_url
+                                        property bool rowDownloading: isActiveRow && modDialog.isDownloading
+                                        property bool rowInstalling: isActiveRow && modDialog.isInstalling
+                                        property bool isInstalled: {
+                                            modDialog.installedVersion
+                                            return modDialog.modData && gameBananaPage.installedModIds.indexOf(modDialog.modData.id) !== -1
+                                        }
+
+                                        MouseArea {
+                                            id: fileRowMouse2
                                             anchors.fill: parent
                                             hoverEnabled: true
                                         }
@@ -544,19 +736,23 @@ Rectangle {
 
                                             Item {
                                                 height: Theme.buttonHeightLarge
-                                                width: dlBtnLabel.implicitWidth + 32
+                                                width: dlBtnLabel2.implicitWidth + 32
+
+                                                property bool busy: parent.parent.parent.rowDownloading || parent.parent.parent.rowInstalling
+                                                property bool installed: parent.parent.parent.isInstalled
 
                                                 Rectangle {
-                                                    id: dlBtnBg
                                                     anchors.fill: parent
-                                                    color: dlMouse.pressed ? "#a8c800" : dlMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                                    color: parent.installed ? "#555555"
+                                                        : dlMouse2.pressed ? "#a8c800" : dlMouse2.containsMouse ? "#e8ff33" : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
-                                                    scale: dlMouse.pressed ? 0.95 : 1.0
+                                                    scale: dlMouse2.pressed && !parent.installed ? 0.95 : 1.0
+                                                    opacity: parent.busy ? 0.7 : 1.0
                                                     Behavior on color { ColorAnimation { duration: 100 } }
                                                     Behavior on scale { NumberAnimation { duration: 100 } }
 
                                                     Rectangle {
-                                                        visible: isDownloading
+                                                        visible: parent.parent.parent.parent.rowDownloading
                                                         anchors.left: parent.left
                                                         anchors.top: parent.top
                                                         anchors.bottom: parent.bottom
@@ -568,28 +764,33 @@ Rectangle {
                                                 }
 
                                                 Text {
-                                                    id: dlBtnLabel
+                                                    id: dlBtnLabel2
                                                     anchors.centerIn: parent
-                                                    text: isDownloading ? (downloadProgress + "%") : "\u2193  Download"
+                                                    text: parent.parent.parent.rowDownloading ? (downloadProgress + "%")
+                                                        : parent.parent.parent.rowInstalling ? "Installing..."
+                                                        : parent.installed ? "Installed"
+                                                        : "\u2193  Install"
                                                     color: Theme.textOnAccent
                                                     font.family: Theme.fontFamily
                                                     font.pixelSize: Theme.fontSizeNormal
-                                                    font.bold: !isDownloading
+                                                    font.bold: false
                                                 }
 
                                                 MouseArea {
-                                                    id: dlMouse
+                                                    id: dlMouse2
                                                     anchors.fill: parent
                                                     hoverEnabled: true
-                                                    cursorShape: Qt.PointingHandCursor
-                                                    enabled: !isDownloading
+                                                    cursorShape: parent.installed ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                                    enabled: !parent.busy && !parent.installed
                                                     onClicked: {
-                                                        isDownloading = true
-                                                        downloadProgress = 0
+                                                        modDialog.activeDownloadUrl = modelData.download_url
+                                                        modDialog.isDownloading = true
+                                                        modDialog.downloadProgress = 0
                                                         downloadRequested(
                                                             modelData.download_url,
                                                             modelData.name,
-                                                            modData.name
+                                                            modData.name,
+                                                            modData.id
                                                         )
                                                     }
                                                 }
@@ -635,10 +836,299 @@ Rectangle {
 
 
 
+    // ZZAR chooser overlay — shown when multiple .zzar files are found in the archive
+    Item {
+        id: zzarChooser
+        anchors.fill: parent
+        visible: modDialog.pendingZZARNames.length > 0
+        z: 2000
+
+        // track which entries are checked; reset when chooser opens
+        property var checkedNames: []
+        onVisibleChanged: if (visible) checkedNames = []
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#cc000000"
+            MouseArea { anchors.fill: parent }
+        }
+
+        Item {
+            id: chooserPanel
+            anchors.centerIn: parent
+            width: Math.min(zzarChooser.width - 80, 480)
+            height: chooserInner.height + 24
+
+            scale: zzarChooser.visible ? 1.0 : 0.9
+            opacity: zzarChooser.visible ? 1.0 : 0.0
+            Behavior on scale   { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Rectangle {
+                id: chooserInner
+                width: parent.width
+                height: chooserLayout.implicitHeight + 48
+                anchors.top: parent.top
+                color: Theme.backgroundColor
+                radius: 36.44
+
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: 12
+                    color: Theme.surfaceColor
+                    radius: 30
+
+                    ColumnLayout {
+                        id: chooserLayout
+                        anchors {
+                            top: parent.top; left: parent.left; right: parent.right
+                            margins: Theme.spacingMedium
+                        }
+                        spacing: 12
+
+                        Image {
+                            source: "../assets/YuFufuEat.png"
+                            Layout.preferredWidth: 240
+                            Layout.preferredHeight: 240
+                            Layout.alignment: Qt.AlignHCenter
+                            fillMode: Image.PreserveAspectFit
+                            mipmap: true
+                        }
+
+                        // Header
+                        RowLayout {
+                            Layout.fillWidth: true
+
+                            Text {
+                                Layout.fillWidth: true
+                                text: "Multiple .zzar files found"
+                                color: Theme.textPrimary
+                                font.family: Theme.fontFamilyTitle
+                                font.pixelSize: 20
+                            }
+
+                            // close X
+                            Item {
+                                height: Theme.buttonHeight
+                                width: Theme.buttonHeight
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: chooserCloseMouse.pressed ? "#cc0000"
+                                         : chooserCloseMouse.containsMouse ? "#ff3333"
+                                         : Theme.backgroundColor
+                                    radius: Theme.radiusMedium
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "\u2715"
+                                    color: Theme.textPrimary
+                                    font.pixelSize: 14
+                                }
+                                MouseArea {
+                                    id: chooserCloseMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        modDialog.pendingZZARNames = []
+                                        modDialog.pendingZipPath = ""
+                                    }
+                                }
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Select the files you want to install, then press Install."
+                            color: "#aaaaaa"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            wrapMode: Text.WordWrap
+                        }
+
+                        // File list with checkboxes
+                        Repeater {
+                            model: modDialog.pendingZZARNames
+
+                            Item {
+                                Layout.fillWidth: true
+                                height: 52
+
+                                property bool checked: zzarChooser.checkedNames.indexOf(modelData) !== -1
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: rowHover.containsMouse
+                                         ? Qt.lighter(Theme.cardBackground, 1.1)
+                                         : Theme.cardBackground
+                                    radius: Theme.radiusMedium
+                                    border.color: parent.checked ? Theme.primaryAccent : "transparent"
+                                    border.width: 2
+                                    Behavior on color  { ColorAnimation { duration: 100 } }
+                                    Behavior on border.color { ColorAnimation { duration: 100 } }
+                                }
+
+                                RowLayout {
+                                    anchors.fill: parent
+                                    anchors.leftMargin: 14
+                                    anchors.rightMargin: 14
+                                    spacing: 12
+
+                                    // Checkbox circle
+                                    Rectangle {
+                                        width: 20; height: 20; radius: 10
+                                        color: parent.parent.checked ? Theme.primaryAccent : "transparent"
+                                        border.color: parent.parent.checked ? Theme.primaryAccent : Theme.textTertiary
+                                        border.width: 2
+                                        Behavior on color        { ColorAnimation { duration: 100 } }
+                                        Behavior on border.color { ColorAnimation { duration: 100 } }
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: modelData
+                                        color: Theme.textPrimary
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: Theme.fontSizeSmall
+                                        elide: Text.ElideMiddle
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: rowHover
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        var list = zzarChooser.checkedNames.slice()
+                                        var idx = list.indexOf(modelData)
+                                        if (idx === -1) list.push(modelData)
+                                        else list.splice(idx, 1)
+                                        zzarChooser.checkedNames = list
+                                    }
+                                }
+                            }
+                        }
+
+                        // Action buttons row
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 10
+
+                            // Select All toggle
+                            Item {
+                                height: Theme.buttonHeight
+                                width: selAllLabel.implicitWidth + 28
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: selAllMouse.containsMouse
+                                         ? Qt.lighter(Theme.cardBackground, 1.15)
+                                         : Theme.cardBackground
+                                    radius: Theme.radiusMedium
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                }
+                                Text {
+                                    id: selAllLabel
+                                    anchors.centerIn: parent
+                                    text: zzarChooser.checkedNames.length === modDialog.pendingZZARNames.length
+                                          ? "Deselect All" : "Select All"
+                                    color: Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                }
+                                MouseArea {
+                                    id: selAllMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        if (zzarChooser.checkedNames.length === modDialog.pendingZZARNames.length)
+                                            zzarChooser.checkedNames = []
+                                        else
+                                            zzarChooser.checkedNames = modDialog.pendingZZARNames.slice()
+                                    }
+                                }
+                            }
+
+                            Item { Layout.fillWidth: true }
+
+                            // Install button
+                            Item {
+                                height: Theme.buttonHeight
+                                width: 130
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: installSelMouse.pressed ? "#a8c800"
+                                         : installSelMouse.containsMouse ? "#e8ff33"
+                                         : Theme.primaryAccent
+                                    radius: Theme.radiusMedium
+                                    opacity: zzarChooser.checkedNames.length === 0 ? 0.4 : 1.0
+                                    scale: installSelMouse.pressed ? 0.95 : 1.0
+                                    Behavior on color   { ColorAnimation  { duration: 100 } }
+                                    Behavior on scale   { NumberAnimation { duration: 100 } }
+                                }
+                                Text {
+                                    id: installSelLabel
+                                    anchors.centerIn: parent
+                                    width: parent.width - 16
+                                    text: zzarChooser.checkedNames.length > 1
+                                          ? "Install " + zzarChooser.checkedNames.length + " files"
+                                          : "Install"
+                                    color: Theme.textOnAccent
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    horizontalAlignment: Text.AlignHCenter
+                                    elide: Text.ElideRight
+                                }
+                                MouseArea {
+                                    id: installSelMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    enabled: zzarChooser.checkedNames.length > 0
+                                    onClicked: {
+                                        var toInstall = zzarChooser.checkedNames.slice()
+                                        var zip = modDialog.pendingZipPath
+                                        modDialog.pendingZZARNames = []
+                                        modDialog.pendingZipPath = ""
+                                        zzarChooser.checkedNames = []
+                                        for (var i = 0; i < toInstall.length; i++)
+                                            modDialog.installChosenZZAR(zip, toInstall[i])
+                                    }
+                                }
+                            }
+                        }
+
+                        Item { height: 4 }
+                    }
+                }
+
+                layer.enabled: true
+                layer.effect: DropShadow {
+                    transparentBorder: true
+                    horizontalOffset: 0
+                    verticalOffset: 8
+                    radius: 28
+                    samples: 25
+                    color: "#a0000000"
+                }
+            }
+        }
+    }
+
     onVisibleChanged: {
         if (!visible) {
             isDownloading = false
+            isInstalling = false
             downloadProgress = 0
+            activeDownloadUrl = ""
+            pendingZZARNames = []
+            pendingZipPath = ""
             previewVideo.stop()
         }
     }

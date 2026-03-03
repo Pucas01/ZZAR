@@ -14,3 +14,7 @@ Pillow>=10.0.0
 # GUI
 PyQt5>=5.15.0
 
+# Archive support
+rarfile>=4.0
+py7zr>=0.20.0
+

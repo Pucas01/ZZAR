@@ -241,7 +241,16 @@ ApplicationWindow {
                     color: "#3c3d3f"
                     radius: 20
 
+                    property bool ready: false
+
+                    Timer {
+                        interval: 0
+                        running: true
+                        onTriggered: navBar_Frm.ready = true
+                    }
+
                     Behavior on width {
+                        enabled: navBar_Frm.ready
                         NumberAnimation {
                             duration: 200
                             easing.type: Easing.OutQuad

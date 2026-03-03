@@ -520,6 +520,7 @@ class ModManagerBridge(QObject):
     def refreshMods(self):
 
         print("[Mod Manager] Refreshing mod list...")
+        self.mod_package_manager.load_config()
         mods = self.getInstalledMods()
         self.modsLoaded.emit(mods)
         print(f"[Mod Manager] Loaded {len(mods)} mod(s)")
