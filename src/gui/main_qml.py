@@ -1,6 +1,5 @@
 from PyQt5.QtCore import QCoreApplication
 
-
 import os
 import sys
 import json
@@ -14,7 +13,6 @@ from PyQt5.QtGui import QGuiApplication, QIcon, QSurfaceFormat, QFontDatabase
 from PyQt5.QtQml import QQmlApplicationEngine, qmlRegisterSingletonType
 from PyQt5.QtCore import QUrl, QObject, QCoreApplication, QMetaObject, Q_ARG, Qt, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication
-
 
 class ClipboardHelper(QObject):
     @pyqtSlot(str)
@@ -31,6 +29,7 @@ from gui.backend.mod_manager_bridge import ModManagerBridge
 from gui.backend.audio_browser_bridge import AudioBrowserBridge
 from gui.backend.audio_conversion_bridge import AudioConversionBridge
 from gui.backend.update_manager_bridge import UpdateManagerBridge
+from gui.backend.gamebanana_bridge import GameBananaBridge
 from gui.backend.native_dialogs import NativeDialogs
 from src.config_manager import get_settings_file, get_cache_dir
 
@@ -39,6 +38,7 @@ from gui.connectors.audio_browser_connector import AudioBrowserConnector
 from gui.connectors.import_wizard_connector import ImportWizardConnector
 from gui.connectors.settings_connector import SettingsConnector
 from gui.connectors.update_connector import UpdateConnector
+from gui.connectors.gamebanana_connector import GameBananaConnector
 from gui.translation_manager import TranslationManager
 
 class AutoDetectWorker(QThread):
@@ -104,9 +104,9 @@ class Application(
     ImportWizardConnector,
     SettingsConnector,
     UpdateConnector,
+    GameBananaConnector,
     QObject,
 ):
-
 
     def __init__(self, version):
         super().__init__()
@@ -118,10 +118,12 @@ class Application(
         self.mod_manager_bridge = None
         self.audio_browser_bridge = None
         self.audio_conversion_bridge = None
+        self.gamebanana_bridge = None
         self.settings_file = get_settings_file()
         self.settings_page = None
         self.mod_page = None
         self.audio_page = None
+        self.gamebanana_page = None
         self.conversion_page = None
         self.import_wizard = None
         self.mod_info_dialog = None
@@ -198,6 +200,7 @@ class Application(
         self.mod_manager_bridge = ModManagerBridge()
         self.audio_browser_bridge = AudioBrowserBridge()
         self.audio_conversion_bridge = AudioConversionBridge()
+        self.gamebanana_bridge = GameBananaBridge()
         self.update_manager_bridge = UpdateManagerBridge()
         self.update_manager_bridge.setCurrentVersion(QCoreApplication.applicationVersion())
 
@@ -205,6 +208,7 @@ class Application(
         context.setContextProperty("modManagerBackend", self.mod_manager_bridge)
         context.setContextProperty("audioBrowserBackend", self.audio_browser_bridge)
         context.setContextProperty("audioConversionBackend", self.audio_conversion_bridge)
+        context.setContextProperty("gameBananaBackend", self.gamebanana_bridge)
         self.clipboard_helper = ClipboardHelper()
         context.setContextProperty("clipboardHelper", self.clipboard_helper)
 
@@ -235,6 +239,7 @@ class Application(
 
         self._connect_mod_manager()
         self._connect_audio_browser()
+        self._connect_gamebanana()
         self._connect_conversion_page()
         self._connect_settings()
         self._connect_updates()

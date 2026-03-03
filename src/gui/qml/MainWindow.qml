@@ -17,12 +17,12 @@ ApplicationWindow {
     minimumHeight: 768
     title: qsTranslate("Application", "ZZAR - Zenless Zone Zero Audio Replacer")
 
-    property int currentTab: 0
+    property int currentTab: 1
     property bool modCreationEnabled: false
 
     onModCreationEnabledChanged: {
-        if (!modCreationEnabled && (currentTab === 1 || currentTab === 2)) {
-            currentTab = 0
+        if (!modCreationEnabled && (currentTab === 2 || currentTab === 3)) {
+            currentTab = 1
         }
     }
 
@@ -198,9 +198,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageTitle
-                        text: currentTab === 0 ? qsTranslate("Application", "Mod Manager") :
-                              currentTab === 1 ? qsTranslate("Application", "Browser") :
-                              currentTab === 2 ? qsTranslate("Application", "Converter") :
+                        text: currentTab === 0 ? qsTranslate("Application", "GameBanana") :
+                              currentTab === 1 ? qsTranslate("Application", "Mod Manager") :
+                              currentTab === 2 ? qsTranslate("Application", "Browser") :
+                              currentTab === 3 ? qsTranslate("Application", "Converter") :
                               qsTranslate("Application", "Settings")
                         color: "#ffffff"
                         font.family: "Audiowide"
@@ -214,9 +215,10 @@ ApplicationWindow {
 
                     Text {
                         id: pageSubtitle
-                        text: currentTab === 0 ? qsTranslate("Application", "Install and manage .zzar mods") :
-                              currentTab === 1 ? qsTranslate("Application", "Browse and manage audio files") :
-                              currentTab === 2 ? qsTranslate("Application", "Convert audio files") :
+                        text: currentTab === 0 ? qsTranslate("Application", "Browse and download mods from GameBanana") :
+                              currentTab === 1 ? qsTranslate("Application", "Install and manage .zzar mods") :
+                              currentTab === 2 ? qsTranslate("Application", "Browse and manage audio files") :
+                              currentTab === 3 ? qsTranslate("Application", "Convert audio files") :
                               qsTranslate("Application", "Configure application settings")
                         color: "#666666"
                         font.family: "Audiowide"
@@ -235,7 +237,7 @@ ApplicationWindow {
                     anchors.rightMargin: 15
                     anchors.verticalCenter: parent.verticalCenter
                     height: 70
-                    width: modCreationEnabled ? 325 : 175
+                    width: modCreationEnabled ? 400 : 250
                     color: "#3c3d3f"
                     radius: 20
 
@@ -250,6 +252,57 @@ ApplicationWindow {
                         id: navbar
                         anchors.centerIn: parent
                         spacing: 15
+
+                        Item {
+                            id: gamebanana
+                            height: 60
+                            width: 60
+
+                            property bool hovered: false
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "transparent"
+                                radius: 15
+                            }
+
+                            Item {
+                                anchors.centerIn: parent
+                                height: 40
+                                width: 40
+
+                                Image {
+                                    id: gamebananaImage
+                                    anchors.fill: parent
+                                    source: "../assets/Gamebanana.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    visible: false
+                                }
+
+                                ColorOverlay {
+                                    anchors.fill: parent
+                                    source: gamebananaImage
+                                    color: currentTab === 0 ? "#d8fa00" : (gamebanana.hovered ? "#d8fa00" : "#ffffff")
+                                    cached: true
+
+                                    Behavior on color {
+                                        ColorAnimation {
+                                            duration: Theme.animationDuration
+                                            easing.type: Theme.easingStandard
+                                        }
+                                    }
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+                                onEntered: parent.hovered = true
+                                onExited: parent.hovered = false
+                                onClicked: currentTab = 0
+                            }
+                        }
 
                         Item {
                             id: home
@@ -284,7 +337,7 @@ ApplicationWindow {
 
                                         ShapePath {
                                             id: stadia_controller_1_ShapePath0
-                                            fillColor: currentTab === 0 ? "#d8fa00" : (home.hovered ? "#d8fa00" : "#ffffff")
+                                            fillColor: currentTab === 1 ? "#d8fa00" : (home.hovered ? "#d8fa00" : "#ffffff")
                                             fillRule: ShapePath.WindingFill
                                             joinStyle: ShapePath.MiterJoin
                                             strokeColor: "#00000000"
@@ -313,7 +366,7 @@ ApplicationWindow {
                                 hoverEnabled: true
                                 onEntered: parent.hovered = true
                                 onExited: parent.hovered = false
-                                onClicked: currentTab = 0
+                                onClicked: currentTab = 1
                             }
                         }
 
@@ -347,7 +400,7 @@ ApplicationWindow {
 
                                     ShapePath {
                                         id: audio_file_1_ShapePath0
-                                        fillColor: currentTab === 1 ? "#d8fa00" : (news.hovered ? "#d8fa00" : "#ffffff")
+                                        fillColor: currentTab === 2 ? "#d8fa00" : (news.hovered ? "#d8fa00" : "#ffffff")
                                         fillRule: ShapePath.WindingFill
                                         joinStyle: ShapePath.MiterJoin
                                         strokeColor: "#00000000"
@@ -375,7 +428,7 @@ ApplicationWindow {
                                 hoverEnabled: true
                                 onEntered: parent.hovered = true
                                 onExited: parent.hovered = false
-                                onClicked: currentTab = 1
+                                onClicked: currentTab = 2
                             }
                         }
 
@@ -411,7 +464,7 @@ ApplicationWindow {
                                 ColorOverlay {
                                     anchors.fill: parent
                                     source: conversion_image
-                                    color: currentTab === 2 ? "#d8fa00" : (conversion.hovered ? "#d8fa00" : "#ffffff")
+                                    color: currentTab === 3 ? "#d8fa00" : (conversion.hovered ? "#d8fa00" : "#ffffff")
                                     cached: true
 
                                     Behavior on color {
@@ -429,7 +482,7 @@ ApplicationWindow {
                                 hoverEnabled: true
                                 onEntered: parent.hovered = true
                                 onExited: parent.hovered = false
-                                onClicked: currentTab = 2
+                                onClicked: currentTab = 3
                             }
                         }
 
@@ -465,7 +518,7 @@ ApplicationWindow {
 
                                         ShapePath {
                                             id: _vector_ShapePath0
-                                            fillColor: currentTab === 3 ? "#d8fa00" : (others.hovered ? "#d8fa00" : "#ffffff")
+                                            fillColor: currentTab === 4 ? "#d8fa00" : (others.hovered ? "#d8fa00" : "#ffffff")
                                             fillRule: ShapePath.WindingFill
                                             joinStyle: ShapePath.MiterJoin
                                             strokeColor: "#00000000"
@@ -494,7 +547,7 @@ ApplicationWindow {
                                 hoverEnabled: true
                                 onEntered: parent.hovered = true
                                 onExited: parent.hovered = false
-                                onClicked: currentTab = 3
+                                onClicked: currentTab = 4
                             }
                         }
                     }
@@ -508,6 +561,10 @@ ApplicationWindow {
                 StackLayout {
                     anchors.fill: parent
                     currentIndex: currentTab
+
+                    GameBananaPage {
+                        id: gameBananaPage
+                    }
 
                     ModManagerPage {
                         id: modManagerPage
