@@ -8,7 +8,7 @@ import "."
 Rectangle {
     id: modDialog
     anchors.fill: parent
-    color: "#cc000000"
+    color: "transparent"
     visible: false
     z: 1000
 
@@ -16,12 +16,23 @@ Rectangle {
     property int downloadProgress: 0
     property bool isDownloading: false
     property int previewIndex: 0
+    property bool closing: false
 
     signal downloadRequested(string downloadUrl, string filename, string modName)
+
+    Timer {
+        id: hideTimer
+        interval: 200
+        onTriggered: {
+            visible = false
+            closing = false
+        }
+    }
 
     function showModDetails(details) {
         modData = details
         previewIndex = 0
+        closing = false
         visible = true
     }
 
@@ -32,9 +43,28 @@ Rectangle {
         }
     }
 
-    MouseArea {
+    Rectangle {
         anchors.fill: parent
-        onClicked: modDialog.visible = false
+        color: "#80000000"
+        opacity: (!closing && visible) ? 1.0 : 0.0
+        Behavior on opacity { NumberAnimation { duration: 200 } }
+
+        Image {
+            anchors.fill: parent
+            source: "../assets/gradient.png"
+            fillMode: Image.Stretch
+            mipmap: true
+            opacity: 0.6
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onWheel: {}
+            onClicked: {
+                modDialog.closing = true
+                hideTimer.start()
+            }
+        }
     }
 
     Item {
@@ -42,6 +72,11 @@ Rectangle {
         anchors.centerIn: parent
         width: Math.min(parent.width - 80, 860)
         height: Math.min(parent.height - 80, 720)
+
+        scale: (!closing && visible) ? 1.0 : 0.9
+        opacity: (!closing && visible) ? 1.0 : 0.0
+        Behavior on scale { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
+        Behavior on opacity { NumberAnimation { duration: 200 } }
 
         Rectangle {
             id: dialogOuter
@@ -80,6 +115,24 @@ Rectangle {
                             verticalAlignment: Text.AlignVCenter
                         }
 
+                        Rectangle {
+                            height: 24
+                            width: zzarDialogBadgeText.implicitWidth + 16
+                            radius: 8
+                            color: Theme.primaryAccent
+                            visible: modData && modData.zzar_supported === true
+
+                            Text {
+                                id: zzarDialogBadgeText
+                                anchors.centerIn: parent
+                                text: "ZZAR Supported"
+                                color: Theme.textOnAccent
+                                font.family: Theme.fontFamilyTitle
+                                font.pixelSize: 11
+                                font.bold: true
+                            }
+                        }
+
                         Item {
                             height: Theme.buttonHeight
                             width: Theme.buttonHeight
@@ -105,7 +158,10 @@ Rectangle {
                                 anchors.fill: parent
                                 hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: modDialog.visible = false
+                                onClicked: {
+                                    modDialog.closing = true
+                                    hideTimer.start()
+                                }
                             }
                         }
                     }
@@ -577,8 +633,7 @@ Rectangle {
         }
     }
 
-    opacity: visible ? 1 : 0
-    Behavior on opacity { NumberAnimation { duration: Theme.animationDuration } }
+
 
     onVisibleChanged: {
         if (!visible) {

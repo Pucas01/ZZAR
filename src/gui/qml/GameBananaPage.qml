@@ -56,6 +56,28 @@ Item {
         }
     }
 
+    function onDownloadCountUpdated(modId, downloads) {
+        var newList = modsList.slice()
+        for (var i = 0; i < newList.length; i++) {
+            if (newList[i].id === modId) {
+                newList[i] = Object.assign({}, newList[i], { downloads: downloads })
+                modsList = newList
+                return
+            }
+        }
+    }
+
+    function onZZARSupportUpdated(modId, supported) {
+        var newList = modsList.slice()
+        for (var i = 0; i < newList.length; i++) {
+            if (newList[i].id === modId) {
+                newList[i] = Object.assign({}, newList[i], { zzar_supported: supported })
+                modsList = newList
+                return
+            }
+        }
+    }
+
     Rectangle {
         id: outerFrame
         anchors.fill: parent
@@ -428,6 +450,27 @@ Item {
                                                         font.family: Theme.fontFamily
                                                         font.pixelSize: 48
                                                         visible: parent.status !== Image.Ready
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    anchors.top: parent.top
+                                                    anchors.left: parent.left
+                                                    anchors.margins: 8
+                                                    height: 22
+                                                    width: zzarBadgeLabel.implicitWidth + 14
+                                                    radius: 6
+                                                    color: Theme.primaryAccent
+                                                    visible: modelData.zzar_supported === true
+
+                                                    Text {
+                                                        id: zzarBadgeLabel
+                                                        anchors.centerIn: parent
+                                                        text: "ZZAR"
+                                                        color: Theme.textOnAccent
+                                                        font.family: Theme.fontFamilyTitle
+                                                        font.pixelSize: 10
+                                                        font.bold: true
                                                     }
                                                 }
                                             }

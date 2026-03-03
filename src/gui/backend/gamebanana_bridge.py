@@ -168,7 +168,7 @@ class FetchModsWorker(QThread):
             'author_id': author_id,
             'description': clean_description,
             'views': data.get('_nViewCount', 0),
-            'downloads': 0,
+            'downloads': data.get('_nDownloadCount', 0),
             'likes': data.get('_nLikeCount', 0),
             'date_added': data.get('_tsDateAdded', 0),
             'date_updated': data.get('_tsDateUpdated', 0),
@@ -201,6 +201,12 @@ class FetchModDetailsWorker(QThread):
                 data = json.loads(response.read().decode('utf-8'))
 
                 mod_details = self._parse_mod_details(data)
+
+                # Also check ZZAR support for the detail view
+                zzar_supported = self._check_zzar_support(mod_details)
+                if mod_details:
+                    mod_details['zzar_supported'] = zzar_supported
+
                 self.finished.emit(True, mod_details)
 
         except urllib.error.HTTPError as e:
@@ -261,7 +267,7 @@ class FetchModDetailsWorker(QThread):
             'description_images': desc_images,
             'description_videos': desc_videos,
             'views': views,
-            'downloads': 0,
+            'downloads': sum(f.get('downloads', 0) for f in files),
             'likes': likes,
             'date_added': date,
             'date_updated': date,
@@ -269,7 +275,60 @@ class FetchModDetailsWorker(QThread):
             'profile_url': f"https://gamebanana.com/sounds/{self.mod_id}",
             'category': 'Sound',
             'files': files,
+            'zzar_supported': False,
         }
+
+    def _check_zzar_support(self, mod_details):
+        if not mod_details:
+            return False
+
+        # Check file archive contents for .zzar files
+        files = mod_details.get('files', [])
+        for f in files:
+            file_id = f.get('id', '')
+            if file_id:
+                try:
+                    url = f"https://gamebanana.com/apiv11/File/{file_id}"
+                    req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+                    with urllib.request.urlopen(req, timeout=8) as response:
+                        data = json.loads(response.read().decode('utf-8'))
+                    tree = data.get('_aArchiveFileTree', []) if isinstance(data, dict) else []
+                    if self._tree_has_zzar(tree):
+                        return True
+                except Exception:
+                    pass
+
+        # Check requirements from v11 ProfilePage
+        try:
+            url = f"https://gamebanana.com/apiv11/Sound/{self.mod_id}/ProfilePage"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode('utf-8'))
+            requirements = data.get('_aRequirements', []) if isinstance(data, dict) else []
+            for req_item in requirements:
+                if isinstance(req_item, list) and len(req_item) > 0:
+                    if req_item[0].lower() == 'zzar':
+                        return True
+        except Exception:
+            pass
+
+        return False
+
+    def _tree_has_zzar(self, tree):
+        if isinstance(tree, list):
+            for item in tree:
+                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                    return True
+                elif isinstance(item, (dict, list)):
+                    if self._tree_has_zzar(item):
+                        return True
+        elif isinstance(tree, dict):
+            for key, value in tree.items():
+                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                    return True
+                if self._tree_has_zzar(value):
+                    return True
+        return False
 
 class FetchThumbnailsWorker(QThread):
     
@@ -308,6 +367,115 @@ class FetchThumbnailsWorker(QThread):
                 result = future.result()
                 if result:
                     self.thumbnailReady.emit(result[0], result[1])
+
+class FetchDownloadCountsWorker(QThread):
+
+    downloadCountReady = pyqtSignal(int, int)
+
+    CONCURRENT_REQUESTS = 5
+
+    def __init__(self, mod_ids):
+        super().__init__()
+        self.mod_ids = mod_ids
+
+    def _fetch_one(self, mod_id):
+        try:
+            url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={mod_id}&fields=downloads"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with urllib.request.urlopen(req, timeout=8) as response:
+                data = json.loads(response.read().decode('utf-8'))
+
+            downloads = data[0] if isinstance(data, list) and data else 0
+            return (mod_id, int(downloads))
+        except Exception:
+            pass
+        return None
+
+    def run(self):
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        with ThreadPoolExecutor(max_workers=self.CONCURRENT_REQUESTS) as pool:
+            futures = {pool.submit(self._fetch_one, mid): mid for mid in self.mod_ids}
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    self.downloadCountReady.emit(result[0], result[1])
+
+class FetchZZARSupportWorker(QThread):
+
+    zzarSupportReady = pyqtSignal(int, bool)
+
+    CONCURRENT_REQUESTS = 5
+
+    def __init__(self, mod_ids):
+        super().__init__()
+        self.mod_ids = mod_ids
+
+    def _check_one(self, mod_id):
+        try:
+            # Check requirements from v11 ProfilePage
+            url = f"https://gamebanana.com/apiv11/Sound/{mod_id}/ProfilePage"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with urllib.request.urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode('utf-8'))
+
+            # Check _aRequirements for ZZAR
+            requirements = data.get('_aRequirements', []) if isinstance(data, dict) else []
+            for req_item in requirements:
+                if isinstance(req_item, list) and len(req_item) > 0:
+                    if req_item[0].lower() == 'zzar':
+                        return (mod_id, True)
+
+            # Check file archive contents for .zzar files
+            files_data = data.get('_aFiles', []) if isinstance(data, dict) else []
+            if isinstance(files_data, list):
+                for file_entry in files_data:
+                    if isinstance(file_entry, dict):
+                        file_id = file_entry.get('_idRow', 0)
+                        if file_id:
+                            if self._check_file_contents(file_id):
+                                return (mod_id, True)
+        except Exception as e:
+            print(f"[GameBanana] Error checking ZZAR support for {mod_id}: {e}")
+        return (mod_id, False)
+
+    def _check_file_contents(self, file_id):
+        try:
+            url = f"https://gamebanana.com/apiv11/File/{file_id}"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with urllib.request.urlopen(req, timeout=8) as response:
+                data = json.loads(response.read().decode('utf-8'))
+
+            tree = data.get('_aArchiveFileTree', []) if isinstance(data, dict) else []
+            return self._tree_has_zzar(tree)
+        except Exception:
+            return False
+
+    def _tree_has_zzar(self, tree):
+        if isinstance(tree, list):
+            for item in tree:
+                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                    return True
+                elif isinstance(item, (dict, list)):
+                    if self._tree_has_zzar(item):
+                        return True
+        elif isinstance(tree, dict):
+            for key, value in tree.items():
+                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                    return True
+                if self._tree_has_zzar(value):
+                    return True
+        return False
+
+    def run(self):
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        with ThreadPoolExecutor(max_workers=self.CONCURRENT_REQUESTS) as pool:
+            futures = {pool.submit(self._check_one, mid): mid for mid in self.mod_ids}
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    self.zzarSupportReady.emit(result[0], result[1])
 
 class DownloadModWorker(QThread):
     
@@ -363,6 +531,8 @@ class GameBananaBridge(QObject):
     errorOccurred = pyqtSignal(str, str)
     loadingStateChanged = pyqtSignal(bool)
     thumbnailUpdated = pyqtSignal(int, str)
+    downloadCountUpdated = pyqtSignal(int, int)
+    zzarSupportUpdated = pyqtSignal(int, bool)
 
     def __init__(self):
         super().__init__()
@@ -370,6 +540,8 @@ class GameBananaBridge(QObject):
         self.details_worker = None
         self.download_worker = None
         self.thumbnail_worker = None
+        self.download_counts_worker = None
+        self.zzar_support_worker = None
         self.current_page = 1
         self.current_sort = "default"
         self.cached_mods = []
@@ -405,6 +577,21 @@ class GameBananaBridge(QObject):
                 self.thumbnail_worker = FetchThumbnailsWorker(ids_needing_thumbs)
                 self.thumbnail_worker.thumbnailReady.connect(self.thumbnailUpdated.emit)
                 self.thumbnail_worker.start()
+
+            all_ids = [m['id'] for m in data]
+            if all_ids:
+                if self.download_counts_worker and self.download_counts_worker.isRunning():
+                    self.download_counts_worker.terminate()
+                self.download_counts_worker = FetchDownloadCountsWorker(all_ids)
+                self.download_counts_worker.downloadCountReady.connect(self.downloadCountUpdated.emit)
+                self.download_counts_worker.start()
+
+            if all_ids:
+                if self.zzar_support_worker and self.zzar_support_worker.isRunning():
+                    self.zzar_support_worker.terminate()
+                self.zzar_support_worker = FetchZZARSupportWorker(all_ids)
+                self.zzar_support_worker.zzarSupportReady.connect(self.zzarSupportUpdated.emit)
+                self.zzar_support_worker.start()
         else:
             self.errorOccurred.emit("Failed to Load Mods", str(data))
             print(f"[GameBanana] Error: {data}")

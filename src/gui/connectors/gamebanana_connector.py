@@ -56,6 +56,20 @@ class GameBananaConnector:
             )
         )
 
+        gb.downloadCountUpdated.connect(
+            lambda mod_id, count: QMetaObject.invokeMethod(
+                self.gamebanana_page, "onDownloadCountUpdated",
+                Qt.QueuedConnection, Q_ARG("QVariant", mod_id), Q_ARG("QVariant", count)
+            )
+        )
+
+        gb.zzarSupportUpdated.connect(
+            lambda mod_id, supported: QMetaObject.invokeMethod(
+                self.gamebanana_page, "onZZARSupportUpdated",
+                Qt.QueuedConnection, Q_ARG("QVariant", mod_id), Q_ARG("QVariant", supported)
+            )
+        )
+
         gb.errorOccurred.connect(self.on_error_occurred)
 
         print("[ZZAR] GameBanana page connected")
