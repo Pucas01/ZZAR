@@ -224,6 +224,12 @@ class Application(
         self.engine.addImportPath(str(ui_path / "qml"))
         self.engine.addImportPath(str(ui_path / "components"))
 
+        if hasattr(sys, '_MEIPASS'):
+            qml_base = Path(sys._MEIPASS) / 'PyQt5' / 'Qt5' / 'qml'
+            if qml_base.exists():
+                self.engine.addImportPath(str(qml_base))
+                print(f"[ZZAR] Added PyInstaller QML path: {qml_base}")
+
         qml_file = ui_path / "qml" / "MainWindow.qml"
         print(f"Loading QML from: {qml_file}")
         self.engine.load(QUrl.fromLocalFile(str(qml_file)))

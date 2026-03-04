@@ -23,6 +23,18 @@ extra_binaries = []
 if sys.platform.startswith('win'):
 
     extra_binaries = []
+    try:
+        import PyQt5
+        pyqt5_dir = os.path.dirname(PyQt5.__file__)
+        qt_qml_dir = os.path.join(pyqt5_dir, 'Qt5', 'qml')
+        if os.path.isdir(qt_qml_dir):
+            added_files.append((qt_qml_dir, 'PyQt5/Qt5/qml'))
+            print(f"INFO: Bundled Qt QML modules from {qt_qml_dir}")
+        else:
+            print("WARNING: Qt QML directory not found — QML will fail to load")
+    except ImportError:
+        print("WARNING: PyQt5 not found, skipping QML bundling")
+
 else:
 
     lib_search_paths = [
