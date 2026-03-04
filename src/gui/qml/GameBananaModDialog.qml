@@ -2,7 +2,6 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.15
-import QtMultimedia 5.15
 import "."
 
 Rectangle {
@@ -250,41 +249,24 @@ Rectangle {
                                     }
                                 }
 
-                                Video {
-                                    id: previewVideo
+                                Loader {
+                                    id: videoLoader
                                     anchors.fill: parent
-                                    source: previewContainer.currentMedia && previewContainer.currentMedia.type === "video" ? previewContainer.currentMedia.url : ""
-                                    fillMode: VideoOutput.PreserveAspectFit
-                                    autoPlay: true
-                                    loops: MediaPlayer.Infinite
-                                    muted: true
-                                    visible: previewContainer.currentMedia && previewContainer.currentMedia.type === "video"
+                                    source: "VideoPreview.qml"
 
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            if (previewVideo.playbackState === MediaPlayer.PlayingState)
-                                                previewVideo.pause()
-                                            else
-                                                previewVideo.play()
-                                        }
+                                    Binding {
+                                        target: videoLoader.item
+                                        property: "videoSource"
+                                        value: previewContainer.currentMedia && previewContainer.currentMedia.type === "video"
+                                               ? previewContainer.currentMedia.url : ""
+                                        when: videoLoader.status === Loader.Ready
                                     }
 
-                                    Rectangle {
-                                        anchors.centerIn: parent
-                                        width: 48; height: 48; radius: 24
-                                        color: "#99000000"
-                                        visible: previewVideo.playbackState !== MediaPlayer.PlayingState
-                                                 && previewContainer.currentMedia
-                                                 && previewContainer.currentMedia.type === "video"
-
-                                        Text {
-                                            anchors.centerIn: parent
-                                            text: "\u25B6"
-                                            color: Theme.textPrimary
-                                            font.pixelSize: 20
-                                        }
+                                    Binding {
+                                        target: videoLoader.item
+                                        property: "isVideoMedia"
+                                        value: !!(previewContainer.currentMedia && previewContainer.currentMedia.type === "video")
+                                        when: videoLoader.status === Loader.Ready
                                     }
                                 }
 
@@ -1129,7 +1111,7 @@ Rectangle {
             activeDownloadUrl = ""
             pendingZZARNames = []
             pendingZipPath = ""
-            previewVideo.stop()
+            if (videoLoader.item) videoLoader.item.stopVideo()
         }
     }
 

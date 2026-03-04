@@ -2,11 +2,22 @@
 
 import json
 import re
+import ssl
 import urllib.request
 import urllib.error
 import urllib.parse
 from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
+
+
+def _urlopen(req, timeout=10):
+    try:
+        return urllib.request.urlopen(req, timeout=timeout)
+    except urllib.error.URLError as e:
+        if "CERTIFICATE_VERIFY_FAILED" in str(e):
+            ctx = ssl._create_unverified_context()
+            return urllib.request.urlopen(req, timeout=timeout, context=ctx)
+        raise
 
 IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg')
 VIDEO_EXTENSIONS = ('.mp4', '.webm')
@@ -140,7 +151,7 @@ class FetchModsWorker(QThread):
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'ZZAR/1.1.0')
 
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
                 mods = []
@@ -240,7 +251,7 @@ class FetchModDetailsWorker(QThread):
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'ZZAR/1.1.0')
 
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
                 mod_details = self._parse_mod_details(data)
@@ -342,7 +353,7 @@ class FetchModDetailsWorker(QThread):
                 try:
                     url = f"https://gamebanana.com/apiv11/File/{file_id}"
                     req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-                    with urllib.request.urlopen(req, timeout=8) as response:
+                    with _urlopen(req, timeout=8) as response:
                         data = json.loads(response.read().decode('utf-8'))
                     tree = data.get('_aArchiveFileTree', []) if isinstance(data, dict) else []
                     result = self._tree_has_zzar(tree)
@@ -358,7 +369,7 @@ class FetchModDetailsWorker(QThread):
         try:
             url = f"https://gamebanana.com/apiv11/Sound/{self.mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
             requirements = data.get('_aRequirements', []) if isinstance(data, dict) else []
             for req_item in requirements:
@@ -405,7 +416,7 @@ class FetchThumbnailsWorker(QThread):
         try:
             url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={mod_id}&fields=text"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-            with urllib.request.urlopen(req, timeout=8) as response:
+            with _urlopen(req, timeout=8) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
             text = data[0] if isinstance(data, list) and data else ''
@@ -446,7 +457,7 @@ class FetchDownloadCountsWorker(QThread):
         try:
             url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={mod_id}&fields=downloads"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-            with urllib.request.urlopen(req, timeout=8) as response:
+            with _urlopen(req, timeout=8) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
             downloads = data[0] if isinstance(data, list) and data else 0
@@ -485,7 +496,7 @@ class FetchZZARSupportWorker(QThread):
             # Check requirements from v11 ProfilePage
             url = f"https://gamebanana.com/apiv11/Sound/{mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
             # Check _aRequirements for ZZAR
@@ -515,7 +526,7 @@ class FetchZZARSupportWorker(QThread):
         try:
             url = f"https://gamebanana.com/apiv11/File/{file_id}"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
-            with urllib.request.urlopen(req, timeout=8) as response:
+            with _urlopen(req, timeout=8) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
             tree = data.get('_aArchiveFileTree', []) if isinstance(data, dict) else []
@@ -662,7 +673,7 @@ class DownloadModWorker(QThread):
             req = urllib.request.Request(self.download_url)
             req.add_header('User-Agent', 'ZZAR/1.1.0')
 
-            with urllib.request.urlopen(req, timeout=30) as response:
+            with _urlopen(req, timeout=30) as response:
                 total_size = int(response.headers.get('Content-Length', 0))
                 downloaded = 0
 
