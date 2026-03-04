@@ -249,6 +249,19 @@ class AudioPlayer(QObject):
             self.error_occurred.emit(str(e))
             raise
 
+    def play_url(self, url_str):
+        self.current_file = None
+        if _is_windows:
+            if not self._ffplay_path:
+                raise RuntimeError("ffplay not found. Please install the audio tools from the Settings page.")
+            self._stop_ffplay()
+            self._current_wav_path = url_str
+            self._duration_ms = 0
+            self._start_ffplay_at(0)
+        else:
+            self.player.setMedia(QMediaContent(QUrl(url_str)))
+            self.player.play()
+
     def play(self):
 
         if _is_windows:

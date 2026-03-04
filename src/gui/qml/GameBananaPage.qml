@@ -11,6 +11,20 @@ Item {
     property bool isLoading: false
     property var modsList: []
     property var installedModIds: []
+    property int sortIndex: 0
+
+    property var sortedModsList: {
+        var list = modsList.slice()
+        if (sortIndex === 0) list.sort(function(a, b) {
+            var zzarDiff = (b.zzar_supported ? 1 : 0) - (a.zzar_supported ? 1 : 0)
+            if (zzarDiff !== 0) return zzarDiff
+            return (b.date_added || 0) - (a.date_added || 0)
+        })
+        else if (sortIndex === 1) list.sort(function(a, b) { return (b.downloads || 0) - (a.downloads || 0) })
+        else if (sortIndex === 2) list.sort(function(a, b) { return (b.likes || 0) - (a.likes || 0) })
+        else if (sortIndex === 3) list.sort(function(a, b) { return (b.date_added || 0) - (a.date_added || 0) })
+        return list
+    }
 
     signal loadModsRequested(int page, string sort)
     signal modCardClicked(int modId)
@@ -171,112 +185,101 @@ Item {
                         }
                     }
 
-                    Item {
+                    ComboBox {
+                        id: sortComboBox
                         height: Theme.buttonHeight
-                        width: sortComboContent.implicitWidth + 40
+                        model: ["Default", "Most Downloaded", "Most Liked", "Newest"]
 
-                        Rectangle {
-                            anchors.fill: parent
-                            color: sortComboMouse.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                                 : sortComboMouse.containsMouse ? Qt.lighter(Theme.cardBackground, 1.1)
+                        onActivated: sortIndex = index
+
+                        background: Rectangle {
+                            color: sortComboBox.pressed ? Qt.darker(Theme.cardBackground, 1.2)
+                                 : sortComboBox.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                                  : Theme.cardBackground
                             radius: Theme.radiusMedium
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            border.color: "transparent"
+                            border.width: 0
+                            Behavior on color { ColorAnimation { duration: 150 } }
                         }
 
-                        Row {
-                            anchors.centerIn: parent
-                            spacing: 8
+                        contentItem: Text {
+                            text: "Sort: " + sortComboBox.displayText
+                            color: Theme.textPrimary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontSizeSmall
+                            verticalAlignment: Text.AlignVCenter
+                            leftPadding: 14
+                            rightPadding: 40
+                        }
 
+                        indicator: Rectangle {
+                            x: sortComboBox.width - width - 10
+                            y: (sortComboBox.height - height) / 2
+                            width: 20; height: 20
+                            color: "transparent"
                             Text {
-                                id: sortComboContent
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: "Sort: " + sortComboBox.currentText
-                                color: Theme.textPrimary
-                                font.family: Theme.fontFamily
-                                font.pixelSize: Theme.fontSizeSmall
-                            }
-
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.centerIn: parent
                                 text: "\u25BC"
                                 color: Theme.textPrimary
                                 font.pixelSize: 10
                             }
                         }
 
-                        MouseArea {
-                            id: sortComboMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: sortComboBox.popup.open()
+                        delegate: ItemDelegate {
+                            width: sortComboBox.width - 8
+                            height: Theme.buttonHeight
+                            highlighted: sortComboBox.highlightedIndex === index
+
+                            background: Rectangle {
+                                color: {
+                                    if (parent.highlighted) return Theme.primaryAccent
+                                    if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                    return Theme.surfaceDark
+                                }
+                                radius: Theme.radiusSmall
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+
+                            contentItem: Text {
+                                text: modelData
+                                color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall
+                                verticalAlignment: Text.AlignVCenter
+                                leftPadding: 14
+                            }
                         }
 
-                        ComboBox {
-                            id: sortComboBox
-                            anchors.fill: parent
-                            opacity: 0
-                            model: ["Default", "Most Downloaded", "Most Liked", "Newest"]
+                        popup: Popup {
+                            y: sortComboBox.height + 4
+                            width: sortComboBox.width
+                            padding: 4
 
-                            onCurrentIndexChanged: {
-                                var sortMap = { 0: "default", 1: "downloads", 2: "likes", 3: "date" }
-                                loadModsRequested(1, sortMap[currentIndex])
-                            }
+                            background: Rectangle {
+                                color: Theme.surfaceDark
+                                radius: Theme.radiusMedium
+                                border.color: Qt.rgba(1, 1, 1, 0.1)
+                                border.width: 1
 
-                            popup: Popup {
-                                y: sortComboBox.height + 4
-                                width: sortComboBox.width
-                                padding: 4
-
-                                background: Rectangle {
-                                    color: Theme.surfaceDark
-                                    radius: Theme.radiusMedium
-                                    border.color: Qt.rgba(1, 1, 1, 0.1)
-                                    border.width: 1
-
-                                    layer.enabled: true
-                                    layer.effect: DropShadow {
-                                        transparentBorder: true
-                                        horizontalOffset: 0
-                                        verticalOffset: 4
-                                        radius: 8
-                                        samples: 16
-                                        color: "#80000000"
-                                    }
-                                }
-
-                                contentItem: ListView {
-                                    clip: true
-                                    implicitHeight: contentHeight
-                                    model: sortComboBox.popup.visible ? sortComboBox.delegateModel : null
-                                    currentIndex: sortComboBox.highlightedIndex
-                                    spacing: 2
+                                layer.enabled: true
+                                layer.effect: DropShadow {
+                                    transparentBorder: true
+                                    horizontalOffset: 0
+                                    verticalOffset: 4
+                                    radius: 8
+                                    samples: 16
+                                    color: "#80000000"
                                 }
                             }
 
-                            delegate: ItemDelegate {
-                                width: sortComboBox.width - 8
-                                height: Theme.buttonHeight
+                            contentItem: ListView {
+                                clip: true
+                                implicitHeight: contentHeight
+                                model: sortComboBox.popup.visible ? sortComboBox.delegateModel : null
+                                currentIndex: sortComboBox.highlightedIndex
+                                spacing: 2
 
-                                background: Rectangle {
-                                    color: {
-                                        if (parent.highlighted) return Theme.primaryAccent
-                                        if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
-                                        return Theme.surfaceDark
-                                    }
-                                    radius: Theme.radiusSmall
-                                    Behavior on color { ColorAnimation { duration: 100 } }
-                                }
-
-                                contentItem: Text {
-                                    text: modelData
-                                    color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
-                                    verticalAlignment: Text.AlignVCenter
-                                    leftPadding: 14
-                                }
+                                ScrollIndicator.vertical: ScrollIndicator { active: true }
                             }
                         }
                     }
@@ -298,21 +301,6 @@ Item {
                             id: refreshBtnRow
                             anchors.centerIn: parent
                             spacing: 6
-
-                            Text {
-                                id: refreshIcon
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: "\u21BB"
-                                color: Theme.textOnAccent
-                                font.pixelSize: 16
-
-                                RotationAnimation on rotation {
-                                    from: 0; to: 360
-                                    duration: 900
-                                    running: isLoading
-                                    loops: Animation.Infinite
-                                }
-                            }
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
@@ -428,7 +416,7 @@ Item {
                             spacing: 16
 
                             Repeater {
-                                model: modsList
+                                model: sortedModsList
 
                                 Item {
                                     width: 240

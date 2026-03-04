@@ -21,6 +21,7 @@ def _urlopen(req, timeout=10):
 
 IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg')
 VIDEO_EXTENSIONS = ('.mp4', '.webm')
+AUDIO_EXTENSIONS = ('.mp3', '.ogg', '.wav', '.flac', '.aac', '.m4a')
 
 # ---------------------------------------------------------------------------
 # Persistent mod-metadata cache  (survives restarts, avoids re-hitting the API)
@@ -107,11 +108,16 @@ def extract_media_from_html(html_text):
     return clean, images, videos
 
 def is_visual_media(url):
-    
     if not url:
         return False
     lower = url.lower().split('?')[0]
     return lower.endswith(IMAGE_EXTENSIONS + VIDEO_EXTENSIONS)
+
+def is_audio_media(url):
+    if not url:
+        return False
+    lower = url.lower().split('?')[0]
+    return lower.endswith(AUDIO_EXTENSIONS)
 
 GAMEBANANA_API_BASE = "https://gamebanana.com/apiv11"
 ZENLESS_ZONE_ZERO_GAME_ID = 19567
@@ -140,6 +146,7 @@ class FetchModsWorker(QThread):
 
             if self.sort and self.sort != "default":
                 params['_sOrderBy'] = self.sort
+                params['_sOrder'] = 'DESC'
 
             if self.category:
                 filters += f"&_aFilters[Generic_Category]={self.category}"
@@ -198,6 +205,7 @@ class FetchModsWorker(QThread):
         submitter = data.get('_aSubmitter', {})
         author_name = submitter.get('_sName', 'Unknown') if isinstance(submitter, dict) else 'Unknown'
         author_id = submitter.get('_idRow', 0) if isinstance(submitter, dict) else 0
+        author_avatar = submitter.get('_sUpicUrl', '') if isinstance(submitter, dict) else ''
 
         root_category = data.get('_aRootCategory', {})
         category_name = root_category.get('_sName', 'Mod') if isinstance(root_category, dict) else 'Mod'
@@ -220,6 +228,7 @@ class FetchModsWorker(QThread):
             'name': data.get('_sName', 'Unknown'),
             'author': author_name,
             'author_id': author_id,
+            'author_avatar': author_avatar,
             'description': clean_description,
             'views': data.get('_nViewCount', 0),
             'downloads': data.get('_nDownloadCount', 0),
@@ -312,6 +321,8 @@ class FetchModDetailsWorker(QThread):
         if not thumbnail_url and desc_images:
             thumbnail_url = desc_images[0]
 
+        preview_audio_url = preview_url if is_audio_media(preview_url) else ''
+
         return {
             'id': self.mod_id,
             'name': name,
@@ -327,6 +338,7 @@ class FetchModDetailsWorker(QThread):
             'date_added': date,
             'date_updated': date,
             'thumbnail': thumbnail_url,
+            'preview_audio_url': preview_audio_url,
             'profile_url': f"https://gamebanana.com/sounds/{self.mod_id}",
             'category': 'Sound',
             'files': files,
@@ -365,18 +377,24 @@ class FetchModDetailsWorker(QThread):
                 except Exception:
                     f['has_zzar'] = False
 
-        # Check requirements from v11 ProfilePage
+        # Check requirements from v11 ProfilePage (also grab author avatar)
         try:
             url = f"https://gamebanana.com/apiv11/Sound/{self.mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
             with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
-            requirements = data.get('_aRequirements', []) if isinstance(data, dict) else []
-            for req_item in requirements:
-                if isinstance(req_item, list) and len(req_item) > 0:
-                    if req_item[0].lower() == 'zzar':
-                        any_zzar = True
-                        break
+            if isinstance(data, dict):
+                submitter = data.get('_aSubmitter', {})
+                if isinstance(submitter, dict) and mod_details:
+                    avatar_url = submitter.get('_sUpicUrl', '') or submitter.get('_sAvatarUrl', '')
+                    if avatar_url:
+                        mod_details['author_avatar'] = avatar_url
+                requirements = data.get('_aRequirements', [])
+                for req_item in requirements:
+                    if isinstance(req_item, list) and len(req_item) > 0:
+                        if req_item[0].lower() == 'zzar':
+                            any_zzar = True
+                            break
         except Exception:
             pass
 

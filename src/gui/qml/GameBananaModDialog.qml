@@ -17,6 +17,7 @@ Rectangle {
     property bool isInstalling: false
     property int previewIndex: 0
     property bool closing: false
+    property bool audioPreviewPlaying: false
 
     property var pendingZZARNames: []
     property string pendingZipPath: ""
@@ -34,6 +35,10 @@ Rectangle {
         onTriggered: {
             visible = false
             closing = false
+            if (audioPreviewPlaying) {
+                audioBrowserBackend.stop()
+                audioPreviewPlaying = false
+            }
         }
     }
 
@@ -41,6 +46,7 @@ Rectangle {
         modData = details
         previewIndex = 0
         closing = false
+        audioPreviewPlaying = false
         visible = true
     }
 
@@ -403,6 +409,79 @@ Rectangle {
                                     }
                                 }
 
+                                Connections {
+                                    target: audioBrowserBackend
+                                    function onPlaybackStateUpdate(playing, paused, enabled) {
+                                        if (!playing && !paused)
+                                            modDialog.audioPreviewPlaying = false
+                                    }
+                                }
+
+                                Rectangle {
+                                    visible: modData && modData.preview_audio_url && modData.preview_audio_url !== ""
+                                    width: 32; height: 32; radius: 16
+                                    color: previewAudioMouse.containsMouse ? Qt.lighter(Theme.primaryAccent, 1.15) : Theme.primaryAccent
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modDialog.audioPreviewPlaying ? "\u25A0" : "\u25B6"
+                                        color: "black"
+                                        font.pixelSize: modDialog.audioPreviewPlaying ? 13 : 11
+                                    }
+
+                                    MouseArea {
+                                        id: previewAudioMouse
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (modDialog.audioPreviewPlaying) {
+                                                audioBrowserBackend.stop()
+                                                modDialog.audioPreviewPlaying = false
+                                            } else {
+                                                audioBrowserBackend.playUrl(modData.preview_audio_url)
+                                                modDialog.audioPreviewPlaying = true
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Slider {
+                                    id: previewVolumeSlider
+                                    visible: modData && modData.preview_audio_url && modData.preview_audio_url !== ""
+                                    Layout.preferredWidth: 100
+                                    from: 0; to: 100; value: 50
+                                    onMoved: audioBrowserBackend.setVolume(Math.round(value))
+
+                                    background: Rectangle {
+                                        x: previewVolumeSlider.leftPadding
+                                        y: previewVolumeSlider.bottomPadding + previewVolumeSlider.availableHeight / 2 - height / 2
+                                        width: previewVolumeSlider.availableWidth
+                                        height: 4; radius: 2
+                                        color: Theme.cardBackground
+                                        Rectangle {
+                                            width: previewVolumeSlider.visualPosition * parent.width
+                                            height: parent.height; radius: 2
+                                            color: Theme.primaryAccent
+                                        }
+                                    }
+                                    handle: Rectangle {
+                                        x: previewVolumeSlider.leftPadding + previewVolumeSlider.visualPosition * (previewVolumeSlider.availableWidth - width)
+                                        y: previewVolumeSlider.bottomPadding + previewVolumeSlider.availableHeight / 2 - height / 2
+                                        width: 12; height: 12; radius: 6
+                                        color: previewVolumeSlider.pressed ? Qt.darker(Theme.primaryAccent, 1.1) : Theme.primaryAccent
+                                    }
+                                }
+
+                                Text {
+                                    visible: modData && modData.preview_audio_url && modData.preview_audio_url !== ""
+                                    text: Math.round(previewVolumeSlider.value) + "%"
+                                    color: Theme.textSecondary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                }
+
                                 Item { Layout.fillWidth: true }
 
                                 Row {
@@ -576,8 +655,8 @@ Rectangle {
                                                 height: Theme.buttonHeightLarge
                                                 width: dlBtnLabel.implicitWidth + 32
 
-                                                property bool busy: parent.parent.parent.rowDownloading || parent.parent.parent.rowInstalling
-                                                property bool installed: parent.parent.parent.isInstalled
+                                                property bool busy: parent.parent.rowDownloading || parent.parent.rowInstalling
+                                                property bool installed: parent.parent.isInstalled
 
                                                 Rectangle {
                                                     id: dlBtnBg
@@ -586,7 +665,7 @@ Rectangle {
                                                         : dlMouse.pressed ? "#a8c800" : dlMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
                                                     scale: dlMouse.pressed && !parent.installed ? 0.95 : 1.0
-                                                    opacity: parent.busy ? 0.7 : 1.0
+                                                    opacity: parent.installed ? 0.5 : parent.busy ? 0.7 : 1.0
                                                     Behavior on color { ColorAnimation { duration: 100 } }
                                                     Behavior on scale { NumberAnimation { duration: 100 } }
 
@@ -720,8 +799,8 @@ Rectangle {
                                                 height: Theme.buttonHeightLarge
                                                 width: dlBtnLabel2.implicitWidth + 32
 
-                                                property bool busy: parent.parent.parent.rowDownloading || parent.parent.parent.rowInstalling
-                                                property bool installed: parent.parent.parent.isInstalled
+                                                property bool busy: parent.parent.rowDownloading || parent.parent.rowInstalling
+                                                property bool installed: parent.parent.isInstalled
 
                                                 Rectangle {
                                                     anchors.fill: parent
@@ -729,7 +808,7 @@ Rectangle {
                                                         : dlMouse2.pressed ? "#a8c800" : dlMouse2.containsMouse ? "#e8ff33" : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
                                                     scale: dlMouse2.pressed && !parent.installed ? 0.95 : 1.0
-                                                    opacity: parent.busy ? 0.7 : 1.0
+                                                    opacity: parent.installed ? 0.5 : parent.busy ? 0.7 : 1.0
                                                     Behavior on color { ColorAnimation { duration: 100 } }
                                                     Behavior on scale { NumberAnimation { duration: 100 } }
 

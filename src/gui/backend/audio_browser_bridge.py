@@ -1030,6 +1030,13 @@ class AudioBrowserBridge(QObject):
         self.progressUpdate.emit(0.0, "00:00 / 00:00")
         self.statusUpdate.emit(QCoreApplication.translate("Application", "Stopped"))
 
+    @pyqtSlot(str)
+    def playUrl(self, url):
+        try:
+            self.audio_player.play_url(url)
+        except Exception as e:
+            self.errorOccurred.emit("Preview Error", str(e))
+
     @pyqtSlot(int)
     def setVolume(self, value):
         self.audio_player.set_volume(value)
