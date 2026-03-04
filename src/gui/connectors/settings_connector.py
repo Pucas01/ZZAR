@@ -208,6 +208,8 @@ class SettingsConnector:
             print("[ZZAR] WARNING: settings_page is None!")
 
     def on_audio_tools_setup_success(self, title, message):
+        if self.audio_browser_bridge:
+            self.audio_browser_bridge.refresh_audio_tools()
         QMetaObject.invokeMethod(
             self.root,
             "showSuccessDialog",

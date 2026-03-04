@@ -83,6 +83,11 @@ class AudioConverter:
         vgmstream = shutil.which('vgmstream-cli')
         return vgmstream
 
+    def refresh_tools(self):
+
+        self.ffmpeg_path = self._find_ffmpeg()
+        self.vgmstream_path = self._find_vgmstream()
+
     def wem_to_wav(self, wem_file, output_file=None):
 
         wem_file = Path(wem_file)

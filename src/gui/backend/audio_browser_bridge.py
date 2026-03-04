@@ -2774,6 +2774,12 @@ class AudioBrowserBridge(QObject):
             )
             self._match_thread.start()
 
+    @pyqtSlot()
+    def refresh_audio_tools(self):
+
+        self.audio_player.refresh_tools()
+        print("[Audio Browser] Audio tools refreshed")
+
     def cleanup(self):
 
         self.audio_player.stop()

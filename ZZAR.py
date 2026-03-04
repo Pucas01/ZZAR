@@ -6,6 +6,9 @@ from pathlib import Path
 if sys.platform.startswith('linux') and 'QT_QPA_PLATFORM' not in os.environ:
     os.environ['QT_QPA_PLATFORM'] = 'wayland;xcb'
 
+if sys.platform == 'win32':
+    os.environ.setdefault('QT_SCALE_FACTOR_ROUNDING_POLICY', 'PassThrough')
+
 os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false'
 
 __version__ = "1.1.0"

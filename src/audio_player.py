@@ -75,6 +75,13 @@ class AudioPlayer(QObject):
             self.player.durationChanged.connect(self.duration_changed)
             self.player.error.connect(self._on_error)
 
+    def refresh_tools(self):
+
+        self.audio_converter.refresh_tools()
+        if _is_windows:
+            self._ffplay_path = self._find_ffplay()
+            self._ffprobe_path = self._find_ffprobe()
+
     def _find_ffplay(self):
 
         possible_paths = [
@@ -282,6 +289,9 @@ class AudioPlayer(QObject):
 
         if _is_windows:
             self._volume = volume
+            if self._state == "playing" and self._current_wav_path and self._ffplay_path:
+                elapsed = self._pause_elapsed_ms + int((time.monotonic() - self._play_start_time) * 1000)
+                self._start_ffplay_at(elapsed)
         else:
             self.player.setVolume(volume)
 
