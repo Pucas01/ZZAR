@@ -29,6 +29,15 @@ Item {
     signal loadModsRequested(int page, string sort)
     signal modCardClicked(int modId)
     signal refreshRequested()
+
+    property bool _hasLoaded: false
+
+    onVisibleChanged: {
+        if (visible && !_hasLoaded) {
+            _hasLoaded = true
+            loadModsRequested(1, "default")
+        }
+    }
     signal downloadModRequested(string downloadUrl, string filename, string modName, int modId)
     signal installChosenZZARRequested(string zipPath, string zzarName)
 
@@ -421,6 +430,25 @@ Item {
                                 Item {
                                     width: 240
                                     height: 300
+
+                                    property bool _thumbRequested: false
+
+                                    function checkVisible() {
+                                        if (_thumbRequested || modelData.thumbnail) return
+                                        var cardY = mapToItem(gridFlow, 0, 0).y
+                                        var viewTop = gridFlickable.contentY - 320
+                                        var viewBottom = gridFlickable.contentY + gridFlickable.height + 320
+                                        if (cardY + height > viewTop && cardY < viewBottom) {
+                                            _thumbRequested = true
+                                            gameBananaBackend.fetchThumbnail(modelData.id)
+                                        }
+                                    }
+
+                                    Component.onCompleted: checkVisible()
+                                    Connections {
+                                        target: gridFlickable
+                                        function onContentYChanged() { checkVisible() }
+                                    }
 
                                     Rectangle {
                                         id: cardBg

@@ -92,8 +92,6 @@ class GameBananaConnector:
 
         print("[ZZAR] GameBanana page connected")
 
-        gb.fetchMods(1, "default")
-
     def on_gamebanana_download_complete(self, file_path):
         print(f"[ZZAR] Mod downloaded to: {file_path}")
 

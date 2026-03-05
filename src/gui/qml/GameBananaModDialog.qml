@@ -23,8 +23,8 @@ Rectangle {
     property string pendingZipPath: ""
     property string activeDownloadUrl: ""
     property var installedModNames: []
-    property var installedUrlMap: ({})   // {download_url: mod_name}
-    property int installedVersion: 0     // bumped on every install update to force binding re-eval
+    property var installedUrlMap: ({})
+    property int installedVersion: 0
 
     signal downloadRequested(string downloadUrl, string filename, string modName, int modId)
     signal installChosenZZAR(string zipPath, string zzarName)
@@ -103,27 +103,22 @@ Rectangle {
         Behavior on opacity { NumberAnimation { duration: 200 } }
 
         Rectangle {
-            id: dialogOuter
+            id: dialogInner
             anchors.fill: parent
-            color: Theme.backgroundColor
-            radius: 36.44
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
+            border.width: 1
 
-            Rectangle {
-                id: dialogInner
+            MouseArea {
                 anchors.fill: parent
-                anchors.margins: 12
-                color: Theme.surfaceColor
-                radius: 30
+                onClicked: {}
+            }
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {}
-                }
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: Theme.spacingMedium
-                    spacing: 14
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Theme.spacingMedium
+                spacing: 14
 
                     RowLayout {
                         Layout.fillWidth: true
@@ -156,37 +151,6 @@ Rectangle {
                             }
                         }
 
-                        Item {
-                            height: Theme.buttonHeight
-                            width: Theme.buttonHeight
-
-                            Rectangle {
-                                anchors.fill: parent
-                                color: closeMouse.pressed ? "#cc0000" : closeMouse.containsMouse ? "#ff3333" : Theme.backgroundColor
-                                radius: Theme.radiusMedium
-                                scale: closeMouse.pressed ? 0.92 : 1.0
-                                Behavior on color { ColorAnimation { duration: 100 } }
-                                Behavior on scale { NumberAnimation { duration: 100 } }
-                            }
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: "\u2715"
-                                color: Theme.textPrimary
-                                font.pixelSize: 14
-                            }
-
-                            MouseArea {
-                                id: closeMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    modDialog.closing = true
-                                    hideTimer.start()
-                                }
-                            }
-                        }
                     }
 
                     Flickable {
@@ -569,7 +533,6 @@ Rectangle {
                                     font.pixelSize: 15
                                 }
 
-                                // ZZAR Files section header
                                 Text {
                                     visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar })
                                     text: "ZZAR Files"
@@ -593,7 +556,7 @@ Rectangle {
                                         property bool rowDownloading: isActiveRow && modDialog.isDownloading
                                         property bool rowInstalling: isActiveRow && modDialog.isInstalling
                                         property bool isInstalled: {
-                                            modDialog.installedVersion  // force re-eval on update
+                                            modDialog.installedVersion
                                             var ids = gameBananaPage.installedModIds
                                             var mid = modDialog.modData ? modDialog.modData.id : -1
                                             console.log("[isInstalled] modData.id=", mid, "installedModIds=", JSON.stringify(ids))
@@ -717,7 +680,6 @@ Rectangle {
                                     }
                                 }
 
-                                // Other Files section header
                                 Text {
                                     visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar }) && modData.files.some(function(f) { return !f.has_zzar })
                                     text: "Other Files"
@@ -881,7 +843,6 @@ Rectangle {
                         }
                     }
                 }
-            }
         }
 
         layer.enabled: true
@@ -895,289 +856,238 @@ Rectangle {
         }
     }
 
-
-
-    // ZZAR chooser overlay — shown when multiple .zzar files are found in the archive
     Item {
         id: zzarChooser
         anchors.fill: parent
         visible: modDialog.pendingZZARNames.length > 0
         z: 2000
 
-        // track which entries are checked; reset when chooser opens
         property var checkedNames: []
-        onVisibleChanged: if (visible) checkedNames = []
+        property bool closing: false
+        onVisibleChanged: if (visible) { checkedNames = []; closing = false }
+
+        Timer {
+            id: chooserHideTimer
+            interval: 200
+            onTriggered: {
+                modDialog.pendingZZARNames = []
+                modDialog.pendingZipPath = ""
+                zzarChooser.closing = false
+            }
+        }
 
         Rectangle {
             anchors.fill: parent
-            color: "#cc000000"
+            color: "#80000000"
+            opacity: (!zzarChooser.closing && zzarChooser.visible) ? 1.0 : 0.0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
+
+            Image {
+                anchors.fill: parent
+                source: "../assets/gradient.png"
+                fillMode: Image.Stretch
+                mipmap: true
+                opacity: 0.6
+            }
+
             MouseArea { anchors.fill: parent }
         }
 
-        Item {
-            id: chooserPanel
+        Rectangle {
+            id: chooserCard
+            width: Math.min(500, parent.width - 40)
+            height: chooserCol.height + 60
             anchors.centerIn: parent
-            width: Math.min(zzarChooser.width - 80, 480)
-            height: chooserInner.height + 24
-
-            scale: zzarChooser.visible ? 1.0 : 0.9
-            opacity: zzarChooser.visible ? 1.0 : 0.0
+            color: "#252525"
+            radius: 20
+            border.color: "#3c3d3f"
+            border.width: 1
+            scale: (!zzarChooser.closing && zzarChooser.visible) ? 1.0 : 0.9
+            opacity: (!zzarChooser.closing && zzarChooser.visible) ? 1.0 : 0.0
             Behavior on scale   { NumberAnimation { duration: 200; easing.type: Easing.OutBack } }
             Behavior on opacity { NumberAnimation { duration: 200 } }
 
-            Rectangle {
-                id: chooserInner
-                width: parent.width
-                height: chooserLayout.implicitHeight + 48
-                anchors.top: parent.top
-                color: Theme.backgroundColor
-                radius: 36.44
+            Column {
+                id: chooserCol
+                width: parent.width - 60
+                anchors.centerIn: parent
+                spacing: 16
 
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: 12
-                    color: Theme.surfaceColor
-                    radius: 30
+                Item { height: 10; width: 1 }
 
-                    ColumnLayout {
-                        id: chooserLayout
-                        anchors {
-                            top: parent.top; left: parent.left; right: parent.right
-                            margins: Theme.spacingMedium
-                        }
-                        spacing: 12
+                Image {
+                    source: "../assets/YuFufuEat.png"
+                    width: 160
+                    height: 160
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
 
-                        Image {
-                            source: "../assets/YuFufuEat.png"
-                            Layout.preferredWidth: 240
-                            Layout.preferredHeight: 240
-                            Layout.alignment: Qt.AlignHCenter
-                            fillMode: Image.PreserveAspectFit
-                            mipmap: true
-                        }
+                Text {
+                    text: "Multiple .zzar files found"
+                    color: "#d8fa00"
+                    font.family: "Alatsi"
+                    font.pixelSize: 24
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                }
 
-                        // Header
-                        RowLayout {
-                            Layout.fillWidth: true
+                Text {
+                    text: "Select the files you want to install, then press Install."
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 16
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    wrapMode: Text.WordWrap
+                    lineHeight: 1.4
+                }
 
-                            Text {
-                                Layout.fillWidth: true
-                                text: "Multiple .zzar files found"
-                                color: Theme.textPrimary
-                                font.family: Theme.fontFamilyTitle
-                                font.pixelSize: 20
+                Column {
+                    width: parent.width
+                    spacing: 6
+
+                    Repeater {
+                        model: modDialog.pendingZZARNames
+
+                        Item {
+                            width: parent.width
+                            height: 48
+
+                            readonly property bool checked: zzarChooser.checkedNames.indexOf(modelData) !== -1
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: rowHover.containsMouse ? "#3a3a3a" : "#2e2e2e"
+                                radius: 10
+                                border.color: checked ? "#d8fa00" : "transparent"
+                                border.width: 2
+                                Behavior on color        { ColorAnimation { duration: 100 } }
+                                Behavior on border.color { ColorAnimation { duration: 100 } }
                             }
 
-                            // close X
-                            Item {
-                                height: Theme.buttonHeight
-                                width: Theme.buttonHeight
+                            Row {
+                                anchors.fill: parent
+                                anchors.leftMargin: 14
+                                anchors.rightMargin: 14
+                                spacing: 12
 
                                 Rectangle {
-                                    anchors.fill: parent
-                                    color: chooserCloseMouse.pressed ? "#cc0000"
-                                         : chooserCloseMouse.containsMouse ? "#ff3333"
-                                         : Theme.backgroundColor
-                                    radius: Theme.radiusMedium
-                                    Behavior on color { ColorAnimation { duration: 100 } }
-                                }
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "\u2715"
-                                    color: Theme.textPrimary
-                                    font.pixelSize: 14
-                                }
-                                MouseArea {
-                                    id: chooserCloseMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        modDialog.pendingZZARNames = []
-                                        modDialog.pendingZipPath = ""
-                                    }
-                                }
-                            }
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: "Select the files you want to install, then press Install."
-                            color: "#aaaaaa"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 13
-                            wrapMode: Text.WordWrap
-                        }
-
-                        // File list with checkboxes
-                        Repeater {
-                            model: modDialog.pendingZZARNames
-
-                            Item {
-                                Layout.fillWidth: true
-                                height: 52
-
-                                property bool checked: zzarChooser.checkedNames.indexOf(modelData) !== -1
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: rowHover.containsMouse
-                                         ? Qt.lighter(Theme.cardBackground, 1.1)
-                                         : Theme.cardBackground
-                                    radius: Theme.radiusMedium
-                                    border.color: parent.checked ? Theme.primaryAccent : "transparent"
+                                    width: 20; height: 20; radius: 10
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    color: checked ? "#d8fa00" : "transparent"
+                                    border.color: checked ? "#d8fa00" : "#888888"
                                     border.width: 2
-                                    Behavior on color  { ColorAnimation { duration: 100 } }
+                                    Behavior on color        { ColorAnimation { duration: 100 } }
                                     Behavior on border.color { ColorAnimation { duration: 100 } }
                                 }
 
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 14
-                                    anchors.rightMargin: 14
-                                    spacing: 12
-
-                                    // Checkbox circle
-                                    Rectangle {
-                                        width: 20; height: 20; radius: 10
-                                        color: parent.parent.checked ? Theme.primaryAccent : "transparent"
-                                        border.color: parent.parent.checked ? Theme.primaryAccent : Theme.textTertiary
-                                        border.width: 2
-                                        Behavior on color        { ColorAnimation { duration: 100 } }
-                                        Behavior on border.color { ColorAnimation { duration: 100 } }
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: modelData
-                                        color: Theme.textPrimary
-                                        font.family: Theme.fontFamily
-                                        font.pixelSize: Theme.fontSizeSmall
-                                        elide: Text.ElideMiddle
-                                        verticalAlignment: Text.AlignVCenter
-                                    }
+                                Text {
+                                    width: parent.width - 46
+                                    text: modelData
+                                    color: "#ffffff"
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 13
+                                    elide: Text.ElideMiddle
+                                    anchors.verticalCenter: parent.verticalCenter
                                 }
+                            }
 
-                                MouseArea {
-                                    id: rowHover
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        var list = zzarChooser.checkedNames.slice()
-                                        var idx = list.indexOf(modelData)
-                                        if (idx === -1) list.push(modelData)
-                                        else list.splice(idx, 1)
-                                        zzarChooser.checkedNames = list
-                                    }
+                            MouseArea {
+                                id: rowHover
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    var list = zzarChooser.checkedNames.slice()
+                                    var idx = list.indexOf(modelData)
+                                    if (idx === -1) list.push(modelData)
+                                    else list.splice(idx, 1)
+                                    zzarChooser.checkedNames = list
                                 }
                             }
                         }
-
-                        // Action buttons row
-                        RowLayout {
-                            Layout.fillWidth: true
-                            spacing: 10
-
-                            // Select All toggle
-                            Item {
-                                height: Theme.buttonHeight
-                                width: selAllLabel.implicitWidth + 28
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: selAllMouse.containsMouse
-                                         ? Qt.lighter(Theme.cardBackground, 1.15)
-                                         : Theme.cardBackground
-                                    radius: Theme.radiusMedium
-                                    Behavior on color { ColorAnimation { duration: 100 } }
-                                }
-                                Text {
-                                    id: selAllLabel
-                                    anchors.centerIn: parent
-                                    text: zzarChooser.checkedNames.length === modDialog.pendingZZARNames.length
-                                          ? "Deselect All" : "Select All"
-                                    color: Theme.textPrimary
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
-                                }
-                                MouseArea {
-                                    id: selAllMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: {
-                                        if (zzarChooser.checkedNames.length === modDialog.pendingZZARNames.length)
-                                            zzarChooser.checkedNames = []
-                                        else
-                                            zzarChooser.checkedNames = modDialog.pendingZZARNames.slice()
-                                    }
-                                }
-                            }
-
-                            Item { Layout.fillWidth: true }
-
-                            // Install button
-                            Item {
-                                height: Theme.buttonHeight
-                                width: 130
-
-                                Rectangle {
-                                    anchors.fill: parent
-                                    color: installSelMouse.pressed ? "#a8c800"
-                                         : installSelMouse.containsMouse ? "#e8ff33"
-                                         : Theme.primaryAccent
-                                    radius: Theme.radiusMedium
-                                    opacity: zzarChooser.checkedNames.length === 0 ? 0.4 : 1.0
-                                    scale: installSelMouse.pressed ? 0.95 : 1.0
-                                    Behavior on color   { ColorAnimation  { duration: 100 } }
-                                    Behavior on scale   { NumberAnimation { duration: 100 } }
-                                }
-                                Text {
-                                    id: installSelLabel
-                                    anchors.centerIn: parent
-                                    width: parent.width - 16
-                                    text: zzarChooser.checkedNames.length > 1
-                                          ? "Install " + zzarChooser.checkedNames.length + " files"
-                                          : "Install"
-                                    color: Theme.textOnAccent
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: Theme.fontSizeSmall
-                                    horizontalAlignment: Text.AlignHCenter
-                                    elide: Text.ElideRight
-                                }
-                                MouseArea {
-                                    id: installSelMouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    enabled: zzarChooser.checkedNames.length > 0
-                                    onClicked: {
-                                        var toInstall = zzarChooser.checkedNames.slice()
-                                        var zip = modDialog.pendingZipPath
-                                        modDialog.pendingZZARNames = []
-                                        modDialog.pendingZipPath = ""
-                                        zzarChooser.checkedNames = []
-                                        for (var i = 0; i < toInstall.length; i++)
-                                            modDialog.installChosenZZAR(zip, toInstall[i])
-                                    }
-                                }
-                            }
-                        }
-
-                        Item { height: 4 }
                     }
                 }
 
-                layer.enabled: true
-                layer.effect: DropShadow {
-                    transparentBorder: true
-                    horizontalOffset: 0
-                    verticalOffset: 8
-                    radius: 28
-                    samples: 25
-                    color: "#a0000000"
+                RowLayout {
+                    width: parent.width
+                    spacing: 20
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: "#3c3d3f"
+                        radius: 10
+                        scale: closeBtnMouse.pressed ? 0.97 : (closeBtnMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale { NumberAnimation { duration: 150 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Cancel"
+                            color: "#ffffff"
+                            font.family: "Alatsi"
+                            font.pixelSize: 16
+                        }
+
+                        MouseArea {
+                            id: closeBtnMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                zzarChooser.closing = true
+                                chooserHideTimer.start()
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: 120
+                        height: 45
+                        color: "#d8fa00"
+                        radius: 10
+                        opacity: zzarChooser.checkedNames.length === 0 ? 0.4 : 1.0
+                        scale: installSelMouse.pressed ? 0.97 : (installSelMouse.containsMouse ? 1.03 : 1.0)
+                        Behavior on scale   { NumberAnimation { duration: 150 } }
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: zzarChooser.checkedNames.length > 1
+                                  ? "Install (" + zzarChooser.checkedNames.length + ")"
+                                  : "Install"
+                            color: "#000000"
+                            font.family: "Alatsi"
+                            font.pixelSize: 16
+                        }
+
+                        MouseArea {
+                            id: installSelMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            enabled: zzarChooser.checkedNames.length > 0
+                            onClicked: {
+                                var toInstall = zzarChooser.checkedNames.slice()
+                                var zip = modDialog.pendingZipPath
+                                zzarChooser.closing = true
+                                chooserHideTimer.start()
+                                zzarChooser.checkedNames = []
+                                for (var i = 0; i < toInstall.length; i++)
+                                    modDialog.installChosenZZAR(zip, toInstall[i])
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
+
+                Item { height: 5; width: 1 }
             }
         }
     }

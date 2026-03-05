@@ -61,52 +61,94 @@ Item {
             color: "#252525"
             radius: 36.44
 
-            Row {
+            Item {
                 id: categoryBar
                 anchors.top: parent.top
                 anchors.topMargin: 20
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 8
+                height: 44
+                width: tabRow.width
 
-                Repeater {
-                    model: [qsTranslate("Application", "General"), qsTranslate("Application", "Mod Creation"), qsTranslate("Application", "App")]
+                Rectangle {
+                    id: slidingPill
+                    y: 0
+                    height: 44
+                    radius: 22
+                    color: "#d8fa00"
 
-                    Item {
-                        width: tabLabel.implicitWidth + 48
-                        height: 44
+                    property var tabWidths: []
 
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 22
-                            color: {
-                                if (currentCategory === index) return "#d8fa00"
-                                if (tabMouse.containsMouse) return "#555555"
-                                return "transparent"
+                    function updatePosition() {
+                        if (tabWidths.length === 0) return
+                        var xPos = 0
+                        for (var i = 0; i < currentCategory; i++) {
+                            xPos += tabWidths[i] + 8
+                        }
+                        x = xPos
+                        width = tabWidths[currentCategory] || 0
+                    }
+
+                    Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                }
+
+                Row {
+                    id: tabRow
+                    spacing: 8
+
+                    Repeater {
+                        id: tabRepeater
+                        model: [qsTranslate("Application", "General"), qsTranslate("Application", "Mod Creation"), qsTranslate("Application", "App")]
+
+                        Item {
+                            width: tabLabel.implicitWidth + 48
+                            height: 44
+
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: 22
+                                color: "#555555"
+                                opacity: tabMouse.containsMouse && currentCategory !== index ? 1.0 : 0.0
+                                Behavior on opacity { NumberAnimation { duration: 100 } }
                             }
-                            Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
-                        }
 
-                        Text {
-                            id: tabLabel
-                            anchors.centerIn: parent
-                            text: modelData
-                            color: currentCategory === index ? "#000000" : "#ffffff"
-                            font.family: "Alatsi"
-                            font.pixelSize: 18
-                            Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
-                        }
+                            Text {
+                                id: tabLabel
+                                anchors.centerIn: parent
+                                text: modelData
+                                color: currentCategory === index ? "#000000" : "#ffffff"
+                                font.family: "Alatsi"
+                                font.pixelSize: 18
+                                Behavior on color { ColorAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                            }
 
-                        MouseArea {
-                            id: tabMouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                currentCategory = index
-                                scrollArea.contentY = 0
+                            MouseArea {
+                                id: tabMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    currentCategory = index
+                                    scrollArea.contentY = 0
+                                }
+                            }
+
+                            Component.onCompleted: {
+
+                                var arr = slidingPill.tabWidths.slice()
+                                arr[index] = width
+                                slidingPill.tabWidths = arr
+                                slidingPill.updatePosition()
                             }
                         }
                     }
+                }
+
+                onWidthChanged: slidingPill.updatePosition()
+
+                Connections {
+                    target: settingsPage
+                    function onCurrentCategoryChanged() { slidingPill.updatePosition() }
                 }
             }
 
@@ -120,8 +162,8 @@ Item {
                 anchors.rightMargin: 30
                 anchors.topMargin: 15
                 anchors.bottomMargin: 30
-                contentHeight: settingsContent.height
                 clip: true
+                contentHeight: settingsContent.height
                 boundsBehavior: Flickable.DragOverBounds
                 flickDeceleration: 5000
                 maximumFlickVelocity: 2500

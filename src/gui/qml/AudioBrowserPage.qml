@@ -2735,6 +2735,7 @@ Item {
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
                         clip: true
+                        selectByMouse: true
 
                         Text {
                             anchors.fill: parent
@@ -2770,6 +2771,7 @@ Item {
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
                         clip: true
+                        selectByMouse: true
 
                         Text {
                             anchors.fill: parent
@@ -2803,6 +2805,7 @@ Item {
                         font.family: Theme.fontFamily
                         font.pixelSize: Theme.fontSizeSmall
                         wrapMode: TextEdit.Wrap
+                        selectByMouse: true
                         clip: true
 
                         Text {

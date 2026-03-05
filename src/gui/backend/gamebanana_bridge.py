@@ -9,7 +9,6 @@ import urllib.parse
 from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
 
-
 def _urlopen(req, timeout=10):
     try:
         return urllib.request.urlopen(req, timeout=timeout)
@@ -23,16 +22,21 @@ IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg')
 VIDEO_EXTENSIONS = ('.mp4', '.webm')
 AUDIO_EXTENSIONS = ('.mp3', '.ogg', '.wav', '.flac', '.aac', '.m4a')
 
-# ---------------------------------------------------------------------------
-# Persistent mod-metadata cache  (survives restarts, avoids re-hitting the API)
-# ---------------------------------------------------------------------------
-
 def _cache_path():
     try:
         from ZZAR import get_temp_dir
         return get_temp_dir() / "gamebanana_cache.json"
     except Exception:
         return Path(__file__).parent / "gamebanana_cache.json"
+
+def _thumb_dir():
+    try:
+        from src.config_manager import ConfigManager
+        d = ConfigManager().data_dir / "gamebanana_thumbs"
+    except Exception:
+        d = Path(__file__).parent / "gamebanana_thumbs"
+    d.mkdir(parents=True, exist_ok=True)
+    return d
 
 _cache: dict = {}
 _cache_dirty = False
@@ -265,7 +269,6 @@ class FetchModDetailsWorker(QThread):
 
                 mod_details = self._parse_mod_details(data)
 
-                # Also check ZZAR support for the detail view
                 zzar_supported = self._check_zzar_support(mod_details)
                 if mod_details:
                     mod_details['zzar_supported'] = zzar_supported
@@ -351,7 +354,6 @@ class FetchModDetailsWorker(QThread):
 
         any_zzar = False
 
-        # Check file archive contents for .zzar files; annotate each file in-place
         files = mod_details.get('files', [])
         for f in files:
             file_id = f.get('id', '')
@@ -377,7 +379,6 @@ class FetchModDetailsWorker(QThread):
                 except Exception:
                     f['has_zzar'] = False
 
-        # Check requirements from v11 ProfilePage (also grab author avatar)
         try:
             url = f"https://gamebanana.com/apiv11/Sound/{self.mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
@@ -430,7 +431,15 @@ class FetchThumbnailsWorker(QThread):
     def _fetch_one(self, mod_id):
         cached = _cache_get("thumbnails", mod_id)
         if cached:
-            return (mod_id, cached)
+
+            if cached.startswith("file://"):
+                local = Path(cached[7:])
+                if local.exists():
+                    return (mod_id, cached)
+            else:
+
+                pass
+
         try:
             url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={mod_id}&fields=text"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
@@ -438,11 +447,22 @@ class FetchThumbnailsWorker(QThread):
                 data = json.loads(response.read().decode('utf-8'))
 
             text = data[0] if isinstance(data, list) and data else ''
-            if text:
-                _, images, _ = extract_media_from_html(text)
-                if images:
-                    _cache_set("thumbnails", mod_id, images[0])
-                    return (mod_id, images[0])
+            if not text:
+                return None
+            _, images, _ = extract_media_from_html(text)
+            if not images:
+                return None
+
+            img_url = images[0]
+            ext = Path(urllib.parse.urlparse(img_url).path).suffix or ".jpg"
+            dest = _thumb_dir() / f"{mod_id}{ext}"
+            img_req = urllib.request.Request(img_url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with _urlopen(img_req, timeout=10) as img_response:
+                dest.write_bytes(img_response.read())
+
+            file_uri = dest.as_uri()
+            _cache_set("thumbnails", mod_id, file_uri)
+            return (mod_id, file_uri)
         except Exception:
             pass
         return None
@@ -511,13 +531,12 @@ class FetchZZARSupportWorker(QThread):
         if cached is not None:
             return (mod_id, cached)
         try:
-            # Check requirements from v11 ProfilePage
+
             url = f"https://gamebanana.com/apiv11/Sound/{mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
             with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
-            # Check _aRequirements for ZZAR
             requirements = data.get('_aRequirements', []) if isinstance(data, dict) else []
             for req_item in requirements:
                 if isinstance(req_item, list) and len(req_item) > 0:
@@ -525,7 +544,6 @@ class FetchZZARSupportWorker(QThread):
                         _cache_set("zzar_support", mod_id, True)
                         return (mod_id, True)
 
-            # Check file archive contents for .zzar files
             files_data = data.get('_aFiles', []) if isinstance(data, dict) else []
             if isinstance(files_data, list):
                 for file_entry in files_data:
@@ -580,7 +598,7 @@ class FetchZZARSupportWorker(QThread):
         _save_cache()
 
 def _open_archive(path):
-    """Return (archive_obj, namelist_fn, read_fn) for zip/rar/7z archives."""
+    
     suffix = path.suffix.lower()
     if suffix == '.zip':
         import zipfile
@@ -608,16 +626,15 @@ def _open_archive(path):
     else:
         raise RuntimeError(f"Unsupported archive format: {suffix}")
 
-
 class InstallModWorker(QThread):
 
     finished = pyqtSignal(bool, str)
-    multipleFound = pyqtSignal(list)          # list of zzar names inside the archive
+    multipleFound = pyqtSignal(list)
 
     def __init__(self, archive_path, chosen_zzar=None, gamebanana_id=0):
         super().__init__()
         self.archive_path = Path(archive_path)
-        self.chosen_zzar = chosen_zzar        # None = auto (scan), str = install this one
+        self.chosen_zzar = chosen_zzar
         self.gamebanana_id = gamebanana_id
 
     def run(self):
@@ -671,7 +688,6 @@ class InstallModWorker(QThread):
 
         except Exception as e:
             self.finished.emit(False, f"Install failed: {str(e)}\n{traceback.format_exc()}")
-
 
 class DownloadModWorker(QThread):
     
@@ -729,10 +745,10 @@ class GameBananaBridge(QObject):
     thumbnailUpdated = pyqtSignal(int, str)
     downloadCountUpdated = pyqtSignal(int, int)
     zzarSupportUpdated = pyqtSignal(int, bool)
-    installComplete = pyqtSignal(str)           # success message
-    multipleZZARFound = pyqtSignal('QVariantList', str)  # zzar names, zip path
+    installComplete = pyqtSignal(str)
+    multipleZZARFound = pyqtSignal('QVariantList', str)
     installStateChanged = pyqtSignal(bool)
-    installedModsChanged = pyqtSignal('QVariantList')   # list of installed mod names
+    installedModsChanged = pyqtSignal('QVariantList')
 
     def __init__(self):
         super().__init__()
@@ -743,12 +759,49 @@ class GameBananaBridge(QObject):
         self.thumbnail_worker = None
         self.download_counts_worker = None
         self.zzar_support_worker = None
+        self._thumb_worker = None
+        self._thumb_queue = []
+        self._thumb_inflight = set()
         self.current_page = 1
         self.current_sort = "default"
         self.cached_mods = []
-        self._install_queue = []   # list of (archive_path, chosen_zzar) tuples
-        self._current_download_url = ""  # download URL of in-progress download
-        self._current_download_mod_id = 0  # GameBanana mod ID of in-progress download
+        self._install_queue = []
+        self._current_download_url = ""
+        self._current_download_mod_id = 0
+
+    @pyqtSlot(int)
+    def fetchThumbnail(self, mod_id):
+        # Check disk cache first
+        cached = _cache_get("thumbnails", mod_id)
+        if cached and cached.startswith("file://"):
+            from pathlib import Path
+            if Path(cached[7:]).exists():
+                self.thumbnailUpdated.emit(mod_id, cached)
+                return
+
+        # Queue the request; a single batch worker drains the queue
+        if mod_id not in self._thumb_queue and mod_id not in self._thumb_inflight:
+            self._thumb_queue.append(mod_id)
+            self._maybe_start_thumb_worker()
+
+    def _maybe_start_thumb_worker(self):
+        if self._thumb_worker and self._thumb_worker.isRunning():
+            return
+        if not self._thumb_queue:
+            return
+        # Take next batch
+        batch = self._thumb_queue[:5]
+        self._thumb_queue = self._thumb_queue[5:]
+        for mid in batch:
+            self._thumb_inflight.add(mid)
+        self._thumb_worker = FetchThumbnailsWorker(batch)
+        self._thumb_worker.thumbnailReady.connect(self.thumbnailUpdated.emit)
+        self._thumb_worker.finished.connect(self._on_thumb_batch_done)
+        self._thumb_worker.start()
+
+    def _on_thumb_batch_done(self):
+        self._thumb_inflight.clear()
+        self._maybe_start_thumb_worker()
 
     @pyqtSlot(int, str)
     def fetchMods(self, page=1, sort="default"):
@@ -773,14 +826,6 @@ class GameBananaBridge(QObject):
             self.cached_mods = data
             self.modsLoaded.emit(data)
             print(f"[GameBanana] Loaded {len(data)} mods")
-
-            ids_needing_thumbs = [m['id'] for m in data if not m.get('thumbnail')]
-            if ids_needing_thumbs:
-                if self.thumbnail_worker and self.thumbnail_worker.isRunning():
-                    self.thumbnail_worker.terminate()
-                self.thumbnail_worker = FetchThumbnailsWorker(ids_needing_thumbs)
-                self.thumbnail_worker.thumbnailReady.connect(self.thumbnailUpdated.emit)
-                self.thumbnail_worker.start()
 
             all_ids = [m['id'] for m in data]
             if all_ids:
@@ -818,7 +863,7 @@ class GameBananaBridge(QObject):
         self.loadingStateChanged.emit(False)
 
         if success:
-            # Cache url → mod_id for all files so the grid badge can show installed state
+
             mod_id = data.get('id', 0)
             if mod_id:
                 for f in data.get('files', []):
@@ -865,7 +910,7 @@ class GameBananaBridge(QObject):
 
     def _run_install(self, archive_path, chosen_zzar, gamebanana_id=0):
         if self.install_worker and self.install_worker.isRunning():
-            # Queue for after current install finishes
+
             self._install_queue.append((archive_path, chosen_zzar, gamebanana_id))
             return
         self.installStateChanged.emit(True)
@@ -889,7 +934,6 @@ class GameBananaBridge(QObject):
             self.errorOccurred.emit("Install Failed", message)
             print(f"[GameBanana] Install error: {message}")
 
-        # Process next queued install, or signal done
         if self._install_queue:
             next_path, next_zzar, next_gid = self._install_queue.pop(0)
             self.install_worker = InstallModWorker(next_path, next_zzar, next_gid)
@@ -916,12 +960,12 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(result='QVariant')
     def getInstalledUrlMap(self):
-        """Returns {download_url: mod_name} for all URLs we've tracked installs for."""
+        
         return dict(_cache.get("url_to_mod_name", {}))
 
     @pyqtSlot(result='QVariantList')
     def getInstalledModIds(self):
-        """Returns list of GameBanana mod IDs whose files are currently installed."""
+        
         try:
             from src.mod_package_manager import ModPackageManager
             manager = ModPackageManager()

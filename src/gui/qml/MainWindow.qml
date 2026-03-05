@@ -257,10 +257,32 @@ ApplicationWindow {
                         }
                     }
 
+                    Rectangle {
+                        id: navPill
+                        y: (navBar_Frm.height - 50) / 2
+                        height: 50
+                        width: 60
+                        radius: 12
+                        color: "#5a5b5d"
+                        x: {
+                            var slot
+                            if (modCreationEnabled) {
+                                slot = currentTab
+                            } else {
+
+                                slot = currentTab <= 1 ? currentTab : 2
+                            }
+                            return navbar.x + slot * 75
+                        }
+                        Behavior on x { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                        z: 0
+                    }
+
                     Row {
                         id: navbar
                         anchors.centerIn: parent
                         spacing: 15
+                        z: 1
 
                         Item {
                             id: gamebanana
