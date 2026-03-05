@@ -12,9 +12,13 @@ Item {
     property var modsList: []
     property var installedModIds: []
     property int sortIndex: 0
+    property string searchText: ""
 
     property var sortedModsList: {
-        var list = modsList.slice()
+        var query = searchText.trim().toLowerCase()
+        var list = query
+            ? modsList.filter(function(m) { return (m.name || "").toLowerCase().indexOf(query) !== -1 })
+            : modsList.slice()
         if (sortIndex === 0) list.sort(function(a, b) {
             var zzarDiff = (b.zzar_supported ? 1 : 0) - (a.zzar_supported ? 1 : 0)
             if (zzarDiff !== 0) return zzarDiff
@@ -26,7 +30,7 @@ Item {
         return list
     }
 
-    signal loadModsRequested(int page, string sort)
+    signal loadModsRequested(int page, string sort, string search)
     signal modCardClicked(int modId)
     signal refreshRequested()
 
@@ -35,7 +39,7 @@ Item {
     onVisibleChanged: {
         if (visible && !_hasLoaded) {
             _hasLoaded = true
-            loadModsRequested(1, "default")
+            loadModsRequested(1, "default", "")
         }
     }
     signal downloadModRequested(string downloadUrl, string filename, string modName, int modId)
@@ -147,6 +151,7 @@ Item {
 
                 Flow {
                     id: toolbar
+                    objectName: "tutorialGbToolbar"
                     Layout.fillWidth: true
                     spacing: 10
 
@@ -173,6 +178,7 @@ Item {
 
                                 TextInput {
                                     id: searchInput
+                                    objectName: "tutorialGbSearch"
                                     Layout.fillWidth: true
                                     color: Theme.textOnAccent
                                     font.family: Theme.fontFamily
@@ -180,10 +186,11 @@ Item {
                                     verticalAlignment: TextInput.AlignVCenter
                                     selectByMouse: true
                                     clip: true
+                                    onTextChanged: gameBananaPage.searchText = text
 
                                     Text {
                                         anchors.fill: parent
-                                        text: "Search mods..."
+                                        text: qsTranslate("Application", "Search mods...")
                                         color: Theme.textTertiary
                                         font: searchInput.font
                                         verticalAlignment: Text.AlignVCenter
@@ -196,8 +203,9 @@ Item {
 
                     ComboBox {
                         id: sortComboBox
+                        objectName: "tutorialGbSort"
                         height: Theme.buttonHeight
-                        model: ["Default", "Most Downloaded", "Most Liked", "Newest"]
+                        model: [qsTranslate("Application", "Default"), qsTranslate("Application", "Most Downloaded"), qsTranslate("Application", "Most Liked"), qsTranslate("Application", "Newest")]
 
                         onActivated: sortIndex = index
 
@@ -212,7 +220,7 @@ Item {
                         }
 
                         contentItem: Text {
-                            text: "Sort: " + sortComboBox.displayText
+                            text: qsTranslate("Application", "Sort: ") + sortComboBox.displayText
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -313,7 +321,7 @@ Item {
 
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
-                                text: "Refresh"
+                                text: qsTranslate("Application", "Refresh")
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeNormal
@@ -370,7 +378,7 @@ Item {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Loading mods..."
+                            text: qsTranslate("Application", "Loading mods...")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeNormal
@@ -384,7 +392,7 @@ Item {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "No mods found"
+                            text: qsTranslate("Application", "No mods found")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamilyTitle
                             font.pixelSize: Theme.fontSizeMedium
@@ -392,7 +400,7 @@ Item {
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Try refreshing or check your connection"
+                            text: qsTranslate("Application", "Try refreshing or check your connection")
                             color: "#888888"
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
@@ -401,6 +409,7 @@ Item {
 
                     Flickable {
                         id: gridFlickable
+                        objectName: "tutorialGbGrid"
                         anchors.fill: parent
                         visible: !isLoading || modsList.length > 0
                         clip: true
@@ -575,13 +584,6 @@ Item {
                                                         font.pixelSize: 12
                                                     }
 
-                                                    Text {
-                                                        text: "\u2193 " + (modelData.downloads || "0")
-                                                        color: Theme.textTertiary
-                                                        font.family: Theme.fontFamily
-                                                        font.pixelSize: 12
-                                                    }
-
                                                     Item { Layout.fillWidth: true }
 
                                                     Rectangle {
@@ -632,6 +634,7 @@ Item {
 
     GameBananaModDialog {
         id: modDialog
+        objectName: "modDialog"
         onDownloadRequested: {
             downloadModRequested(downloadUrl, filename, modName, modId)
         }

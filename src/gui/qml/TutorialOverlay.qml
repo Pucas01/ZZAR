@@ -18,7 +18,7 @@ Item {
 
     property var tutorialData: [
         {
-            tabIndex: 0,
+            tabIndex: 1,
             sectionTitle: qsTranslate("Application", "Mod Manager"),
             messages: [
                 { text: qsTranslate("Application", "You're here. i'll show you how this works."), highlight: "" },
@@ -32,7 +32,19 @@ Item {
             ]
         },
         {
-            tabIndex: 1,
+            tabIndex: 0,
+            sectionTitle: qsTranslate("Application", "GameBanana"),
+            messages: [
+                { text: qsTranslate("Application", "GameBanana. browse and download mods made by the community."), highlight: "" },
+                { text: qsTranslate("Application", "Search by name, or sort by downloads, likes, or newest."), highlight: "tutorialGbToolbar" },
+                { text: qsTranslate("Application", "The search bar. type anything."), highlight: "tutorialGbSearch" },
+                { text: qsTranslate("Application", "Sort options. default puts ZZAR-native mods first."), highlight: "tutorialGbSort" },
+                { text: qsTranslate("Application", "The mod grid. click a card to see details, screenshots, and files."), highlight: "tutorialGbGrid" },
+                { text: qsTranslate("Application", "Mods with the ZZAR badge install directly. others you download and install manually."), highlight: "tutorialGbGrid" },
+            ]
+        },
+        {
+            tabIndex: 2,
             sectionTitle: qsTranslate("Application", "Audio Browser"),
             messages: [
                 { text: qsTranslate("Application", "Audio Browser. Yanagi's favorite tab, apparently."), highlight: "" },
@@ -50,7 +62,7 @@ Item {
             ]
         },
         {
-            tabIndex: 2,
+            tabIndex: 3,
             sectionTitle: qsTranslate("Application", "Audio Conversion"),
             messages: [
                 { text: qsTranslate("Application", "Audio Converter. last one."), highlight: "" },
@@ -67,7 +79,8 @@ Item {
 
     function getVisibleSections() {
         if (modCreationEnabled) return tutorialData
-        return [tutorialData[0]]
+
+        return [tutorialData[0], tutorialData[1]]
     }
 
     function getCurrentMessage() {
@@ -300,7 +313,6 @@ Item {
 
         Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
 
-        // Block clicks from passing through
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         Column {

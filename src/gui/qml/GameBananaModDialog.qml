@@ -27,6 +27,7 @@ Rectangle {
     property int installedVersion: 0
 
     signal downloadRequested(string downloadUrl, string filename, string modName, int modId)
+    signal downloadToPathRequested(string downloadUrl, string filename)
     signal installChosenZZAR(string zipPath, string zzarName)
 
     Timer {
@@ -126,7 +127,7 @@ Rectangle {
 
                         Text {
                             Layout.fillWidth: true
-                            text: modData ? modData.name : "Mod Details"
+                            text: modData ? modData.name : qsTranslate("Application", "Mod Details")
                             color: Theme.textPrimary
                             font.family: Theme.fontFamilyTitle
                             font.pixelSize: 22
@@ -211,7 +212,7 @@ Rectangle {
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: "No Preview Available"
+                                        text: qsTranslate("Application", "No Preview Available")
                                         color: Theme.textTertiary
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeNormal
@@ -365,7 +366,7 @@ Rectangle {
                                             font.pixelSize: Theme.fontSizeNormal
                                         }
                                         Text {
-                                            text: "Mod Author"
+                                            text: qsTranslate("Application", "Mod Author")
                                             color: "#888888"
                                             font.family: Theme.fontFamily
                                             font.pixelSize: 12
@@ -495,7 +496,7 @@ Rectangle {
                                 spacing: 8
 
                                 Text {
-                                    text: "Description"
+                                    text: qsTranslate("Application", "Description")
                                     color: Theme.primaryAccent
                                     font.family: Theme.fontFamilyTitle
                                     font.pixelSize: 15
@@ -513,7 +514,7 @@ Rectangle {
                                         anchors.right: parent.right
                                         anchors.top: parent.top
                                         anchors.margins: 12
-                                        text: modData ? modData.description : "No description available"
+                                        text: modData ? modData.description : qsTranslate("Application", "No description available")
                                         color: Theme.textPrimary
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeSmall
@@ -527,7 +528,7 @@ Rectangle {
                                 spacing: 8
 
                                 Text {
-                                    text: "Available Files"
+                                    text: qsTranslate("Application", "Available Files")
                                     color: Theme.primaryAccent
                                     font.family: Theme.fontFamilyTitle
                                     font.pixelSize: 15
@@ -535,7 +536,7 @@ Rectangle {
 
                                 Text {
                                     visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar })
-                                    text: "ZZAR Files"
+                                    text: qsTranslate("Application", "ZZAR Files")
                                     color: Theme.primaryAccent
                                     font.family: Theme.fontFamily
                                     font.pixelSize: 12
@@ -616,7 +617,9 @@ Rectangle {
 
                                             Item {
                                                 height: Theme.buttonHeightLarge
-                                                width: dlBtnLabel.implicitWidth + 32
+                                                width: Math.max(dlBtnLabel.implicitWidth, installingLabel.implicitWidth) + 32
+
+                                                Text { id: installingLabel; text: qsTranslate("Application", "Installing..."); font.family: Theme.fontFamily; font.pixelSize: Theme.fontSizeNormal; visible: false }
 
                                                 property bool busy: parent.parent.rowDownloading || parent.parent.rowInstalling
                                                 property bool installed: parent.parent.isInstalled
@@ -628,29 +631,19 @@ Rectangle {
                                                         : dlMouse.pressed ? "#a8c800" : dlMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
                                                     scale: dlMouse.pressed && !parent.installed ? 0.95 : 1.0
-                                                    opacity: parent.installed ? 0.5 : parent.busy ? 0.7 : 1.0
+                                                    opacity: parent.installed ? 0.5 : 1.0
                                                     Behavior on color { ColorAnimation { duration: 100 } }
                                                     Behavior on scale { NumberAnimation { duration: 100 } }
-
-                                                    Rectangle {
-                                                        visible: parent.parent.parent.parent.rowDownloading
-                                                        anchors.left: parent.left
-                                                        anchors.top: parent.top
-                                                        anchors.bottom: parent.bottom
-                                                        width: parent.width * (downloadProgress / 100)
-                                                        radius: Theme.radiusMedium
-                                                        color: Theme.secondaryAccent
-                                                        Behavior on width { NumberAnimation { duration: 100 } }
-                                                    }
+                                                    Behavior on opacity { NumberAnimation { duration: 150 } }
                                                 }
 
                                                 Text {
                                                     id: dlBtnLabel
                                                     anchors.centerIn: parent
                                                     text: parent.parent.parent.rowDownloading ? (downloadProgress + "%")
-                                                        : parent.parent.parent.rowInstalling ? "Installing..."
-                                                        : parent.installed ? "Installed"
-                                                        : "\u2193  Install"
+                                                        : parent.parent.parent.rowInstalling ? qsTranslate("Application", "Installing...")
+                                                        : parent.installed ? qsTranslate("Application", "Installed")
+                                                        : "\u2193  " + qsTranslate("Application", "Install")
                                                     color: Theme.textOnAccent
                                                     font.family: Theme.fontFamily
                                                     font.pixelSize: Theme.fontSizeNormal
@@ -790,9 +783,7 @@ Rectangle {
                                                     id: dlBtnLabel2
                                                     anchors.centerIn: parent
                                                     text: parent.parent.parent.rowDownloading ? (downloadProgress + "%")
-                                                        : parent.parent.parent.rowInstalling ? "Installing..."
-                                                        : parent.installed ? "Installed"
-                                                        : "\u2193  Install"
+                                                        : "\u2193  " + qsTranslate("Application", "Download")
                                                     color: Theme.textOnAccent
                                                     font.family: Theme.fontFamily
                                                     font.pixelSize: Theme.fontSizeNormal
@@ -803,17 +794,15 @@ Rectangle {
                                                     id: dlMouse2
                                                     anchors.fill: parent
                                                     hoverEnabled: true
-                                                    cursorShape: parent.installed ? Qt.ArrowCursor : Qt.PointingHandCursor
-                                                    enabled: !parent.busy && !parent.installed
+                                                    cursorShape: Qt.PointingHandCursor
+                                                    enabled: !parent.busy
                                                     onClicked: {
                                                         modDialog.activeDownloadUrl = modelData.download_url
                                                         modDialog.isDownloading = true
                                                         modDialog.downloadProgress = 0
-                                                        downloadRequested(
+                                                        modDialog.downloadToPathRequested(
                                                             modelData.download_url,
-                                                            modelData.name,
-                                                            modData.name,
-                                                            modData.id
+                                                            modelData.name
                                                         )
                                                     }
                                                 }
@@ -925,7 +914,7 @@ Rectangle {
                 }
 
                 Text {
-                    text: "Multiple .zzar files found"
+                    text: qsTranslate("Application", "Multiple .zzar files found")
                     color: "#d8fa00"
                     font.family: "Alatsi"
                     font.pixelSize: 24
@@ -935,7 +924,7 @@ Rectangle {
                 }
 
                 Text {
-                    text: "Select the files you want to install, then press Install."
+                    text: qsTranslate("Application", "Select the files you want to install, then press Install.")
                     color: "#ffffff"
                     font.family: "Alatsi"
                     font.pixelSize: 16
@@ -1028,7 +1017,7 @@ Rectangle {
 
                         Text {
                             anchors.centerIn: parent
-                            text: "Cancel"
+                            text: qsTranslate("Application", "Cancel")
                             color: "#ffffff"
                             font.family: "Alatsi"
                             font.pixelSize: 16
@@ -1059,8 +1048,8 @@ Rectangle {
                         Text {
                             anchors.centerIn: parent
                             text: zzarChooser.checkedNames.length > 1
-                                  ? "Install (" + zzarChooser.checkedNames.length + ")"
-                                  : "Install"
+                                  ? qsTranslate("Application", "Install") + " (" + zzarChooser.checkedNames.length + ")"
+                                  : qsTranslate("Application", "Install")
                             color: "#000000"
                             font.family: "Alatsi"
                             font.pixelSize: 16

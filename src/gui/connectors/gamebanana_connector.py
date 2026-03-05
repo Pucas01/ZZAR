@@ -1,5 +1,7 @@
 
 
+import os
+import subprocess
 from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 
 class GameBananaConnector:
@@ -89,8 +91,37 @@ class GameBananaConnector:
         )
 
         gb.errorOccurred.connect(self.on_error_occurred)
+        gb.nonZzarDownloadComplete.connect(self.on_nonzzar_download_complete)
+
+        mod_dialog = self.gamebanana_page.findChild(QObject, "modDialog")
+        if mod_dialog:
+            mod_dialog.downloadToPathRequested.connect(gb.downloadModToPath)
+
+        self.root.dialogConfirmed.connect(self.on_gamebanana_dialog_confirmed)
+
+        self._nonzzar_saved_path = ""
 
         print("[ZZAR] GameBanana page connected")
+
+    def on_nonzzar_download_complete(self, file_path):
+        self._nonzzar_saved_path = file_path
+        QMetaObject.invokeMethod(
+            self.root, "showConfirmDialog",
+            Qt.QueuedConnection,
+            Q_ARG("QVariant", "Download Complete"),
+            Q_ARG("QVariant", f"Saved to:\n{file_path}\n\nOpen containing folder?"),
+            Q_ARG("QVariant", "open_nonzzar_folder"),
+            Q_ARG("QVariant", "")
+        )
+
+    def on_gamebanana_dialog_confirmed(self, action_id):
+        if action_id == "open_nonzzar_folder" and self._nonzzar_saved_path:
+            folder = os.path.dirname(self._nonzzar_saved_path)
+            if os.name == "nt":
+                os.startfile(folder)
+            else:
+                subprocess.Popen(["xdg-open", folder])
+            self._nonzzar_saved_path = ""
 
     def on_gamebanana_download_complete(self, file_path):
         print(f"[ZZAR] Mod downloaded to: {file_path}")

@@ -740,6 +740,7 @@ class GameBananaBridge(QObject):
     modDetailsLoaded = pyqtSignal('QVariant')
     downloadProgress = pyqtSignal(int)
     downloadComplete = pyqtSignal(str)
+    nonZzarDownloadComplete = pyqtSignal(str)  
     errorOccurred = pyqtSignal(str, str)
     loadingStateChanged = pyqtSignal(bool)
     thumbnailUpdated = pyqtSignal(int, str)
@@ -803,9 +804,9 @@ class GameBananaBridge(QObject):
         self._thumb_inflight.clear()
         self._maybe_start_thumb_worker()
 
-    @pyqtSlot(int, str)
-    def fetchMods(self, page=1, sort="default"):
-        
+    @pyqtSlot(int, str, str)
+    def fetchMods(self, page=1, sort="default", search=""):
+
         if self.fetch_worker and self.fetch_worker.isRunning():
             print("[GameBanana] Already fetching mods")
             return
@@ -828,13 +829,6 @@ class GameBananaBridge(QObject):
             print(f"[GameBanana] Loaded {len(data)} mods")
 
             all_ids = [m['id'] for m in data]
-            if all_ids:
-                if self.download_counts_worker and self.download_counts_worker.isRunning():
-                    self.download_counts_worker.terminate()
-                self.download_counts_worker = FetchDownloadCountsWorker(all_ids)
-                self.download_counts_worker.downloadCountReady.connect(self.downloadCountUpdated.emit)
-                self.download_counts_worker.start()
-
             if all_ids:
                 if self.zzar_support_worker and self.zzar_support_worker.isRunning():
                     self.zzar_support_worker.terminate()
@@ -897,6 +891,34 @@ class GameBananaBridge(QObject):
         self.download_worker.start()
 
         print(f"[GameBanana] Starting download: {mod_name}")
+
+    @pyqtSlot(str, str)
+    def downloadModToPath(self, download_url, filename):
+        """Download a non-ZZAR file to a user-chosen save path."""
+        from gui.backend.native_dialogs import NativeDialogs
+        save_path = NativeDialogs.get_save_file(
+            title="Save Mod File",
+            start_dir=str(Path.home() / filename),
+            filter_str="All Files (*)"
+        )
+        if not save_path:
+            return  
+
+        if self.download_worker and self.download_worker.isRunning():
+            self.errorOccurred.emit("Download in Progress", "Please wait for the current download to complete")
+            return
+
+        self._nonzzar_save_path = save_path
+        self.download_worker = DownloadModWorker(download_url, save_path)
+        self.download_worker.progress.connect(self.downloadProgress.emit)
+        self.download_worker.finished.connect(self._on_nonzzar_download_finished)
+        self.download_worker.start()
+
+    def _on_nonzzar_download_finished(self, success, result):
+        if success:
+            self.nonZzarDownloadComplete.emit(result)
+        else:
+            self.errorOccurred.emit("Download Failed", result)
 
     def _on_download_finished(self, success, result):
 
