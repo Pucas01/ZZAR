@@ -23,12 +23,14 @@ Item {
     property var modManager: null
     property var selectedModUuids: []
     property int currentSortMode: 0
+    property bool gridViewMode: false
     property var sortOptions: [qsTranslate("Application", "Default"), qsTranslate("Application", "Name (A-Z)"), qsTranslate("Application", "Name (Z-A)"), qsTranslate("Application", "Author (A-Z)"), qsTranslate("Application", "Author (Z-A)"), qsTranslate("Application", "Newest First"), qsTranslate("Application", "Oldest First"), qsTranslate("Application", "Enabled First")]
 
     Settings {
         id: modManagerSettings
         category: "ModManager"
         property alias sortMode: mod_Manager.currentSortMode
+        property alias gridViewMode: mod_Manager.gridViewMode
     }
 
     ListModel {
@@ -49,13 +51,78 @@ Item {
             color: "#252525"
             radius: 36.44
 
+            Row {
+                id: viewToggleRow
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.rightMargin: 16
+                anchors.topMargin: 16
+                spacing: 4
+                height: 31
+
+                Item {
+                    width: 31
+                    height: 31
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Theme.radiusMedium
+                        color: !gridViewMode ? Theme.primaryAccent
+                             : listToggleMouse.containsMouse ? Qt.lighter(Theme.cardBackground, 1.15)
+                             : Theme.cardBackground
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\u2630"
+                        color: !gridViewMode ? Theme.textOnAccent : Theme.textPrimary
+                        font.pixelSize: 16
+                    }
+                    MouseArea {
+                        id: listToggleMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: gridViewMode = false
+                    }
+                }
+
+                Item {
+                    width: 31
+                    height: 31
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: Theme.radiusMedium
+                        color: gridViewMode ? Theme.primaryAccent
+                             : gridToggleMouse.containsMouse ? Qt.lighter(Theme.cardBackground, 1.15)
+                             : Theme.cardBackground
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                    }
+                    Text {
+                        anchors.centerIn: parent
+                        text: "\u229E"
+                        color: gridViewMode ? Theme.textOnAccent : Theme.textPrimary
+                        font.pixelSize: 16
+                    }
+                    MouseArea {
+                        id: gridToggleMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: gridViewMode = true
+                    }
+                }
+            }
+
             Flow {
                 id: buttons
                 objectName: "tutorialButtonRow"
                 anchors.left: parent.left
-                anchors.right: parent.right
+                anchors.right: viewToggleRow.left
                 anchors.top: parent.top
                 anchors.margins: 16
+                anchors.rightMargin: 8
                 spacing: 10
 
                 Item {
@@ -353,6 +420,7 @@ Item {
                         }
                     }
                 }
+
             }
 
             ListView {
@@ -368,6 +436,8 @@ Item {
                 boundsBehavior: Flickable.DragOverBounds
                 flickDeceleration: 5000
                 maximumFlickVelocity: 2500
+                visible: !gridViewMode
+                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOff }
 
                 model: modsModel
 
@@ -589,6 +659,198 @@ Item {
                                         console.log("More info for mod:", model.uuid)
                                         moreInfoClicked(model.uuid)
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            GridView {
+                id: modsGrid
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: sortRow.bottom
+                anchors.bottom: applyModsButton.top
+                anchors.margins: 16
+                anchors.topMargin: 8
+                clip: true
+                boundsBehavior: Flickable.DragOverBounds
+                flickDeceleration: 5000
+                maximumFlickVelocity: 2500
+                visible: gridViewMode
+                ScrollBar.vertical: ScrollBar { policy: ScrollBar.AlwaysOff }
+
+                property int cols: Math.max(2, Math.floor(width / 210))
+                cellWidth: Math.floor(width / cols)
+                cellHeight: 300
+
+                model: modsModel
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTranslate("Application", "No mods installed.\nClick 'Install .zzar Mod' to get started.")
+                    color: "#888888"
+                    font.family: "Alatsi"
+                    font.pixelSize: 18
+                    horizontalAlignment: Text.AlignHCenter
+                    visible: modsModel.count === 0
+                }
+
+                delegate: Item {
+                    width: modsGrid.cellWidth
+                    height: modsGrid.cellHeight
+
+                    Rectangle {
+                        id: gridCard
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        color: gridCardMouse.containsMouse ? "#6e6e6e" : "#666666"
+                        radius: 20
+                        border.color: selectedModUuids.indexOf(model.uuid) !== -1 ? "#d8fa00" : "transparent"
+                        border.width: 2
+                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on border.color { ColorAnimation { duration: 100 } }
+
+                        MouseArea {
+                            id: gridCardMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                var idx = selectedModUuids.indexOf(model.uuid)
+                                var newList = selectedModUuids.slice()
+                                if (idx !== -1) newList.splice(idx, 1)
+                                else newList.push(model.uuid)
+                                selectedModUuids = newList
+                                modSelected(model.uuid)
+                            }
+                        }
+
+                        Column {
+                            anchors.fill: parent
+                            anchors.margins: 6
+                            spacing: 6
+
+                            Rectangle {
+                                id: gridThumbContainer
+                                width: 140
+                                height: 140
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                color: "#444444"
+                                radius: 55
+
+                                Image {
+                                    id: gridThumbImg
+                                    anchors.fill: parent
+                                    source: model.thumbnailPath || ""
+                                    fillMode: Image.PreserveAspectCrop
+                                    visible: false
+                                    layer.enabled: true
+                                }
+                                Rectangle {
+                                    id: gridThumbMask
+                                    anchors.fill: parent
+                                    radius: 55
+                                    visible: false
+                                }
+                                OpacityMask {
+                                    anchors.fill: gridThumbImg
+                                    source: gridThumbImg
+                                    maskSource: gridThumbMask
+                                    visible: model.thumbnailPath && model.thumbnailPath.length > 0
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: model.name ? model.name.charAt(0).toUpperCase() : "M"
+                                    color: "#888888"
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 40
+                                    visible: !model.thumbnailPath || model.thumbnailPath.length === 0
+                                }
+                            }
+
+                            Text {
+                                width: parent.width
+                                color: "#000000"
+                                font.family: "Alatsi"
+                                font.pixelSize: 15
+                                font.weight: Font.Normal
+                                horizontalAlignment: Text.AlignLeft
+                                text: model.name + " v" + model.version
+                                elide: Text.ElideRight
+                            }
+
+                            Text {
+                                width: parent.width
+                                color: "#1f1e1e"
+                                font.family: "Alatsi"
+                                font.pixelSize: 13
+                                horizontalAlignment: Text.AlignLeft
+                                text: qsTranslate("Application", "By: ") + model.author
+                                elide: Text.ElideRight
+                            }
+
+                            Item {
+                                width: parent.width
+                                height: 32
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: {
+                                        if (model.enabled) return gridToggleBtn.pressed ? "#72ca00" : gridToggleBtn.containsMouse ? "#a2ff22" : "#92fa00"
+                                        else return gridToggleBtn.pressed ? "#666666" : gridToggleBtn.containsMouse ? "#999999" : "#808080"
+                                    }
+                                    radius: 16
+                                    scale: gridToggleBtn.pressed ? 0.95 : 1.0
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                    Behavior on scale { NumberAnimation { duration: 100 } }
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    color: "#000000"
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 16
+                                    text: model.enabled ? qsTranslate("Application", "Enabled") : qsTranslate("Application", "Disabled")
+                                }
+                                MouseArea {
+                                    id: gridToggleBtn
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        var newState = !model.enabled
+                                        modsModel.setProperty(index, "enabled", newState)
+                                        modToggled(model.uuid, newState)
+                                    }
+                                }
+                            }
+
+                            Item {
+                                width: parent.width
+                                height: 26
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: gridInfoBtn.pressed ? "#a8c800" : gridInfoBtn.containsMouse ? "#e8ff33" : "#d8fa00"
+                                    radius: 13
+                                    scale: gridInfoBtn.pressed ? 0.95 : 1.0
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                    Behavior on scale { NumberAnimation { duration: 100 } }
+                                }
+                                Text {
+                                    anchors.centerIn: parent
+                                    color: "#000000"
+                                    font.family: "Alatsi"
+                                    font.pixelSize: 14
+                                    text: qsTranslate("Application", "More info")
+                                }
+                                MouseArea {
+                                    id: gridInfoBtn
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: moreInfoClicked(model.uuid)
                                 }
                             }
                         }
