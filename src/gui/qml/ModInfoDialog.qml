@@ -85,7 +85,7 @@ Item {
                     width: 100
                     height: 100
                     color: "#444444"
-                    radius: 15
+                    radius: 36.44
 
                     Image {
                         id: thumbnailImage
@@ -103,7 +103,7 @@ Item {
                     Rectangle {
                         id: thumbnailMask
                         anchors.fill: parent
-                        radius: 15
+                        radius: 36.44
                         visible: false
                     }
 
@@ -121,6 +121,25 @@ Item {
                         font.family: "Alatsi"
                         font.pixelSize: 42
                         visible: !modThumbnailPath || modThumbnailPath.length === 0
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        hoverEnabled: modThumbnailPath && modThumbnailPath.length > 0
+                        cursorShape: (modThumbnailPath && modThumbnailPath.length > 0) ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: {
+                            if (modThumbnailPath && modThumbnailPath.length > 0) {
+                                fullImagePopup.open()
+                            }
+                        }
+                        
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 36.44
+                            color: "#ffffff"
+                            opacity: parent.containsMouse && modThumbnailPath && modThumbnailPath.length > 0 ? 0.1 : 0.0
+                            Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
                     }
                 }
 
@@ -354,6 +373,51 @@ Item {
                         onClicked: hide()
                     }
                 }
+            }
+        }
+    }
+
+    Popup {
+        id: fullImagePopup
+        width: 512
+        height: 512
+        anchors.centerIn: parent
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        
+        enter: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; duration: 200 }
+                NumberAnimation { property: "scale"; from: 0.9; to: 1.0; duration: 200; easing.type: Easing.OutBack }
+            }
+        }
+        
+        exit: Transition {
+            ParallelAnimation {
+                NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; duration: 200 }
+                NumberAnimation { property: "scale"; from: 1.0; to: 0.9; duration: 200 }
+            }
+        }
+
+        background: Rectangle {
+            color: "#1a1a1a"
+            radius: Theme.radiusLarge || 15
+            border.color: "#3c3d3f"
+            border.width: 1
+        }
+        
+        Image {
+            anchors.fill: parent
+            anchors.margins: 10
+            source: thumbnailImage.source
+            fillMode: Image.PreserveAspectFit
+            mipmap: true
+            
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: fullImagePopup.close()
             }
         }
     }
