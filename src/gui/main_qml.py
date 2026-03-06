@@ -243,6 +243,27 @@ class Application(
         root = self.engine.rootObjects()[0]
         self.root = root
 
+        from PyQt5.QtWidgets import QDesktopWidget
+
+        screen_geo = QDesktopWidget().availableGeometry()
+
+        win_x = root.property("x")
+        win_y = root.property("y")
+        win_w = root.property("width")
+        win_h = root.property("height")
+
+        if win_y < screen_geo.top() or win_y > screen_geo.bottom() - 50 or \
+        win_x < screen_geo.left() - win_w + 50 or win_x > screen_geo.right():
+            
+            print("[ZZAR] Window was off-screen! Resetting to center...")
+            
+            new_x = screen_geo.left() + (screen_geo.width() - win_w) // 2
+            new_y = screen_geo.top() + (screen_geo.height() - win_h) // 2
+            
+            root.setProperty("x", new_x)
+            root.setProperty("y", new_y)
+
+
         self._connect_mod_manager()
         self._connect_audio_browser()
         self._connect_gamebanana()
