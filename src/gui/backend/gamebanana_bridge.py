@@ -616,12 +616,16 @@ def _open_archive(path):
             import py7zr
         except ImportError:
             raise RuntimeError("py7zr is not installed. Run: pip install py7zr")
+        import tempfile, os
         sz = py7zr.SevenZipFile(path, 'r')
         names = sz.getnames()
         def read_7z(name):
-            sz.reset()
-            extracted = sz.read([name])
-            return extracted[name].read()
+            with tempfile.TemporaryDirectory() as tmp:
+                with py7zr.SevenZipFile(path, 'r') as archive:
+                    archive.extract(path=tmp, targets=[name])
+                file_path = os.path.join(tmp, name)
+                with open(file_path, 'rb') as f:
+                    return f.read()
         return sz, lambda: names, read_7z
     else:
         raise RuntimeError(f"Unsupported archive format: {suffix}")

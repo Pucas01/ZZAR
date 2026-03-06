@@ -164,10 +164,25 @@ Rectangle {
 
                         ScrollBar.vertical: ScrollBar {
                             policy: ScrollBar.AsNeeded
-                            width: 8
+                            minimumSize: 0.1
+                            anchors.right: parent.right
+                            anchors.rightMargin: 0
+
                             contentItem: Rectangle {
+                                implicitWidth: 8
                                 radius: 4
-                                color: parent.pressed ? Theme.primaryAccent : "#555555"
+                                color: parent.pressed ? "#d8fa00" : (parent.hovered ? "#aac800" : "#555555")
+                                opacity: parent.active ? 1.0 : 0.5
+
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                                Behavior on opacity { NumberAnimation { duration: 150 } }
+                            }
+
+                            background: Rectangle {
+                                implicitWidth: 8
+                                radius: 4
+                                color: "#2a2a2a"
+                                opacity: 0.3
                             }
                         }
 
