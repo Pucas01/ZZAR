@@ -115,6 +115,17 @@ class SettingsConnector:
         mod_creation_mode = settings.get("mod_creation_mode", False)
         self.root.setProperty("modCreationEnabled", mod_creation_mode)
         self.settings_page.setProperty("modCreationEnabled", mod_creation_mode)
+        
+        enable_gb_thumbnails = settings.get("enable_gb_thumbnails", False)
+        self.settings_page.setProperty("enableGbThumbnails", enable_gb_thumbnails)
+
+        # Also propagate to gameBananaPage so the thumbnail guard knows the state
+        gb_page = self.root.findChild(QObject, "gameBananaPage")
+        if gb_page:
+            gb_page.setProperty("thumbnailsEnabled", enable_gb_thumbnails)
+        
+        hide_gb_thumbnail_warning = settings.get("hide_gb_thumbnail_warning", False)
+        self.settings_page.setProperty("hideGbThumbnailWarning", hide_gb_thumbnail_warning)
 
         if mod_creation_mode:
             self.mod_manager_bridge.checkWwiseInstalled()
@@ -320,54 +331,10 @@ class SettingsConnector:
     def on_save_settings(self, game_path):
         print(f"[Settings] Saving settings with game path: {game_path}")
 
-        if not game_path:
-            print("[Settings] ERROR: No game path provided")
-            QMetaObject.invokeMethod(
-                self.root,
-                "showAlertDialog",
-                Qt.QueuedConnection,
-                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
-                Q_ARG("QVariant", QCoreApplication.translate("Application", "Please select a valid ZenlessZoneZero_Data folder.")),
-                Q_ARG("QVariant", ""),
-            )
-            return
-
-        game_data_path = Path(game_path)
-
-        if not game_data_path.exists():
-            print(f"[Settings] ERROR: Path does not exist: {game_data_path}")
-            QMetaObject.invokeMethod(
-                self.root,
-                "showAlertDialog",
-                Qt.QueuedConnection,
-                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
-                Q_ARG("QVariant", QCoreApplication.translate("Application", "The selected directory does not exist.")),
-                Q_ARG("QVariant", ""),
-            )
-            return
-
-        if (
-            game_data_path.name != "ZenlessZoneZero_Data"
-            and not (game_data_path / "StreamingAssets").exists()
-        ):
-            print(f"[Settings] ERROR: Invalid directory structure")
-            QMetaObject.invokeMethod(
-                self.root,
-                "showAlertDialog",
-                Qt.QueuedConnection,
-                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
-                Q_ARG(
-                    "QVariant",
-                    QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
-                ),
-                Q_ARG("QVariant", ""),
-            )
-            return
-
-        audio_dir = game_data_path / "StreamingAssets" / "Audio" / "Windows" / "Full"
-        persistent_dir = game_data_path / "Persistent" / "Audio" / "Windows" / "Full"
-
         mod_creation_mode = self.settings_page.property("modCreationEnabled")
+        enable_gb_thumbnails = self.settings_page.property("enableGbThumbnails")
+        hide_gb_thumbnail_warning = self.settings_page.property("hideGbThumbnailWarning")
+        custom_mods_dir = self.settings_page.property("modsDirectory") or ""
 
         try:
             if self.settings_file.exists():
@@ -378,15 +345,52 @@ class SettingsConnector:
         except Exception:
             settings = {}
 
-        custom_mods_dir = self.settings_page.property("modsDirectory") or ""
-
-        settings["game_audio_dir"] = str(audio_dir)
-        settings["persistent_audio_dir"] = str(persistent_dir)
+        # Always save these settings regardless of game path
         settings["mod_creation_mode"] = mod_creation_mode
+        settings["enable_gb_thumbnails"] = enable_gb_thumbnails
+        settings["hide_gb_thumbnail_warning"] = hide_gb_thumbnail_warning
         settings["custom_mod_library_dir"] = custom_mods_dir
 
-        print(f"[Settings] Game audio dir: {audio_dir}")
-        print(f"[Settings] Persistent dir: {persistent_dir}")
+        # Propagate thumbnailsEnabled to the GameBanana page immediately
+        gb_page = self.root.findChild(QObject, "gameBananaPage")
+        if gb_page:
+            gb_page.setProperty("thumbnailsEnabled", bool(enable_gb_thumbnails))
+
+        # Validate and save game-path-dependent settings
+        game_path_valid = False
+        if game_path:
+            game_data_path = Path(game_path)
+            if not game_data_path.exists():
+                print(f"[Settings] WARNING: Path does not exist: {game_data_path}")
+            elif (
+                game_data_path.name != "ZenlessZoneZero_Data"
+                and not (game_data_path / "StreamingAssets").exists()
+            ):
+                print(f"[Settings] WARNING: Invalid directory structure")
+            else:
+                game_path_valid = True
+
+        if game_path_valid:
+            audio_dir = game_data_path / "StreamingAssets" / "Audio" / "Windows" / "Full"
+            persistent_dir = game_data_path / "Persistent" / "Audio" / "Windows" / "Full"
+            settings["game_audio_dir"] = str(audio_dir)
+            settings["persistent_audio_dir"] = str(persistent_dir)
+            print(f"[Settings] Game audio dir: {audio_dir}")
+            print(f"[Settings] Persistent dir: {persistent_dir}")
+        elif game_path:
+            # Path was provided but invalid — warn the user but still save other settings
+            QMetaObject.invokeMethod(
+                self.root,
+                "showAlertDialog",
+                Qt.QueuedConnection,
+                Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
+                Q_ARG(
+                    "QVariant",
+                    QCoreApplication.translate("Application", "The game directory is invalid, so it was not saved. All other settings have been saved."),
+                ),
+                Q_ARG("QVariant", ""),
+            )
+
         print(f"[Settings] Mod Creation Mode: {mod_creation_mode}")
         print(f"[Settings] Custom mods dir: {custom_mods_dir or '(default)'}")
 

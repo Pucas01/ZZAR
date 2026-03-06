@@ -918,23 +918,27 @@ ApplicationWindow {
                         width: parent.width
                         spacing: 10
 
-                        Rectangle {
+                        Item {
                             width: 20
                             height: 20
-                            radius: 4
-                            color: languageWarningDialog.dontShowAgainChecked ? Theme.primaryAccent : "#3c3d3f"
-                            border.color: languageWarningDialog.dontShowAgainChecked ? Theme.primaryAccent : "#666666"
-                            border.width: 1
                             anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: "✓"
-                                color: Theme.textOnAccent
-                                font.pixelSize: 14
-                                font.bold: true
-                                visible: languageWarningDialog.dontShowAgainChecked
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: 4
+                                color: "transparent"
+                                border.color: languageWarningDialog.dontShowAgainChecked ? Theme.primaryAccent : "#888888"
+                                border.width: 2
+                                Behavior on border.color { ColorAnimation { duration: 100 } }
+
+                                Rectangle {
+                                    anchors.centerIn: parent
+                                    width: 12
+                                    height: 12
+                                    radius: 2
+                                    color: Theme.primaryAccent
+                                    visible: languageWarningDialog.dontShowAgainChecked
+                                }
                             }
 
                             MouseArea {

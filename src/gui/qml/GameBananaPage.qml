@@ -13,6 +13,24 @@ Item {
     property var installedModIds: []
     property int sortIndex: 0
     property string searchText: ""
+    property bool thumbnailsEnabled: false
+
+    onThumbnailsEnabledChanged: {
+        if (thumbnailsEnabled) {
+            refreshThumbnails()
+        }
+    }
+
+    function refreshThumbnails() {
+        // Reset all _thumbRequested flags so cards re-check visibility
+        for (var i = 0; i < gridRepeater.count; i++) {
+            var item = gridRepeater.itemAt(i)
+            if (item) {
+                item._thumbRequested = false
+                item.checkVisible()
+            }
+        }
+    }
 
     property var sortedModsList: {
         var query = searchText.trim().toLowerCase()
@@ -434,6 +452,7 @@ Item {
                             spacing: 16
 
                             Repeater {
+                                id: gridRepeater
                                 model: sortedModsList
 
                                 Item {
@@ -444,6 +463,7 @@ Item {
 
                                     function checkVisible() {
                                         if (_thumbRequested || modelData.thumbnail) return
+                                        if (!gameBananaPage.thumbnailsEnabled) return
                                         var cardY = mapToItem(gridFlow, 0, 0).y
                                         var viewTop = gridFlickable.contentY - 320
                                         var viewBottom = gridFlickable.contentY + gridFlickable.height + 320

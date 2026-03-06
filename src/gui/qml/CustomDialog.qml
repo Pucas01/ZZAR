@@ -16,6 +16,10 @@ Item {
     property string actionId: ""
     property bool closing: false
     property string customStickerPath: ""
+    
+    property bool showCheckbox: false
+    property string checkboxText: ""
+    property bool isChecked: false
 
     signal confirmed(string action)
     signal cancelled()
@@ -115,6 +119,53 @@ Item {
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
                 lineHeight: 1.4
+            }
+
+            RowLayout {
+                spacing: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: root.showCheckbox
+
+                Item {
+                    width: 20
+                    height: 20
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 4
+                        color: "transparent"
+                        border.color: "#888888"
+                        border.width: 2
+
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: 12
+                            height: 12
+                            radius: 2
+                            color: "#d8fa00"
+                            visible: root.isChecked
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.isChecked = !root.isChecked
+                    }
+                }
+
+                Text {
+                    text: root.checkboxText
+                    color: "#ffffff"
+                    font.family: "Alatsi"
+                    font.pixelSize: 14
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.isChecked = !root.isChecked
+                    }
+                }
             }
 
             RowLayout {

@@ -960,10 +960,11 @@ Item {
                         id: welcomeLanguageCombo
                         width: 120
                         height: 28
-                        model: translationManager.availableLanguages
+                        model: translationManager ? translationManager.availableLanguages : []
                         textRole: "name"
 
                         currentIndex: {
+                            if (!translationManager) return 0
                             var langs = translationManager.availableLanguages
                             for (var i = 0; i < langs.length; i++) {
                                 if (langs[i].code === translationManager.currentLanguage) return i

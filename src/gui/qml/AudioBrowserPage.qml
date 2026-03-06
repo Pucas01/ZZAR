@@ -3486,26 +3486,30 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 8
 
-                    Rectangle {
+                    Item {
                         id: notifyDontShowBox
                         width: 20
                         height: 20
-                        radius: 4
-                        color: notifyDontShowBox.checked ? Theme.primaryAccent : "#3c3d3f"
-                        border.color: notifyDontShowBox.checked ? Theme.primaryAccent : "#555555"
-                        border.width: 1
                         anchors.verticalCenter: parent.verticalCenter
-                        Behavior on color { ColorAnimation { duration: 100 } }
 
                         property bool checked: false
 
-                        Text {
-                            anchors.centerIn: parent
-                            text: "\u2713"
-                            color: "#ffffff"
-                            font.pixelSize: 14
-                            font.bold: true
-                            visible: notifyDontShowBox.checked
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 4
+                            color: "transparent"
+                            border.color: notifyDontShowBox.checked ? Theme.primaryAccent : "#888888"
+                            border.width: 2
+                            Behavior on border.color { ColorAnimation { duration: 100 } }
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: 12
+                                height: 12
+                                radius: 2
+                                color: Theme.primaryAccent
+                                visible: notifyDontShowBox.checked
+                            }
                         }
 
                         MouseArea {
@@ -3517,9 +3521,9 @@ Item {
 
                     Text {
                         text: qsTranslate("Application", "Don't show this again")
-                        color: "#999999"
+                        color: "#ffffff"
                         font.family: "Alatsi"
-                        font.pixelSize: 12
+                        font.pixelSize: 14
                         anchors.verticalCenter: parent.verticalCenter
 
                         MouseArea {

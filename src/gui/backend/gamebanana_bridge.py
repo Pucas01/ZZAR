@@ -772,6 +772,19 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(int)
     def fetchThumbnail(self, mod_id):
+        # Check settings first
+        try:
+            from src.config_manager import get_settings_file
+            import json
+            settings_file = get_settings_file()
+            if settings_file.exists():
+                with open(settings_file, "r") as f:
+                    settings = json.load(f)
+                if not settings.get("enable_gb_thumbnails", False):
+                    return
+        except Exception as e:
+            print(f"[GameBananaBridge] Error reading thumbnail setting: {e}")
+
         # Check disk cache first
         cached = _cache_get("thumbnails", mod_id)
         if cached and cached.startswith("file://"):

@@ -35,6 +35,8 @@ Item {
     property bool audioToolsInstalled: false
     property bool isInstallingAudioTools: false
     property bool isAutoDetecting: false
+    property bool enableGbThumbnails: false
+    property bool hideGbThumbnailWarning: false
 
     property bool isCheckingUpdates: false
     property bool isDownloadingUpdate: false
@@ -46,6 +48,26 @@ Item {
     property string githubToken: ""
 
     property int currentCategory: 0
+
+    CustomDialog {
+        id: thumbnailConfirmDialog
+        parent: Overlay.overlay
+        title: qsTranslate("Application", "Enable Thumbnails?")
+        message: qsTranslate("Application", "Enabling thumbnails will make API calls to GameBanana per thumbnail. GameBanana limits you to 250 requests every hour.\n\nExceeding this rate limit will temporarily block you from viewing mods for 1 hour. Are you sure you want to enable this feature?")
+        confirmText: qsTranslate("Application", "Enable")
+        cancelText: qsTranslate("Application", "Cancel")
+        isConfirmation: true
+        showCheckbox: true
+        checkboxText: qsTranslate("Application", "Don't show this again")
+        isChecked: false
+        
+        onConfirmed: {
+            settingsPage.enableGbThumbnails = true
+            if (isChecked) {
+                settingsPage.hideGbThumbnailWarning = true
+            }
+        }
+    }
 
     Rectangle {
         id: outerFrame
@@ -233,10 +255,11 @@ Item {
                                 id: languageCombo
                                 width: 250
                                 height: Theme.buttonHeight
-                                model: translationManager.availableLanguages
+                                model: translationManager ? translationManager.availableLanguages : []
                                 textRole: "name"
 
                                 currentIndex: {
+                                    if (!translationManager) return 0
                                     var langs = translationManager.availableLanguages
                                     for (var i = 0; i < langs.length; i++) {
                                         if (langs[i].code === settingsPage.currentLanguage) return i
@@ -244,7 +267,7 @@ Item {
                                     return 0
                                 }
 
-                                property bool selectedIncomplete: translationManager.isIncomplete(settingsPage.currentLanguage)
+                                property bool selectedIncomplete: translationManager ? translationManager.isIncomplete(settingsPage.currentLanguage) : false
 
                                 onActivated: {
                                     var selectedLang = translationManager.availableLanguages[index]
@@ -591,6 +614,89 @@ Item {
                                 color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        width: parent.width
+                        height: gbThumbnailsContent.height + 40
+                        color: "#333333"
+                        radius: 20
+                        visible: currentCategory === 2
+
+                        Column {
+                            id: gbThumbnailsContent
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.margins: 20
+                            spacing: 15
+
+                            RowLayout {
+                                width: parent.width
+                                spacing: 20
+
+                                Column {
+                                    Layout.fillWidth: true
+                                    spacing: 5
+
+                                    Text {
+                                        text: qsTranslate("Application", "GameBanana Thumbnails")
+                                        color: "#d8fa00"
+                                        font.family: "Alatsi"
+                                        font.pixelSize: 24
+                                        font.weight: Font.Normal
+                                    }
+
+                                    Text {
+                                        text: qsTranslate("Application", "Load mod thumbnails from GameBanana. Enabling this uses API calls and may lead to temporary rate limits if overused.")
+                                        color: "#888888"
+                                        font.family: "Alatsi"
+                                        font.pixelSize: 14
+                                        wrapMode: Text.WordWrap
+                                        width: parent.width
+                                    }
+                                }
+
+                                Item {
+                                    width: 60
+                                    height: 30
+
+                                    Rectangle {
+                                        id: gbThumbnailsSwitchBg
+                                        anchors.fill: parent
+                                        radius: 15
+                                        color: settingsPage.enableGbThumbnails ? "#d8fa00" : "#555555"
+                                        Behavior on color { ColorAnimation { duration: 200 } }
+
+                                        Rectangle {
+                                            width: 26
+                                            height: 26
+                                            radius: 13
+                                            color: "#ffffff"
+                                            x: settingsPage.enableGbThumbnails ? parent.width - width - 2 : 2
+                                            Behavior on x { NumberAnimation { duration: 200; easing.type: Easing.OutQuad } }
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            if (!settingsPage.enableGbThumbnails) {
+                                                if (settingsPage.hideGbThumbnailWarning) {
+                                                    settingsPage.enableGbThumbnails = true;
+                                                } else {
+                                                    thumbnailConfirmDialog.isChecked = false;
+                                                    thumbnailConfirmDialog.visible = true;
+                                                }
+                                            } else {
+                                                settingsPage.enableGbThumbnails = false;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
