@@ -25,7 +25,7 @@ Item {
     }
 
     function refreshThumbnails() {
-        // Reset all _thumbRequested flags so cards re-check visibility
+
         for (var i = 0; i < gridRepeater.count; i++) {
             var item = gridRepeater.itemAt(i)
             if (item) {

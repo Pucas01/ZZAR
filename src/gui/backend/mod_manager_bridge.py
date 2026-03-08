@@ -381,6 +381,7 @@ class ModManagerBridge(QObject):
                     if mod["thumbnail_path"]
                     else "",
                     "installDate": mod.get("install_date", ""),
+                    "fromGameBanana": bool(metadata.get("gamebanana_id") or metadata.get("gamebanana_download_url")),
                 }
                 qml_mods.append(qml_mod)
                 status = "ENABLED" if mod["enabled"] else "disabled"
@@ -754,6 +755,11 @@ class ModManagerBridge(QObject):
                 ),
                 "fileCount": file_count,
                 "replacements": replacements,
+                "gamebananaUrl": (
+                    f"https://gamebanana.com/mods/{metadata['gamebanana_id']}"
+                    if metadata.get("gamebanana_id")
+                    else metadata.get("gamebanana_download_url", "")
+                ),
             }
 
         except Exception as e:

@@ -528,6 +528,22 @@ Item {
                                 font.pixelSize: 36
                                 visible: !model.thumbnailPath || model.thumbnailPath.length === 0
                             }
+
+                            Rectangle {
+                                visible: model.fromGameBanana
+                                width: 22; height: 22; radius: 11
+                                color: "#d9282828"
+                                anchors.right: parent.right
+                                anchors.bottom: parent.bottom
+                                anchors.margins: 3
+                                Image {
+                                    anchors.centerIn: parent
+                                    width: 14; height: 14
+                                    source: "../assets/Gamebanana.png"
+                                    fillMode: Image.PreserveAspectFit
+                                    mipmap: true
+                                }
+                            }
                         }
 
                         Column {
@@ -772,6 +788,22 @@ Item {
                                     font.pixelSize: 40
                                     visible: !model.thumbnailPath || model.thumbnailPath.length === 0
                                 }
+
+                                Rectangle {
+                                    visible: model.fromGameBanana
+                                    width: 26; height: 26; radius: 13
+                                    color: "#d9282828"
+                                    anchors.right: parent.right
+                                    anchors.bottom: parent.bottom
+                                    anchors.margins: 4
+                                    Image {
+                                        anchors.centerIn: parent
+                                        width: 16; height: 16
+                                        source: "../assets/Gamebanana.png"
+                                        fillMode: Image.PreserveAspectFit
+                                        mipmap: true
+                                    }
+                                }
                             }
 
                             Text {
@@ -947,7 +979,8 @@ Item {
                 "enabled": mod.enabled || false,
                 "priority": mod.priority || 0,
                 "thumbnailPath": mod.thumbnailPath || "",
-                "installDate": mod.installDate || ""
+                "installDate": mod.installDate || "",
+                "fromGameBanana": mod.fromGameBanana || false
             })
         }
         if (currentSortMode !== 0) {
@@ -979,36 +1012,37 @@ Item {
                 "enabled": modsModel.get(i).enabled,
                 "priority": modsModel.get(i).priority,
                 "thumbnailPath": modsModel.get(i).thumbnailPath,
-                "installDate": modsModel.get(i).installDate
+                "installDate": modsModel.get(i).installDate,
+                "fromGameBanana": modsModel.get(i).fromGameBanana
             })
         }
 
         switch (currentSortMode) {
-            case 1: // Name A-Z
+            case 1:
                 items.sort(function(a, b) { return a.name.toLowerCase().localeCompare(b.name.toLowerCase()) })
                 break
-            case 2: // Name Z-A
+            case 2:
                 items.sort(function(a, b) { return b.name.toLowerCase().localeCompare(a.name.toLowerCase()) })
                 break
-            case 3: // Author A-Z
+            case 3:
                 items.sort(function(a, b) { return a.author.toLowerCase().localeCompare(b.author.toLowerCase()) })
                 break
-            case 4: // Author Z-A
+            case 4:
                 items.sort(function(a, b) { return b.author.toLowerCase().localeCompare(a.author.toLowerCase()) })
                 break
-            case 5: // Newest First
+            case 5:
                 items.sort(function(a, b) { return b.installDate.localeCompare(a.installDate) })
                 break
-            case 6: // Oldest First
+            case 6:
                 items.sort(function(a, b) { return a.installDate.localeCompare(b.installDate) })
                 break
-            case 7: // Enabled First
+            case 7:
                 items.sort(function(a, b) {
                     if (a.enabled === b.enabled) return 0
                     return a.enabled ? -1 : 1
                 })
                 break
-            default: // 0 = Default (priority/load order)
+            default:
                 items.sort(function(a, b) { return a.priority - b.priority })
                 break
         }

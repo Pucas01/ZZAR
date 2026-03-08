@@ -222,11 +222,12 @@ Rectangle {
 
                                 property var currentMedia: mediaList.length > 0 ? mediaList[modDialog.previewIndex] : null
 
-                                Image {
+                                AnimatedImage {
                                     anchors.fill: parent
                                     source: previewContainer.currentMedia && previewContainer.currentMedia.type === "image" ? previewContainer.currentMedia.url : ""
                                     fillMode: Image.PreserveAspectFit
                                     asynchronous: true
+                                    playing: visible
                                     visible: !previewContainer.currentMedia || previewContainer.currentMedia.type === "image"
 
                                     Text {

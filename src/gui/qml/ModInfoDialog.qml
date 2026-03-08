@@ -15,6 +15,7 @@ Item {
     property string modCreatedDate: ""
     property int modFileCount: 0
     property var modReplacements: ({})
+    property string modGameBananaUrl: ""
 
     visible: false
     property bool closing: false
@@ -73,6 +74,7 @@ Item {
         Column {
             anchors.fill: parent
             anchors.margins: 25
+            anchors.bottomMargin: 95
             spacing: 15
 
             Row {
@@ -231,7 +233,7 @@ Item {
 
                 Rectangle {
                     width: parent.width
-                    height: 120
+                    height: modGameBananaUrl ? 152 : 120
                     radius: 10
                     color: "#1a1a1a"
 
@@ -309,69 +311,94 @@ Item {
                                 font.pixelSize: 13
                             }
                         }
-                    }
-                }
-            }
 
-            Item {
-                width: parent.width
-                height: 10
-            }
+                        Row {
+                            visible: modGameBananaUrl !== ""
+                            spacing: 10
+                            Text {
+                                text: "GameBanana:"
+                                color: "#888888"
+                                font.family: "Alatsi"
+                                font.pixelSize: 13
+                                width: 100
+                            }
+                            Text {
+                                text: qsTranslate("Application", "Open mod page")
+                                color: gbLinkMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                font.family: "Alatsi"
+                                font.pixelSize: 13
+                                font.underline: true
+                                Behavior on color { ColorAnimation { duration: 120 } }
 
-            Row {
-                anchors.right: parent.right
-                spacing: 10
-
-                Rectangle {
-                    width: 150
-                    height: 45
-                    radius: Theme.radiusMedium
-                    color: Theme.disabledAccent
-                    scale: exportBtnMouse.pressed ? 0.97 : (exportBtnMouse.containsMouse ? 1.03 : 1.0)
-                    Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: qsTranslate("Application", "Export to .zzar")
-                        color: Theme.textOnAccent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
-                    }
-
-                    MouseArea {
-                        id: exportBtnMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: {
-                            exportRequested(modUuid)
+                                MouseArea {
+                                    id: gbLinkMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Qt.openUrlExternally(modGameBananaUrl)
+                                }
+                            }
                         }
                     }
                 }
+            }
 
-                Rectangle {
-                    width: 120
-                    height: 45
-                    radius: Theme.radiusMedium
-                    color: Theme.primaryAccent
-                    scale: closeBtnMouse.pressed ? 0.97 : (closeBtnMouse.containsMouse ? 1.03 : 1.0)
-                    Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+        }
 
-                    Text {
-                        anchors.centerIn: parent
-                        text: qsTranslate("Application", "Close")
-                        color: Theme.textOnAccent
-                        font.family: Theme.fontFamily
-                        font.pixelSize: Theme.fontSizeMedium
-                    }
+        Row {
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 25
+            anchors.bottomMargin: 25
+            spacing: 10
 
-                    MouseArea {
-                        id: closeBtnMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: hide()
-                    }
+            Rectangle {
+                width: 150
+                height: 45
+                radius: Theme.radiusMedium
+                color: Theme.disabledAccent
+                scale: exportBtnMouse.pressed ? 0.97 : (exportBtnMouse.containsMouse ? 1.03 : 1.0)
+                Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTranslate("Application", "Export to .zzar")
+                    color: Theme.textOnAccent
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeMedium
+                }
+
+                MouseArea {
+                    id: exportBtnMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: exportRequested(modUuid)
+                }
+            }
+
+            Rectangle {
+                width: 120
+                height: 45
+                radius: Theme.radiusMedium
+                color: Theme.primaryAccent
+                scale: closeBtnMouse.pressed ? 0.97 : (closeBtnMouse.containsMouse ? 1.03 : 1.0)
+                Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTranslate("Application", "Close")
+                    color: Theme.textOnAccent
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontSizeMedium
+                }
+
+                MouseArea {
+                    id: closeBtnMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: hide()
                 }
             }
         }
@@ -441,5 +468,6 @@ Item {
         modCreatedDate = info.createdDate || ""
         modFileCount = info.fileCount || 0
         modReplacements = info.replacements || {}
+        modGameBananaUrl = info.gamebananaUrl || ""
     }
 }

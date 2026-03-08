@@ -1022,7 +1022,7 @@ Item {
 
     function goBack() {
         if (currentPage > 1) {
-            currentPage--
+            currentPage
         }
     }
 

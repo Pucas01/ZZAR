@@ -12,6 +12,15 @@ Item {
         video.stop()
     }
 
+    onVideoSourceChanged: {
+        if (videoSource) {
+            video.stop()
+            video.play()
+        } else {
+            video.stop()
+        }
+    }
+
     Video {
         id: video
         anchors.fill: parent
