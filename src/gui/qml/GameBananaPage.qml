@@ -376,32 +376,36 @@ Item {
                         spacing: Theme.spacingMedium
                         visible: isLoading && modsList.length === 0
 
-                        Item {
+                        Canvas {
+                            id: loadingSpinner
                             width: 56
                             height: 56
                             anchors.horizontalCenter: parent.horizontalCenter
 
-                            Rectangle {
-                                anchors.fill: parent
-                                radius: 28
-                                color: "transparent"
-                                border.color: Theme.primaryAccent
-                                border.width: 4
+                            onPaint: {
+                                var ctx = getContext("2d")
+                                ctx.reset()
+                                var cx = width / 2, cy = height / 2, r = (width - 8) / 2
+                                // background track
+                                ctx.strokeStyle = "#2a2a2a"
+                                ctx.lineWidth = 5
+                                ctx.beginPath()
+                                ctx.arc(cx, cy, r, 0, Math.PI * 2)
+                                ctx.stroke()
+                                // accent arc (~270°)
+                                ctx.strokeStyle = "#CDEE00"
+                                ctx.lineWidth = 5
+                                ctx.lineCap = "round"
+                                ctx.beginPath()
+                                ctx.arc(cx, cy, r, -Math.PI / 2, Math.PI)
+                                ctx.stroke()
+                            }
 
-                                RotationAnimation on rotation {
-                                    from: 0; to: 360
-                                    duration: 1200
-                                    running: isLoading
-                                    loops: Animation.Infinite
-                                }
-
-                                Rectangle {
-                                    width: 10; height: 10
-                                    radius: 5
-                                    color: Theme.primaryAccent
-                                    x: parent.width / 2 - 5
-                                    y: 0
-                                }
+                            RotationAnimator on rotation {
+                                from: 0; to: 360
+                                duration: 1000
+                                running: isLoading
+                                loops: Animation.Infinite
                             }
                         }
 
