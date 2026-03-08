@@ -361,8 +361,7 @@ ApplicationWindow {
 
                                     Shape {
                                         id: stadia_controller_1
-                                        x: 1
-                                        y: 6
+                                        anchors.centerIn: parent
                                         height: 24
                                         width: 33
 

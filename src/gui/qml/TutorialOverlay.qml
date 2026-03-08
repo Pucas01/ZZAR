@@ -1,6 +1,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtMultimedia 5.15
 
 Item {
     id: tutorialRoot
@@ -10,6 +11,7 @@ Item {
     property bool modCreationEnabled: false
     property var appRoot: null
 
+    property bool showingIntro: false
     property int currentSection: 0
     property int currentMessageIndex: 0
 
@@ -106,11 +108,18 @@ Item {
         currentMessageIndex = 0
         chatListModel.clear()
         visible = true
+        showingIntro = true
+        knockSound.play()
+        knockLoopTimer.restart()
+    }
+
+    function answerCall() {
+        showingIntro = false
+        knockLoopTimer.stop()
+        knockSound.stop()
 
         var sec = getCurrentSection()
-        if (sec) {
-            requestPageChange(sec.tabIndex)
-        }
+        if (sec) requestPageChange(sec.tabIndex)
 
         updateTimer.start()
     }
@@ -288,6 +297,127 @@ Item {
         Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
     }
 
+    SoundEffect {
+        id: knockSound
+        source: "../assets/Knock-Knock-audio.wav"
+        loops: 1
+        volume: 0.4
+    }
+
+    Timer {
+        id: knockLoopTimer
+        interval: 2345
+        repeat: true
+        running: showingIntro
+        onTriggered: knockSound.play()
+    }
+
+    // Intro screen — shown before tutorial starts
+    Rectangle {
+        id: introOverlay
+        anchors.fill: parent
+        color: "#CC000000"
+        visible: showingIntro
+        z: 100
+
+        MouseArea { anchors.fill: parent; onClicked: {} }
+
+        Column {
+            anchors.centerIn: parent
+            spacing: 28
+
+            Item {
+                width: 140
+                height: 140
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Image {
+                    id: phoneImage
+                    anchors.centerIn: parent
+                    width: 120
+                    height: 120
+                    source: "../assets/Knock-Knock.png"
+                    fillMode: Image.PreserveAspectFit
+                    mipmap: true
+                    transformOrigin: Item.Bottom
+                }
+
+                SequentialAnimation {
+                    running: showingIntro
+                    loops: Animation.Infinite
+                    // Knock 1 (~0ms)
+                    NumberAnimation { target: phoneImage; property: "rotation"; to: -6; duration: 30; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  6; duration: 35; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  0; duration: 25; easing.type: Easing.InQuad }
+                    // Gap to knock 2 (~257ms)
+                    PauseAnimation { duration: 167 }
+                    // Knock 2 (~257ms)
+                    NumberAnimation { target: phoneImage; property: "rotation"; to: -6; duration: 30; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  6; duration: 35; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  0; duration: 25; easing.type: Easing.InQuad }
+                    // Gap to knock 3 (~925ms)
+                    PauseAnimation { duration: 578 }
+                    // Knock 3 (~925ms)
+                    NumberAnimation { target: phoneImage; property: "rotation"; to: -6; duration: 30; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  6; duration: 35; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  0; duration: 25; easing.type: Easing.InQuad }
+                    // Gap to knock 4 (~1167ms)
+                    PauseAnimation { duration: 152 }
+                    // Knock 4 (~1167ms)
+                    NumberAnimation { target: phoneImage; property: "rotation"; to: -6; duration: 30; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  6; duration: 35; easing.type: Easing.InOutQuad }
+                    NumberAnimation { target: phoneImage; property: "rotation"; to:  0; duration: 25; easing.type: Easing.InQuad }
+                    // Tail silence to match 2345ms total loop
+                    PauseAnimation { duration: 1087 }
+                }
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "Hoshimi Miyabi"
+                color: "#d8fa00"
+                font.family: "inpin hongmengti"
+                font.pixelSize: 18
+            }
+
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTranslate("Application", "incoming call...")
+                color: "#888888"
+                font.family: "inpin hongmengti"
+                font.pixelSize: 14
+            }
+
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 160
+                height: 50
+                radius: 25
+                color: answerMouse.pressed ? "#b8de00" : (answerMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                scale: answerMouse.pressed ? 0.95 : 1.0
+                Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on scale { NumberAnimation { duration: 100 } }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: qsTranslate("Application", "Answer")
+                    color: "#000000"
+                    font.family: "inpin hongmengti"
+                    font.pixelSize: 18
+                    font.bold: false
+                }
+
+                MouseArea {
+                    id: answerMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: answerCall()
+                }
+            }
+        }
+    }
+
     ListModel {
         id: chatListModel
     }
@@ -311,7 +441,23 @@ Item {
         border.color: "#3c3d3f"
         border.width: 1
 
+        visible: !showingIntro
+        opacity: 0
+        scale: 0.88
+
         Behavior on x { NumberAnimation { duration: 400; easing.type: Easing.OutCubic } }
+
+        onVisibleChanged: {
+            if (visible) {
+                panelEnterAnim.start()
+            }
+        }
+
+        ParallelAnimation {
+            id: panelEnterAnim
+            NumberAnimation { target: chatPanel; property: "opacity"; from: 0; to: 1; duration: 350; easing.type: Easing.OutCubic }
+            NumberAnimation { target: chatPanel; property: "scale";   from: 0.88; to: 1.0; duration: 350; easing.type: Easing.OutBack }
+        }
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
