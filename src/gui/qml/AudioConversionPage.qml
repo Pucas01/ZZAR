@@ -66,8 +66,9 @@ Item {
                     }
 
                     background: Rectangle {
+                        HoverHandler { id: modeComboBgHover }
                         color: modeCombo.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                             : modeCombo.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                             : modeComboBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                              : Theme.cardBackground
                         radius: Theme.radiusMedium
                         border.color: modeCombo.activeFocus ? Theme.primaryAccent : "transparent"
@@ -102,14 +103,17 @@ Item {
                     }
 
                     delegate: ItemDelegate {
+                        id: modeComboDelegate
                         width: modeCombo.width
                         height: Theme.buttonHeightLarge
                         highlighted: modeCombo.highlightedIndex === index
 
+                        HoverHandler { id: modeComboDelegateHover }
+
                         background: Rectangle {
                             color: {
-                                if (parent.highlighted) return Theme.primaryAccent
-                                if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                if (modeComboDelegate.highlighted) return Theme.primaryAccent
+                                if (modeComboDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                 return Theme.surfaceDark
                             }
                             radius: Theme.radiusSmall
@@ -118,7 +122,7 @@ Item {
 
                         contentItem: Text {
                             text: modelData
-                            color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                            color: modeComboDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
                             verticalAlignment: Text.AlignVCenter
@@ -346,8 +350,9 @@ Item {
                         currentIndex: 1
 
                         background: Rectangle {
+                            HoverHandler { id: sampleRateBgHover }
                             color: sampleRateCombo.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                                 : sampleRateCombo.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                                 : sampleRateBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                                  : Theme.cardBackground
                             radius: Theme.radiusMedium
                             border.color: "transparent"
@@ -382,14 +387,17 @@ Item {
                         }
 
                         delegate: ItemDelegate {
+                            id: sampleRateDelegate
                             width: sampleRateCombo.width - 8
                             height: Theme.buttonHeight
                             highlighted: sampleRateCombo.highlightedIndex === index
 
+                            HoverHandler { id: sampleRateDelegateHover }
+
                             background: Rectangle {
                                 color: {
-                                    if (parent.highlighted) return Theme.primaryAccent
-                                    if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                    if (sampleRateDelegate.highlighted) return Theme.primaryAccent
+                                    if (sampleRateDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                     return Theme.surfaceDark
                                 }
                                 radius: Theme.radiusSmall
@@ -398,7 +406,7 @@ Item {
 
                             contentItem: Text {
                                 text: modelData
-                                color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                color: sampleRateDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 verticalAlignment: Text.AlignVCenter

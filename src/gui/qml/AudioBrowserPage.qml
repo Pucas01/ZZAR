@@ -185,8 +185,9 @@ Item {
                         }
 
                         background: Rectangle {
+                            HoverHandler { id: abFolderBgHover }
                             color: openFolderCombo.pressed ? Qt.darker(Theme.primaryAccent, 1.1)
-                                 : openFolderCombo.hovered ? Qt.lighter(Theme.primaryAccent, 1.1)
+                                 : abFolderBgHover.hovered ? Qt.lighter(Theme.primaryAccent, 1.1)
                                  : Theme.primaryAccent
                             radius: Theme.radiusMedium
                             Behavior on color { ColorAnimation { duration: Theme.animationDuration } }
@@ -229,14 +230,17 @@ Item {
                         }
 
                         delegate: ItemDelegate {
+                            id: abFolderDelegate
                             width: openFolderCombo.width - 8
                             height: Theme.buttonHeight
                             highlighted: openFolderCombo.highlightedIndex === index
 
+                            HoverHandler { id: abFolderDelegateHover }
+
                             background: Rectangle {
                                 color: {
-                                    if (parent.highlighted) return Theme.primaryAccent
-                                    if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                    if (abFolderDelegate.highlighted) return Theme.primaryAccent
+                                    if (abFolderDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                     return Theme.surfaceDark
                                 }
                                 radius: Theme.radiusSmall
@@ -245,7 +249,7 @@ Item {
 
                             contentItem: Text {
                                 text: modelData
-                                color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                color: abFolderDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 verticalAlignment: Text.AlignVCenter

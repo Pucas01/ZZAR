@@ -325,8 +325,9 @@ Item {
                     }
 
                     background: Rectangle {
+                        HoverHandler { id: mmSortBgHover }
                         color: sortCombo.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                             : sortCombo.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                             : mmSortBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                              : Theme.cardBackground
                         radius: Theme.radiusMedium
                         border.color: "transparent"
@@ -361,14 +362,17 @@ Item {
                     }
 
                     delegate: ItemDelegate {
+                        id: mmSortDelegate
                         width: sortCombo.width - 8
                         height: Theme.buttonHeight
                         highlighted: sortCombo.highlightedIndex === index
 
+                        HoverHandler { id: mmSortDelegateHover }
+
                         background: Rectangle {
                             color: {
-                                if (parent.highlighted) return Theme.primaryAccent
-                                if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                if (mmSortDelegate.highlighted) return Theme.primaryAccent
+                                if (mmSortDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                 return Theme.surfaceDark
                             }
                             radius: Theme.radiusSmall
@@ -377,7 +381,7 @@ Item {
 
                         contentItem: Text {
                             text: modelData
-                            color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                            color: mmSortDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                             font.family: Theme.fontFamily
                             font.pixelSize: Theme.fontSizeSmall
                             verticalAlignment: Text.AlignVCenter

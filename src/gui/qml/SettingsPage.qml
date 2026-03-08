@@ -199,7 +199,8 @@ Item {
                     contentItem: Rectangle {
                         implicitWidth: 8
                         radius: 4
-                        color: parent.pressed ? "#d8fa00" : (parent.hovered ? "#aac800" : "#555555")
+                        HoverHandler { id: settingsScrollHover }
+                        color: parent.pressed ? "#d8fa00" : (settingsScrollHover.hovered ? "#aac800" : "#555555")
                         opacity: parent.active ? 1.0 : 0.5
 
                         Behavior on color { ColorAnimation { duration: 150 } }
@@ -277,8 +278,9 @@ Item {
                                 }
 
                                 background: Rectangle {
+                                    HoverHandler { id: langComboBgHover }
                                     color: languageCombo.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                                         : languageCombo.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                                         : langComboBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                                          : Theme.cardBackground
                                     radius: Theme.radiusMedium
                                     border.color: "transparent"
@@ -313,14 +315,17 @@ Item {
                                 }
 
                                 delegate: ItemDelegate {
+                                    id: langComboDelegate
                                     width: languageCombo.width - 8
                                     height: Theme.buttonHeight
                                     highlighted: languageCombo.highlightedIndex === index
 
+                                    HoverHandler { id: langComboDelegateHover }
+
                                     background: Rectangle {
                                         color: {
-                                            if (parent.highlighted) return Theme.primaryAccent
-                                            if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                            if (langComboDelegate.highlighted) return Theme.primaryAccent
+                                            if (langComboDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                             return Theme.surfaceDark
                                         }
                                         radius: Theme.radiusSmall
@@ -329,7 +334,7 @@ Item {
 
                                     contentItem: Text {
                                         text: modelData.name
-                                        color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                        color: langComboDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeSmall
                                         verticalAlignment: Text.AlignVCenter

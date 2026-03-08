@@ -242,38 +242,72 @@ class FetchModsWorker(QThread):
             'thumbnail': thumbnail,
             'profile_url': data.get('_sProfileUrl', ''),
             'category': category_name,
+            'item_type': 'Sound',
         }
 
-class FetchModDetailsWorker(QThread):
-    
+class FetchMiscZZARModsWorker(QThread):
+    """Fetches mods from GameBanana's Mod/Index (Misc/Other section) for ZZZ,
+    then filters to only include entries that contain .zzar files."""
 
     finished = pyqtSignal(bool, object)
 
-    def __init__(self, mod_id):
+    CONCURRENT_CHECKS = 5
+
+    def __init__(self, page=1, per_page=50, sort="default"):
         super().__init__()
-        self.mod_id = mod_id
+        self.page = page
+        self.per_page = per_page
+        self.sort = sort
 
     def run(self):
         try:
+            filters = f"_aFilters[Generic_Game]={ZENLESS_ZONE_ZERO_GAME_ID}"
+            params = {'_nPage': self.page, '_nPerpage': self.per_page}
+            if self.sort and self.sort != "default":
+                params['_sOrderBy'] = self.sort
+                params['_sOrder'] = 'DESC'
 
-            fields = "name,Owner().name,text,description,views,likes,date,Files().aFiles(),Preview().sPreviewUrl()"
-            url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={self.mod_id}&fields={fields}"
-
-            print(f"[GameBanana] Fetching sound details: {url}")
+            url = f"{GAMEBANANA_API_BASE}/Mod/Index?{filters}&{urllib.parse.urlencode(params)}"
+            print(f"[GameBanana] Fetching misc mods: {url}")
 
             req = urllib.request.Request(url)
             req.add_header('User-Agent', 'ZZAR/1.1.0')
-
             with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
 
-                mod_details = self._parse_mod_details(data)
+            records = data.get('_aRecords', []) if isinstance(data, dict) else data
+            if not isinstance(records, list):
+                self.finished.emit(True, [])
+                return
 
-                zzar_supported = self._check_zzar_support(mod_details)
-                if mod_details:
-                    mod_details['zzar_supported'] = zzar_supported
+            candidates = []
+            for mod_data in records:
+                try:
+                    mod = self._parse_mod_data(mod_data)
+                    if mod:
+                        candidates.append(mod)
+                except Exception as e:
+                    print(f"[GameBanana] Error parsing misc mod: {e}")
 
-                self.finished.emit(True, mod_details)
+            from concurrent.futures import ThreadPoolExecutor, as_completed
+            zzar_mods = []
+            with ThreadPoolExecutor(max_workers=self.CONCURRENT_CHECKS) as pool:
+                futures = {pool.submit(self._check_zzar, mod['id']): mod for mod in candidates}
+                for future in as_completed(futures):
+                    mod = futures[future]
+                    try:
+                        is_zzar, thumbnail = future.result()
+                        if is_zzar:
+                            mod['zzar_supported'] = True
+                            # Use ProfilePage thumbnail as fallback if listing had none
+                            if not mod.get('thumbnail') and thumbnail:
+                                mod['thumbnail'] = thumbnail
+                            zzar_mods.append(mod)
+                    except Exception:
+                        pass
+
+            print(f"[GameBanana] Found {len(zzar_mods)} ZZAR-native misc mods")
+            self.finished.emit(True, zzar_mods)
 
         except urllib.error.HTTPError as e:
             self.finished.emit(False, f"HTTP Error {e.code}: {e.reason}")
@@ -282,6 +316,262 @@ class FetchModDetailsWorker(QThread):
         except Exception as e:
             import traceback
             self.finished.emit(False, f"Error: {str(e)}\n{traceback.format_exc()}")
+
+    def _parse_mod_data(self, data):
+        if not isinstance(data, dict):
+            return None
+
+        thumbnail = ''
+        preview_media = data.get('_aPreviewMedia', {})
+        if isinstance(preview_media, dict):
+            images = preview_media.get('_aImages', [])
+            if images and len(images) > 0:
+                base_url = preview_media.get('_sBaseUrl', '')
+                file_name = images[0].get('_sFile220', '') or images[0].get('_sFile', '')
+                if base_url and file_name:
+                    candidate = f"{base_url}/{file_name}"
+                    if is_visual_media(candidate):
+                        thumbnail = candidate
+
+        submitter = data.get('_aSubmitter', {})
+        author_name = submitter.get('_sName', 'Unknown') if isinstance(submitter, dict) else 'Unknown'
+        author_id = submitter.get('_idRow', 0) if isinstance(submitter, dict) else 0
+        author_avatar = submitter.get('_sUpicUrl', '') if isinstance(submitter, dict) else ''
+
+        root_category = data.get('_aRootCategory', {})
+        category_name = root_category.get('_sName', 'Mod') if isinstance(root_category, dict) else 'Mod'
+
+        raw_description = data.get('_sText', '')
+        clean_description, desc_images, _ = extract_media_from_html(raw_description)
+        if not desc_images:
+            alt_description = data.get('_sDescription', '')
+            if alt_description:
+                _, alt_images, _ = extract_media_from_html(alt_description)
+                if alt_images:
+                    desc_images = alt_images
+
+        if not thumbnail and desc_images:
+            thumbnail = desc_images[0]
+
+        return {
+            'id': data.get('_idRow', 0),
+            'name': data.get('_sName', 'Unknown'),
+            'author': author_name,
+            'author_id': author_id,
+            'author_avatar': author_avatar,
+            'description': clean_description,
+            'views': data.get('_nViewCount', 0),
+            'downloads': data.get('_nDownloadCount', 0),
+            'likes': data.get('_nLikeCount', 0),
+            'date_added': data.get('_tsDateAdded', 0),
+            'date_updated': data.get('_tsDateUpdated', 0),
+            'thumbnail': thumbnail,
+            'profile_url': data.get('_sProfileUrl', ''),
+            'category': category_name,
+            'item_type': 'Mod',
+            'zzar_supported': False,
+        }
+
+    def _check_zzar(self, mod_id):
+        """Returns (is_zzar: bool, thumbnail_url: str) for this Mod-type entry."""
+        cached_zzar = _cache_get("zzar_support_mod", mod_id)
+        cached_thumb = _cache_get("mod_thumbnail", mod_id) or ''
+        if cached_zzar is not None:
+            return (cached_zzar, cached_thumb)
+        try:
+            url = f"{GAMEBANANA_API_BASE}/Mod/{mod_id}/ProfilePage"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with _urlopen(req, timeout=10) as response:
+                data = json.loads(response.read().decode('utf-8'))
+            if isinstance(data, dict):
+                thumbnail = self._extract_thumbnail(data)
+
+                for req_item in data.get('_aRequirements', []):
+                    if isinstance(req_item, list) and len(req_item) > 0:
+                        if req_item[0].lower() == 'zzar':
+                            _cache_set("zzar_support_mod", mod_id, True)
+                            _cache_set("mod_thumbnail", mod_id, thumbnail)
+                            return (True, thumbnail)
+                for f in data.get('_aFiles', []):
+                    if isinstance(f, dict):
+                        file_id = f.get('_idRow', 0)
+                        if file_id and self._file_has_zzar(file_id):
+                            _cache_set("zzar_support_mod", mod_id, True)
+                            _cache_set("mod_thumbnail", mod_id, thumbnail)
+                            return (True, thumbnail)
+        except Exception as e:
+            print(f"[GameBanana] Error checking misc mod {mod_id}: {e}")
+        _cache_set("zzar_support_mod", mod_id, False)
+        return (False, '')
+
+    def _extract_thumbnail(self, data):
+        """Extract a thumbnail URL from an apiv11 ProfilePage dict."""
+        preview_media = data.get('_aPreviewMedia', {})
+        if isinstance(preview_media, dict):
+            images = preview_media.get('_aImages', [])
+            if images:
+                img = images[0]
+                # _sBaseUrl can be at the preview_media level OR inside each image dict
+                base_url = preview_media.get('_sBaseUrl', '') or img.get('_sBaseUrl', '')
+                file_name = img.get('_sFile220', '') or img.get('_sFile530', '') or img.get('_sFile', '')
+
+                if file_name.startswith('http'):
+                    # Already a full URL
+                    return file_name
+                elif file_name.startswith('//'):
+                    return f"https:{file_name}"
+                elif base_url and file_name:
+                    base = base_url.rstrip('/')
+                    return f"{base}/{file_name}"
+        return ''
+
+    def _file_has_zzar(self, file_id):
+        try:
+            url = f"{GAMEBANANA_API_BASE}/File/{file_id}"
+            req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
+            with _urlopen(req, timeout=8) as response:
+                data = json.loads(response.read().decode('utf-8'))
+            tree = data.get('_aArchiveFileTree', []) if isinstance(data, dict) else []
+            return self._tree_has_zzar(tree)
+        except Exception:
+            return False
+
+    def _tree_has_zzar(self, tree):
+        if isinstance(tree, list):
+            for item in tree:
+                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                    return True
+                elif isinstance(item, (dict, list)):
+                    if self._tree_has_zzar(item):
+                        return True
+        elif isinstance(tree, dict):
+            for key, value in tree.items():
+                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                    return True
+                if self._tree_has_zzar(value):
+                    return True
+        return False
+
+class FetchModDetailsWorker(QThread):
+    
+
+    finished = pyqtSignal(bool, object)
+
+    def __init__(self, mod_id, item_type='Sound'):
+        super().__init__()
+        self.mod_id = mod_id
+        self.item_type = item_type
+
+    def run(self):
+        try:
+            if self.item_type == 'Mod':
+                self._run_mod_type()
+            else:
+                self._run_sound_type()
+
+        except urllib.error.HTTPError as e:
+            self.finished.emit(False, f"HTTP Error {e.code}: {e.reason}")
+        except urllib.error.URLError as e:
+            self.finished.emit(False, f"Network Error: {e.reason}")
+        except Exception as e:
+            import traceback
+            self.finished.emit(False, f"Error: {str(e)}\n{traceback.format_exc()}")
+
+    def _run_sound_type(self):
+        fields = "name,Owner().name,text,description,views,likes,date,Files().aFiles(),Preview().sPreviewUrl()"
+        url = f"https://api.gamebanana.com/Core/Item/Data?itemtype=Sound&itemid={self.mod_id}&fields={fields}"
+        print(f"[GameBanana] Fetching Sound details: {url}")
+
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'ZZAR/1.1.0')
+        with _urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+        mod_details = self._parse_mod_details(data)
+        zzar_supported = self._check_zzar_support(mod_details)
+        if mod_details:
+            mod_details['zzar_supported'] = zzar_supported
+        self.finished.emit(True, mod_details)
+
+    def _run_mod_type(self):
+        # Use apiv11 ProfilePage — Core/Item/Data doesn't return a list for Mod type
+        url = f"{GAMEBANANA_API_BASE}/Mod/{self.mod_id}/ProfilePage"
+        print(f"[GameBanana] Fetching Mod details (ProfilePage): {url}")
+
+        req = urllib.request.Request(url)
+        req.add_header('User-Agent', 'ZZAR/1.1.0')
+        with _urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+
+        mod_details = self._parse_mod_profile_page(data)
+        # Misc mods are already pre-filtered for ZZAR, but still verify file-level has_zzar flags
+        zzar_supported = self._check_zzar_support(mod_details)
+        if mod_details:
+            mod_details['zzar_supported'] = zzar_supported or True  # pre-confirmed by FetchMiscZZARModsWorker
+        self.finished.emit(True, mod_details)
+
+    def _parse_mod_profile_page(self, data):
+        """Parse an apiv11 ProfilePage dict response for Mod-type items."""
+        if not isinstance(data, dict):
+            print(f"[GameBanana] Unexpected Mod ProfilePage format: {type(data)}")
+            return None
+
+        submitter = data.get('_aSubmitter', {})
+        author_name = submitter.get('_sName', 'Unknown') if isinstance(submitter, dict) else 'Unknown'
+        author_id = submitter.get('_idRow', 0) if isinstance(submitter, dict) else 0
+        author_avatar = submitter.get('_sUpicUrl', '') or submitter.get('_sAvatarUrl', '') if isinstance(submitter, dict) else ''
+
+        raw_text = data.get('_sText', '') or data.get('_sDescription', '')
+        clean_description, desc_images, desc_videos = extract_media_from_html(raw_text)
+
+        preview_media = data.get('_aPreviewMedia', {})
+        thumbnail_url = ''
+        if isinstance(preview_media, dict):
+            images = preview_media.get('_aImages', [])
+            if images:
+                base_url = preview_media.get('_sBaseUrl', '')
+                file_name = images[0].get('_sFile220', '') or images[0].get('_sFile', '')
+                if base_url and file_name:
+                    candidate = f"{base_url}/{file_name}"
+                    if is_visual_media(candidate):
+                        thumbnail_url = candidate
+        if not thumbnail_url and desc_images:
+            thumbnail_url = desc_images[0]
+
+        files = []
+        for f in data.get('_aFiles', []):
+            if isinstance(f, dict):
+                files.append({
+                    'id': str(f.get('_idRow', '')),
+                    'name': f.get('_sFile', 'Unknown'),
+                    'description': f.get('_sDescription', ''),
+                    'size': f.get('_nFilesize', 0),
+                    'download_url': f.get('_sDownloadUrl', ''),
+                    'downloads': f.get('_nDownloadCount', 0),
+                    'has_zzar': False,
+                })
+
+        return {
+            'id': self.mod_id,
+            'name': data.get('_sName', 'Unknown'),
+            'author': author_name,
+            'author_id': author_id,
+            'author_avatar': author_avatar,
+            'description': clean_description,
+            'description_images': desc_images,
+            'description_videos': desc_videos,
+            'views': data.get('_nViewCount', 0),
+            'downloads': data.get('_nDownloadCount', 0),
+            'likes': data.get('_nLikeCount', 0),
+            'date_added': data.get('_tsDateAdded', 0),
+            'date_updated': data.get('_tsDateUpdated', 0),
+            'thumbnail': thumbnail_url,
+            'preview_audio_url': '',
+            'profile_url': f"https://gamebanana.com/mods/{self.mod_id}",
+            'category': data.get('_aRootCategory', {}).get('_sName', 'Mod') if isinstance(data.get('_aRootCategory'), dict) else 'Mod',
+            'files': files,
+            'zzar_supported': False,
+        }
 
     def _parse_mod_details(self, data):
         
@@ -342,8 +632,8 @@ class FetchModDetailsWorker(QThread):
             'date_updated': date,
             'thumbnail': thumbnail_url,
             'preview_audio_url': preview_audio_url,
-            'profile_url': f"https://gamebanana.com/sounds/{self.mod_id}",
-            'category': 'Sound',
+            'profile_url': f"https://gamebanana.com/{'sounds' if self.item_type == 'Sound' else 'mods'}/{self.mod_id}",
+            'category': self.item_type,
             'files': files,
             'zzar_supported': False,
         }
@@ -380,7 +670,7 @@ class FetchModDetailsWorker(QThread):
                     f['has_zzar'] = False
 
         try:
-            url = f"https://gamebanana.com/apiv11/Sound/{self.mod_id}/ProfilePage"
+            url = f"https://gamebanana.com/apiv11/{self.item_type}/{self.mod_id}/ProfilePage"
             req = urllib.request.Request(url, headers={'User-Agent': 'ZZAR/1.1.0'})
             with _urlopen(req, timeout=10) as response:
                 data = json.loads(response.read().decode('utf-8'))
@@ -758,6 +1048,7 @@ class GameBananaBridge(QObject):
     def __init__(self):
         super().__init__()
         self.fetch_worker = None
+        self.misc_fetch_worker = None
         self.details_worker = None
         self.download_worker = None
         self.install_worker = None
@@ -773,6 +1064,10 @@ class GameBananaBridge(QObject):
         self._install_queue = []
         self._current_download_url = ""
         self._current_download_mod_id = 0
+        self._mod_item_types = {}  # mod_id -> 'Sound' or 'Mod'
+        self._pending_fetch_count = 0
+        self._combined_mods = []
+        self._sound_mod_ids = []
 
     @pyqtSlot(int)
     def fetchThumbnail(self, mod_id):
@@ -824,32 +1119,64 @@ class GameBananaBridge(QObject):
     @pyqtSlot(int, str, str)
     def fetchMods(self, page=1, sort="default", search=""):
 
-        if self.fetch_worker and self.fetch_worker.isRunning():
+        if (self.fetch_worker and self.fetch_worker.isRunning()) or \
+           (self.misc_fetch_worker and self.misc_fetch_worker.isRunning()):
             print("[GameBanana] Already fetching mods")
             return
 
         self.current_page = page
         self.current_sort = sort
+        self._pending_fetch_count = 2
+        self._combined_mods = []
+        self._sound_mod_ids = []
         self.loadingStateChanged.emit(True)
 
         self.fetch_worker = FetchModsWorker(page, per_page=50, sort=sort)
-        self.fetch_worker.finished.connect(self._on_mods_fetched)
+        self.fetch_worker.finished.connect(self._on_sound_mods_partial)
         self.fetch_worker.start()
 
+        self.misc_fetch_worker = FetchMiscZZARModsWorker(page, per_page=50, sort=sort)
+        self.misc_fetch_worker.finished.connect(self._on_misc_mods_partial)
+        self.misc_fetch_worker.start()
+
+    def _on_sound_mods_partial(self, success, data):
+        if success and isinstance(data, list):
+            for mod in data:
+                self._combined_mods.append(mod)
+                self._mod_item_types[mod['id']] = 'Sound'
+                self._sound_mod_ids.append(mod['id'])
+        self._pending_fetch_count -= 1
+        self._maybe_emit_combined()
+
+    def _on_misc_mods_partial(self, success, data):
+        if success and isinstance(data, list):
+            for mod in data:
+                self._combined_mods.append(mod)
+                self._mod_item_types[mod['id']] = 'Mod'
+        elif not success:
+            print(f"[GameBanana] Misc mods fetch failed: {data}")
+        self._pending_fetch_count -= 1
+        self._maybe_emit_combined()
+
+    def _maybe_emit_combined(self):
+        if self._pending_fetch_count > 0:
+            return
+        self._on_mods_fetched(True, self._combined_mods)
+
     def _on_mods_fetched(self, success, data):
-        
+
         self.loadingStateChanged.emit(False)
 
         if success:
             self.cached_mods = data
             self.modsLoaded.emit(data)
-            print(f"[GameBanana] Loaded {len(data)} mods")
+            print(f"[GameBanana] Loaded {len(data)} mods ({len(self._sound_mod_ids)} Sound + {len(data) - len(self._sound_mod_ids)} Misc ZZAR)")
 
-            all_ids = [m['id'] for m in data]
-            if all_ids:
+            # Only run lazy ZZAR check for Sound mods — misc mods are pre-filtered
+            if self._sound_mod_ids:
                 if self.zzar_support_worker and self.zzar_support_worker.isRunning():
                     self.zzar_support_worker.terminate()
-                self.zzar_support_worker = FetchZZARSupportWorker(all_ids)
+                self.zzar_support_worker = FetchZZARSupportWorker(self._sound_mod_ids)
                 self.zzar_support_worker.zzarSupportReady.connect(self.zzarSupportUpdated.emit)
                 self.zzar_support_worker.start()
         else:
@@ -858,14 +1185,15 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(int)
     def fetchModDetails(self, mod_id):
-        
+
         if self.details_worker and self.details_worker.isRunning():
             print("[GameBanana] Already fetching details")
             return
 
         self.loadingStateChanged.emit(True)
 
-        self.details_worker = FetchModDetailsWorker(mod_id)
+        item_type = self._mod_item_types.get(mod_id, 'Sound')
+        self.details_worker = FetchModDetailsWorker(mod_id, item_type)
         self.details_worker.finished.connect(self._on_details_fetched)
         self.details_worker.start()
 
@@ -874,6 +1202,10 @@ class GameBananaBridge(QObject):
         self.loadingStateChanged.emit(False)
 
         if success:
+
+            if not data:
+                self.errorOccurred.emit("Failed to Load Mod Details", "Received empty response from GameBanana")
+                return
 
             mod_id = data.get('id', 0)
             if mod_id:

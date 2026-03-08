@@ -978,8 +978,9 @@ Item {
                         }
 
                         background: Rectangle {
+                            HoverHandler { id: welcomeLangBgHover }
                             color: welcomeLanguageCombo.pressed ? Qt.darker("#333333", 1.2)
-                                 : welcomeLanguageCombo.hovered ? Qt.lighter("#333333", 1.1)
+                                 : welcomeLangBgHover.hovered ? Qt.lighter("#333333", 1.1)
                                  : "#333333"
                             radius: 6
                             border.color: "#555555"
@@ -1013,13 +1014,16 @@ Item {
                         }
 
                         delegate: ItemDelegate {
+                            id: welcomeLangDelegate
                             width: welcomeLanguageCombo.width - 8
                             height: 30
 
+                            HoverHandler { id: welcomeLangDelegateHover }
+
                             background: Rectangle {
                                 color: {
-                                    if (parent.highlighted) return Theme.primaryAccent
-                                    if (parent.hovered) return Qt.lighter("#1a1a1a", 1.3)
+                                    if (welcomeLangDelegate.highlighted) return Theme.primaryAccent
+                                    if (welcomeLangDelegateHover.hovered) return Qt.lighter("#1a1a1a", 1.3)
                                     return "#1a1a1a"
                                 }
                                 radius: 4
@@ -1028,7 +1032,7 @@ Item {
 
                             contentItem: Text {
                                 text: modelData.name
-                                color: parent.highlighted ? Theme.textOnAccent : "#cccccc"
+                                color: welcomeLangDelegate.highlighted ? Theme.textOnAccent : "#cccccc"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
                                 verticalAlignment: Text.AlignVCenter

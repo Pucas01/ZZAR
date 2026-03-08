@@ -171,7 +171,8 @@ Rectangle {
                             contentItem: Rectangle {
                                 implicitWidth: 8
                                 radius: 4
-                                color: parent.pressed ? "#d8fa00" : (parent.hovered ? "#aac800" : "#555555")
+                                HoverHandler { id: gbDialogScrollHover }
+                                color: parent.pressed ? "#d8fa00" : (gbDialogScrollHover.hovered ? "#aac800" : "#555555")
                                 opacity: parent.active ? 1.0 : 0.5
 
                                 Behavior on color { ColorAnimation { duration: 150 } }

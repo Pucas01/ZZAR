@@ -228,8 +228,9 @@ Item {
                         onActivated: sortIndex = index
 
                         background: Rectangle {
+                            HoverHandler { id: gbSortBgHover }
                             color: sortComboBox.pressed ? Qt.darker(Theme.cardBackground, 1.2)
-                                 : sortComboBox.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                                 : gbSortBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
                                  : Theme.cardBackground
                             radius: Theme.radiusMedium
                             border.color: "transparent"
@@ -261,14 +262,17 @@ Item {
                         }
 
                         delegate: ItemDelegate {
+                            id: gbSortDelegate
                             width: sortComboBox.width - 8
                             height: Theme.buttonHeight
                             highlighted: sortComboBox.highlightedIndex === index
 
+                            HoverHandler { id: gbSortDelegateHover }
+
                             background: Rectangle {
                                 color: {
-                                    if (parent.highlighted) return Theme.primaryAccent
-                                    if (parent.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
+                                    if (gbSortDelegate.highlighted) return Theme.primaryAccent
+                                    if (gbSortDelegateHover.hovered) return Qt.lighter(Theme.surfaceDark, 1.3)
                                     return Theme.surfaceDark
                                 }
                                 radius: Theme.radiusSmall
@@ -277,7 +281,7 @@ Item {
 
                             contentItem: Text {
                                 text: modelData
-                                color: parent.highlighted ? Theme.textOnAccent : Theme.textPrimary
+                                color: gbSortDelegate.highlighted ? Theme.textOnAccent : Theme.textPrimary
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 verticalAlignment: Text.AlignVCenter
@@ -438,11 +442,23 @@ Item {
 
                         ScrollBar.vertical: ScrollBar {
                             policy: ScrollBar.AsNeeded
-                            width: 8
+                            minimumSize: 0.1
 
                             contentItem: Rectangle {
+                                implicitWidth: 8
                                 radius: 4
-                                color: parent.pressed ? Theme.primaryAccent : "#555555"
+                                HoverHandler { id: gbGridScrollHover }
+                                color: parent.pressed ? Theme.primaryAccent : (gbGridScrollHover.hovered ? Qt.lighter(Theme.primaryAccent, 1.3) : "#555555")
+                                opacity: parent.active ? 1.0 : 0.5
+                                Behavior on color { ColorAnimation { duration: 150 } }
+                                Behavior on opacity { NumberAnimation { duration: 150 } }
+                            }
+
+                            background: Rectangle {
+                                implicitWidth: 8
+                                radius: 4
+                                color: "#2a2a2a"
+                                opacity: 0.3
                             }
                         }
 
@@ -451,12 +467,15 @@ Item {
                             width: parent.width - 12
                             spacing: 16
 
+                            property int cols: Math.max(2, Math.floor((width + 16) / (240 + 16)))
+                            property int cardWidth: Math.floor((width - (cols - 1) * 16) / cols)
+
                             Repeater {
                                 id: gridRepeater
                                 model: sortedModsList
 
                                 Item {
-                                    width: 240
+                                    width: gridFlow.cardWidth
                                     height: 300
 
                                     property bool _thumbRequested: false
