@@ -925,11 +925,12 @@ class InstallModWorker(QThread):
     finished = pyqtSignal(bool, str)
     multipleFound = pyqtSignal(list)
 
-    def __init__(self, archive_path, chosen_zzar=None, gamebanana_id=0):
+    def __init__(self, archive_path, chosen_zzar=None, gamebanana_id=0, download_url=""):
         super().__init__()
         self.archive_path = Path(archive_path)
         self.chosen_zzar = chosen_zzar
         self.gamebanana_id = gamebanana_id
+        self.download_url = download_url
 
     def run(self):
         import traceback
@@ -973,9 +974,16 @@ class InstallModWorker(QThread):
             if result is None:
                 self.finished.emit(False, "A newer version of this mod is already installed")
             else:
-                if self.gamebanana_id:
+                if self.gamebanana_id or self.download_url:
                     mod_uuid = result['uuid']
-                    manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_id'] = self.gamebanana_id
+                    if self.gamebanana_id:
+                        manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_id'] = self.gamebanana_id
+                    if self.download_url:
+                        manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_download_url'] = self.download_url
+                        manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_chosen_zzar'] = Path(target).name
+                        total = _cache.get("zzar_totals_by_url", {}).get(self.download_url)
+                        if total and total > 1:
+                            manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_zzar_total'] = total
                     manager.save_config()
                 action = "Updated" if result['replaced'] else "Installed"
                 self.finished.emit(True, f"{action}: {result['mod_name']} v{result['version']}")
@@ -1274,27 +1282,31 @@ class GameBananaBridge(QObject):
         if success:
             self.downloadComplete.emit(result)
             print(f"[GameBanana] Download complete: {result}")
-            self._run_install(result, chosen_zzar=None, gamebanana_id=self._current_download_mod_id)
+            self._run_install(result, chosen_zzar=None, gamebanana_id=self._current_download_mod_id, download_url=self._current_download_url)
         else:
             self.errorOccurred.emit("Download Failed", result)
             print(f"[GameBanana] Download error: {result}")
 
-    def _run_install(self, archive_path, chosen_zzar, gamebanana_id=0):
+    def _run_install(self, archive_path, chosen_zzar, gamebanana_id=0, download_url=""):
         if self.install_worker and self.install_worker.isRunning():
 
-            self._install_queue.append((archive_path, chosen_zzar, gamebanana_id))
+            self._install_queue.append((archive_path, chosen_zzar, gamebanana_id, download_url))
             return
         self.installStateChanged.emit(True)
-        self.install_worker = InstallModWorker(archive_path, chosen_zzar, gamebanana_id)
+        self.install_worker = InstallModWorker(archive_path, chosen_zzar, gamebanana_id, download_url)
         self.install_worker.finished.connect(self._on_install_finished)
-        self.install_worker.multipleFound.connect(
-            lambda names: self.multipleZZARFound.emit(names, archive_path)
-        )
+        captured_url = download_url
+        def _on_multiple_found(names):
+            if captured_url:
+                _cache_set("zzar_totals_by_url", captured_url, len(names))
+                _save_cache()
+            self.multipleZZARFound.emit(names, archive_path)
+        self.install_worker.multipleFound.connect(_on_multiple_found)
         self.install_worker.start()
 
     @pyqtSlot(str, str)
     def installChosenZZAR(self, zip_path, zzar_name):
-        self._run_install(zip_path, zzar_name, self._current_download_mod_id)
+        self._run_install(zip_path, zzar_name, self._current_download_mod_id, self._current_download_url)
 
     def _on_install_finished(self, success, message):
         if success:
@@ -1306,8 +1318,8 @@ class GameBananaBridge(QObject):
             print(f"[GameBanana] Install error: {message}")
 
         if self._install_queue:
-            next_path, next_zzar, next_gid = self._install_queue.pop(0)
-            self.install_worker = InstallModWorker(next_path, next_zzar, next_gid)
+            next_path, next_zzar, next_gid, next_url = self._install_queue.pop(0)
+            self.install_worker = InstallModWorker(next_path, next_zzar, next_gid, next_url)
             self.install_worker.finished.connect(self._on_install_finished)
             self.install_worker.multipleFound.connect(
                 lambda names: self.multipleZZARFound.emit(names, next_path)
@@ -1348,6 +1360,74 @@ class GameBananaBridge(QObject):
             return mod_ids
         except Exception:
             return []
+
+    @pyqtSlot(result='QVariantList')
+    def getInstalledDownloadUrls(self):
+        """Returns download URLs that are fully installed.
+        For single-zzar zips: URL is included once any zzar is installed.
+        For multi-zzar zips: URL included only when all zzars in the zip are installed."""
+        try:
+            from src.mod_package_manager import ModPackageManager
+            manager = ModPackageManager()
+            totals = dict(_cache.get("zzar_totals_by_url", {}))
+            zzars_by_url = {}
+            for mod in manager.get_installed_mods():
+                url = mod['metadata'].get('gamebanana_download_url')
+                zzar = mod['metadata'].get('gamebanana_chosen_zzar')
+                # Use metadata as fallback for total count (survives cache clears)
+                meta_total = mod['metadata'].get('gamebanana_zzar_total')
+                if url and meta_total and url not in totals:
+                    totals[url] = meta_total
+                if url:
+                    if url not in zzars_by_url:
+                        zzars_by_url[url] = []
+                    if zzar and zzar not in zzars_by_url[url]:
+                        zzars_by_url[url].append(zzar)
+            fully_installed = []
+            for url, zzars in zzars_by_url.items():
+                total = totals.get(url)
+                if total and total > 1:
+                    if len(zzars) >= total:
+                        fully_installed.append(url)
+                else:
+                    fully_installed.append(url)
+            return fully_installed
+        except Exception:
+            return []
+
+    @pyqtSlot(result='QVariant')
+    def getInstalledZZARsByUrl(self):
+        """Returns {download_url: [zzar_name, ...]} for tracking partial installs."""
+        try:
+            from src.mod_package_manager import ModPackageManager
+            manager = ModPackageManager()
+            result = {}
+            for mod in manager.get_installed_mods():
+                url = mod['metadata'].get('gamebanana_download_url')
+                zzar = mod['metadata'].get('gamebanana_chosen_zzar')
+                if url and zzar:
+                    if url not in result:
+                        result[url] = []
+                    if zzar not in result[url]:
+                        result[url].append(zzar)
+            return result
+        except Exception:
+            return {}
+
+    @pyqtSlot(result='QVariant')
+    def getZZARTotalsByUrl(self):
+        """Returns {download_url: total_zzar_count}, merging cache and persisted metadata."""
+        try:
+            from src.mod_package_manager import ModPackageManager
+            totals = dict(_cache.get("zzar_totals_by_url", {}))
+            for mod in ModPackageManager().get_installed_mods():
+                url = mod['metadata'].get('gamebanana_download_url')
+                t = mod['metadata'].get('gamebanana_zzar_total')
+                if url and t and url not in totals:
+                    totals[url] = t
+            return totals
+        except Exception:
+            return dict(_cache.get("zzar_totals_by_url", {}))
 
     @pyqtSlot()
     def refresh(self):

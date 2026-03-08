@@ -24,6 +24,9 @@ Rectangle {
     property string activeDownloadUrl: ""
     property var installedModNames: []
     property var installedUrlMap: ({})
+    property var installedDownloadUrls: []
+    property var installedZZARsByUrl: ({})
+    property var zzarTotalsByUrl: ({})
     property int installedVersion: 0
 
     signal downloadRequested(string downloadUrl, string filename, string modName, int modId)
@@ -550,13 +553,43 @@ Rectangle {
                                     font.pixelSize: 15
                                 }
 
-                                Text {
+                                Row {
                                     visible: modData && modData.files && modData.files.some(function(f) { return f.has_zzar })
-                                    text: qsTranslate("Application", "ZZAR Files")
-                                    color: Theme.primaryAccent
-                                    font.family: Theme.fontFamily
-                                    font.pixelSize: 12
-                                    opacity: 0.7
+                                    spacing: 8
+
+                                    Text {
+                                        text: qsTranslate("Application", "ZZAR Files")
+                                        color: Theme.primaryAccent
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 12
+                                        opacity: 0.7
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+
+                                    Text {
+                                        visible: {
+                                            modDialog.installedVersion
+                                            if (!modData || !modData.files) return false
+                                            var zzarFiles = modData.files.filter(function(f) { return f.has_zzar })
+                                            var installedCount = zzarFiles.filter(function(f) {
+                                                return modDialog.installedDownloadUrls.indexOf(f.download_url) !== -1
+                                            }).length
+                                            return installedCount > 0 && zzarFiles.length > 1
+                                        }
+                                        text: {
+                                            modDialog.installedVersion
+                                            if (!modData || !modData.files) return ""
+                                            var zzarFiles = modData.files.filter(function(f) { return f.has_zzar })
+                                            var installedCount = zzarFiles.filter(function(f) {
+                                                return modDialog.installedDownloadUrls.indexOf(f.download_url) !== -1
+                                            }).length
+                                            return "(" + installedCount + "/" + zzarFiles.length + " " + qsTranslate("Application", "installed") + ")"
+                                        }
+                                        color: "#aaaaaa"
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 12
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
                                 }
 
                                 Repeater {
@@ -574,11 +607,18 @@ Rectangle {
                                         property bool rowInstalling: isActiveRow && modDialog.isInstalling
                                         property bool isInstalled: {
                                             modDialog.installedVersion
-                                            var ids = gameBananaPage.installedModIds
-                                            var mid = modDialog.modData ? modDialog.modData.id : -1
-                                            console.log("[isInstalled] modData.id=", mid, "installedModIds=", JSON.stringify(ids))
-                                            return mid !== -1 && ids.indexOf(mid) !== -1
+                                            return modDialog.installedDownloadUrls.indexOf(modelData.download_url) !== -1
                                         }
+                                        property int zzarTotal: {
+                                            modDialog.installedVersion
+                                            return modDialog.zzarTotalsByUrl[modelData.download_url] || 0
+                                        }
+                                        property int zzarInstalledCount: {
+                                            modDialog.installedVersion
+                                            var arr = modDialog.installedZZARsByUrl[modelData.download_url]
+                                            return arr ? arr.length : 0
+                                        }
+                                        property bool partiallyInstalled: zzarTotal > 1 && zzarInstalledCount > 0 && !isInstalled
 
                                         MouseArea {
                                             id: fileRowMouse
@@ -639,6 +679,7 @@ Rectangle {
 
                                                 property bool busy: parent.parent.rowDownloading || parent.parent.rowInstalling
                                                 property bool installed: parent.parent.isInstalled
+                                                property bool partial: parent.parent.partiallyInstalled
 
                                                 Rectangle {
                                                     id: dlBtnBg
@@ -656,10 +697,14 @@ Rectangle {
                                                 Text {
                                                     id: dlBtnLabel
                                                     anchors.centerIn: parent
-                                                    text: parent.parent.parent.rowDownloading ? (downloadProgress + "%")
-                                                        : parent.parent.parent.rowInstalling ? qsTranslate("Application", "Installing...")
-                                                        : parent.installed ? qsTranslate("Application", "Installed")
-                                                        : "\u2193  " + qsTranslate("Application", "Install")
+                                                    text: {
+                                                        var row = parent.parent.parent
+                                                        if (row.rowDownloading) return downloadProgress + "%"
+                                                        if (row.rowInstalling) return qsTranslate("Application", "Installing...")
+                                                        if (parent.installed) return qsTranslate("Application", "Installed")
+                                                        if (parent.partial) return row.zzarInstalledCount + "/" + row.zzarTotal + " " + qsTranslate("Application", "installed")
+                                                        return "\u2193  " + qsTranslate("Application", "Install")
+                                                    }
                                                     color: Theme.textOnAccent
                                                     font.family: Theme.fontFamily
                                                     font.pixelSize: Theme.fontSizeNormal
@@ -713,7 +758,7 @@ Rectangle {
                                         property bool rowInstalling: isActiveRow && modDialog.isInstalling
                                         property bool isInstalled: {
                                             modDialog.installedVersion
-                                            return modDialog.modData && gameBananaPage.installedModIds.indexOf(modDialog.modData.id) !== -1
+                                            return modDialog.installedDownloadUrls.indexOf(modelData.download_url) !== -1
                                         }
 
                                         MouseArea {
@@ -1027,7 +1072,7 @@ Rectangle {
                         width: 120
                         height: 45
                         color: "#3c3d3f"
-                        radius: 10
+                        radius: Theme.radiusMedium
                         scale: closeBtnMouse.pressed ? 0.97 : (closeBtnMouse.containsMouse ? 1.03 : 1.0)
                         Behavior on scale { NumberAnimation { duration: 150 } }
 
@@ -1055,7 +1100,7 @@ Rectangle {
                         width: 120
                         height: 45
                         color: "#d8fa00"
-                        radius: 10
+                        radius: Theme.radiusMedium
                         opacity: zzarChooser.checkedNames.length === 0 ? 0.4 : 1.0
                         scale: installSelMouse.pressed ? 0.97 : (installSelMouse.containsMouse ? 1.03 : 1.0)
                         Behavior on scale   { NumberAnimation { duration: 150 } }
@@ -1110,7 +1155,6 @@ Rectangle {
     }
 
     onPreviewIndexChanged: {
-
-        previewVideo.stop()
+        if (videoLoader.item) videoLoader.item.stopVideo()
     }
 }

@@ -11,6 +11,9 @@ Item {
     property bool isLoading: false
     property var modsList: []
     property var installedModIds: []
+    property var installedDownloadUrls: []
+    property var installedZZARsByUrl: ({})
+    property var zzarTotalsByUrl: ({})
     property int sortIndex: 0
     property string searchText: ""
     property bool thumbnailsEnabled: false
@@ -63,13 +66,23 @@ Item {
     signal downloadModRequested(string downloadUrl, string filename, string modName, int modId)
     signal installChosenZZARRequested(string zipPath, string zzarName)
 
+    function _refreshInstallState() {
+        installedModIds = gameBananaBackend.getInstalledModIds()
+        installedDownloadUrls = gameBananaBackend.getInstalledDownloadUrls()
+        installedZZARsByUrl = gameBananaBackend.getInstalledZZARsByUrl()
+        zzarTotalsByUrl = gameBananaBackend.getZZARTotalsByUrl()
+        modDialog.installedModNames = gameBananaBackend.getInstalledModNames()
+        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
+        modDialog.installedDownloadUrls = installedDownloadUrls
+        modDialog.installedZZARsByUrl = installedZZARsByUrl
+        modDialog.zzarTotalsByUrl = zzarTotalsByUrl
+        modDialog.installedVersion += 1
+    }
+
     function onModsLoaded(mods) {
         modsList = mods
         isLoading = false
-        installedModIds = gameBananaBackend.getInstalledModIds()
-        modDialog.installedModNames = gameBananaBackend.getInstalledModNames()
-        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
-        modDialog.installedVersion += 1
+        _refreshInstallState()
     }
 
     function onModDetailsLoaded(details) {
@@ -84,19 +97,13 @@ Item {
                 }
             }
         }
-        modDialog.installedModNames = gameBananaBackend.getInstalledModNames()
-        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
-        modDialog.installedVersion += 1
-        installedModIds = gameBananaBackend.getInstalledModIds()
+        _refreshInstallState()
         modDialog.showModDetails(details)
         isLoading = false
     }
 
     function onInstalledModsChanged(names) {
-        modDialog.installedModNames = names
-        modDialog.installedUrlMap = gameBananaBackend.getInstalledUrlMap()
-        modDialog.installedVersion += 1
-        installedModIds = gameBananaBackend.getInstalledModIds()
+        _refreshInstallState()
     }
 
     function setLoadingState(loading) {
