@@ -162,7 +162,7 @@ class ModManagerBridge(QObject):
                     self.conflict_preferences = settings.get("conflict_preferences", {})
 
                     custom_mods_dir = settings.get("custom_mod_library_dir", "")
-                    from config_manager import set_mod_library_dir, get_mod_library_dir
+                    from src.config_manager import set_mod_library_dir, get_mod_library_dir
 
                     old_mods_dir = self.mod_package_manager.mods_dir
                     set_mod_library_dir(custom_mods_dir if custom_mods_dir else None)
