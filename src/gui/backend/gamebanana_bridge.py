@@ -108,6 +108,16 @@ def extract_media_from_html(html_text):
     clean = re.sub(r'<img[^>]*/?>', '', html_text)
     clean = re.sub(r'<video[^>]*>.*?</video>', '', clean, flags=re.IGNORECASE | re.DOTALL)
     clean = re.sub(r'<video[^>]*/?>', '', clean, flags=re.IGNORECASE)
+    clean = re.sub(r'<iframe[^>]*>.*?</iframe>', '', clean, flags=re.IGNORECASE | re.DOTALL)
+    clean = re.sub(r'<iframe[^>]*/?>', '', clean, flags=re.IGNORECASE)
+
+    # Style links for Qt RichText rendering
+    clean = re.sub(
+        r'<a\s',
+        '<a style="color:#d8fa00;text-decoration:underline;" ',
+        clean,
+        flags=re.IGNORECASE
+    )
 
     return clean, images, videos
 

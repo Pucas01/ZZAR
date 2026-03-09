@@ -155,6 +155,7 @@ Rectangle {
                             }
                         }
 
+
                     }
 
                     Flickable {
@@ -469,6 +470,26 @@ Rectangle {
 
                                 Item { Layout.fillWidth: true }
 
+                                Text {
+                                    text: qsTranslate("Application", "View on GameBanana ↗")
+                                    color: gbLinkHover.containsMouse ? Theme.primaryAccent : Theme.textSecondary
+                                    font.family: Theme.fontFamilyTitle
+                                    font.pixelSize: 12
+                                    font.underline: gbLinkHover.containsMouse
+                                    verticalAlignment: Text.AlignVCenter
+                                    visible: modData && modData.id > 0
+
+                                    Behavior on color { ColorAnimation { duration: 120 } }
+
+                                    HoverHandler { id: gbLinkHover }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: Qt.openUrlExternally("https://gamebanana.com/mods/" + modData.id)
+                                    }
+                                }
+
                                 Row {
                                     spacing: 10
 
@@ -539,6 +560,13 @@ Rectangle {
                                         font.family: Theme.fontFamily
                                         font.pixelSize: Theme.fontSizeSmall
                                         wrapMode: Text.WordWrap
+                                        textFormat: Text.RichText
+                                        onLinkActivated: Qt.openUrlExternally(link)
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            acceptedButtons: Qt.NoButton
+                                            cursorShape: parent.hoveredLink ? Qt.PointingHandCursor : Qt.ArrowCursor
+                                        }
                                     }
                                 }
                             }

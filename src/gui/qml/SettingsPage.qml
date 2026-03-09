@@ -2051,7 +2051,7 @@ Item {
                 id: saveButton
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.margins: 20
+                anchors.margins: 16
                 height: 60
                 width: 220
                 z: 2
@@ -2093,11 +2093,10 @@ Item {
                         text: qsTranslate("Application", "Save Settings")
                         color: "#000000"
                         font.family: "Alatsi"
-                        font.pixelSize: 20
+                        font.pixelSize: 22
                         font.bold: false
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
-                        renderType: Text.NativeRendering
                     }
                 }
 

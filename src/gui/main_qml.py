@@ -243,25 +243,26 @@ class Application(
         root = self.engine.rootObjects()[0]
         self.root = root
 
-        from PyQt5.QtWidgets import QDesktopWidget
+        from PyQt5.QtGui import QGuiApplication
 
-        screen_geo = QDesktopWidget().availableGeometry()
+        screen = QGuiApplication.primaryScreen()
+        screen_geo = screen.availableGeometry()
 
-        win_x = root.property("x")
-        win_y = root.property("y")
-        win_w = root.property("width")
-        win_h = root.property("height")
+        avail_x = screen_geo.x()
+        avail_y = screen_geo.y()
+        avail_w = screen_geo.width()
+        avail_h = screen_geo.height()
 
-        if win_y < screen_geo.top() or win_y > screen_geo.bottom() - 50 or \
-        win_x < screen_geo.left() - win_w + 50 or win_x > screen_geo.right():
-            
-            print("[ZZAR] Window was off-screen! Resetting to center...")
-            
-            new_x = screen_geo.left() + (screen_geo.width() - win_w) // 2
-            new_y = screen_geo.top() + (screen_geo.height() - win_h) // 2
-            
-            root.setProperty("x", new_x)
-            root.setProperty("y", new_y)
+        win_w = min(root.property("width"), avail_w)
+        win_h = min(root.property("height"), avail_h)
+        win_x = avail_x + (avail_w - win_w) // 2
+        win_y = avail_y + (avail_h - win_h) // 2
+
+        root.setProperty("width", win_w)
+        root.setProperty("height", win_h)
+        root.setProperty("x", win_x)
+        root.setProperty("y", win_y)
+        print(f"[ZZAR] Window positioned: {win_w}x{win_h} at ({win_x},{win_y}), available: {avail_w}x{avail_h}")
 
 
         self._connect_mod_manager()
