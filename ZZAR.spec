@@ -175,10 +175,16 @@ a = Analysis(
 # other distros:
 #   - libwayland-*: version mismatch breaks EGL init, forcing software rendering
 #     where QtGraphicalEffects (ColorOverlay, OpacityMask) silently fail
-#   - libssl/libcrypto: pip PyQt5 bundles OpenSSL 1.x, but modern distros ship
-#     OpenSSL 3.x. The version mismatch breaks all HTTPS requests (e.g. Wwise download)
+# NOTE: libssl/libcrypto are intentionally NOT excluded here. Qt's network
+# module uses dlopen() to load OpenSSL at runtime using the bare filename
+# (e.g. "libssl.so.1.1"). If we exclude these from the bundle, Qt cannot find
+# them inside the _MEI temp dir and TLS fails ("TLS initialization failed").
+# Bundling the CI's OpenSSL 1.x alongside the CI's Qt5Network is correct —
+# they were built together. The bundled copies live in the _MEI dir and are
+# found before any system OpenSSL via LD_LIBRARY_PATH set by the PyInstaller
+# bootloader, so there is no conflict with the user's system OpenSSL 3.x.
 if not sys.platform.startswith('win'):
-    exclude_prefixes = ('libwayland-', 'libssl', 'libcrypto')
+    exclude_prefixes = ('libwayland-',)
     a.binaries = [
         b for b in a.binaries
         if not os.path.basename(b[0]).startswith(exclude_prefixes)
