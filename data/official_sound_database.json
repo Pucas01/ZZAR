@@ -4048,5 +4048,19 @@
     ],
     "date_added": "2026-03-06T22:14:13.771283",
     "date_modified": "2026-03-06T22:14:13.771283"
+  },
+  "6a9d6da1547d73799a7f3141ea0473afc706afeb0ab0eabc90cefcdc8b05c2f6": {
+    "name": "Bardic needle background music",
+    "tags": [
+      "bardic needle",
+      "music",
+      "store"
+    ],
+    "notes": "",
+    "file_ids": [
+      12379866
+    ],
+    "date_added": "2026-03-09T20:15:39.393403",
+    "date_modified": "2026-03-09T20:15:39.393403"
   }
 }
