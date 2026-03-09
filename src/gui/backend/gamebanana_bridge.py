@@ -188,8 +188,10 @@ class FetchModsWorker(QThread):
                             print(f"[GameBanana] Error parsing mod: {e}")
                             continue
 
-                print(f"[GameBanana] Parsed {len(mods)} mods from response")
-                self.finished.emit(True, mods)
+                metadata = data.get('_aMetadata', {}) if isinstance(data, dict) else {}
+                total_count = metadata.get('_nRecordCount', 0)
+                print(f"[GameBanana] Parsed {len(mods)} mods from response (total: {total_count})")
+                self.finished.emit(True, (mods, total_count))
 
         except urllib.error.HTTPError as e:
             self.finished.emit(False, f"HTTP Error {e.code}: {e.reason}")
@@ -1049,10 +1051,11 @@ class GameBananaBridge(QObject):
     
 
     modsLoaded = pyqtSignal('QVariantList')
+    totalModsCount = pyqtSignal(int)
     modDetailsLoaded = pyqtSignal('QVariant')
     downloadProgress = pyqtSignal(int)
     downloadComplete = pyqtSignal(str)
-    nonZzarDownloadComplete = pyqtSignal(str)  
+    nonZzarDownloadComplete = pyqtSignal(str)
     errorOccurred = pyqtSignal(str, str)
     loadingStateChanged = pyqtSignal(bool)
     thumbnailUpdated = pyqtSignal(int, str)
@@ -1086,6 +1089,7 @@ class GameBananaBridge(QObject):
         self._pending_fetch_count = 0
         self._combined_mods = []
         self._sound_mod_ids = []
+        self._total_sound_mods = 0
 
     @pyqtSlot(int)
     def fetchThumbnail(self, mod_id):
@@ -1147,6 +1151,7 @@ class GameBananaBridge(QObject):
         self._pending_fetch_count = 2
         self._combined_mods = []
         self._sound_mod_ids = []
+        self._total_sound_mods = 0
         self.loadingStateChanged.emit(True)
 
         self.fetch_worker = FetchModsWorker(page, per_page=50, sort=sort)
@@ -1158,8 +1163,10 @@ class GameBananaBridge(QObject):
         self.misc_fetch_worker.start()
 
     def _on_sound_mods_partial(self, success, data):
-        if success and isinstance(data, list):
-            for mod in data:
+        if success:
+            mods, total_count = data if isinstance(data, tuple) else (data, 0)
+            self._total_sound_mods = total_count
+            for mod in mods:
                 self._combined_mods.append(mod)
                 self._mod_item_types[mod['id']] = 'Sound'
                 self._sound_mod_ids.append(mod['id'])
@@ -1188,7 +1195,8 @@ class GameBananaBridge(QObject):
         if success:
             self.cached_mods = data
             self.modsLoaded.emit(data)
-            print(f"[GameBanana] Loaded {len(data)} mods ({len(self._sound_mod_ids)} Sound + {len(data) - len(self._sound_mod_ids)} Misc ZZAR)")
+            self.totalModsCount.emit(self._total_sound_mods)
+            print(f"[GameBanana] Loaded {len(data)} mods ({len(self._sound_mod_ids)} Sound + {len(data) - len(self._sound_mod_ids)} Misc ZZAR), total Sound: {self._total_sound_mods}")
 
             # Only run lazy ZZAR check for Sound mods — misc mods are pre-filtered
             if self._sound_mod_ids:

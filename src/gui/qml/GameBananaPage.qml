@@ -17,6 +17,9 @@ Item {
     property int sortIndex: 0
     property string searchText: ""
     property bool thumbnailsEnabled: false
+    property int currentPage: 1
+    property int totalPages: 1
+    property string currentSort: "default"
 
     onThumbnailsEnabledChanged: {
         if (thumbnailsEnabled) {
@@ -60,6 +63,7 @@ Item {
     onVisibleChanged: {
         if (visible && !_hasLoaded) {
             _hasLoaded = true
+            currentPage = 1
             loadModsRequested(1, "default", "")
         }
     }
@@ -83,6 +87,10 @@ Item {
         modsList = mods
         isLoading = false
         _refreshInstallState()
+    }
+
+    function onTotalModsCount(count) {
+        totalPages = Math.max(1, Math.ceil(count / 50))
     }
 
     function onModDetailsLoaded(details) {
@@ -174,7 +182,11 @@ Item {
                 anchors.margins: Theme.spacingMedium
                 spacing: 12
 
-                Flow {
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Flow {
                     id: toolbar
                     objectName: "tutorialGbToolbar"
                     Layout.fillWidth: true
@@ -232,7 +244,13 @@ Item {
                         height: Theme.buttonHeight
                         model: [qsTranslate("Application", "Default"), qsTranslate("Application", "Most Downloaded"), qsTranslate("Application", "Most Liked"), qsTranslate("Application", "Newest")]
 
-                        onActivated: sortIndex = index
+                        onActivated: {
+                            sortIndex = index
+                            var sortKeys = ["default", "Downloads", "Likes", "DateAdded"]
+                            currentSort = sortKeys[index] || "default"
+                            currentPage = 1
+                            loadModsRequested(1, currentSort, "")
+                        }
 
                         background: Rectangle {
                             HoverHandler { id: gbSortBgHover }
@@ -365,7 +383,131 @@ Item {
                             onClicked: refreshRequested()
                         }
                     }
-                }
+                    } // end Flow toolbar
+
+                    // Pagination controls
+                    Row {
+                        id: paginationRow
+                        spacing: 4
+                        visible: true
+                        Layout.alignment: Qt.AlignVCenter
+
+                        // Prev button
+                        Item {
+                            width: 32
+                            height: Theme.buttonHeight
+                            visible: currentPage > 1
+
+                            HoverHandler { id: prevBgHover }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: prevBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1) : Theme.cardBackground
+                                radius: Theme.radiusMedium
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "\u2039"
+                                color: Theme.textPrimary
+                                font.pixelSize: 18
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    currentPage = currentPage - 1
+                                    gridFlickable.contentY = 0
+                                    loadModsRequested(currentPage, gameBananaPage.currentSort, "")
+                                }
+                            }
+                        }
+
+                        // Page number buttons
+                        Repeater {
+                            model: {
+                                var pages = []
+                                var start = Math.max(1, currentPage - 2)
+                                var end = Math.min(totalPages, start + 4)
+                                start = Math.max(1, end - 4)
+                                for (var i = start; i <= end; i++) pages.push(i)
+                                return pages
+                            }
+
+                            Item {
+                                width: 32
+                                height: Theme.buttonHeight
+
+                                HoverHandler { id: pageNumBgHover }
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: modelData === currentPage
+                                         ? Theme.primaryAccent
+                                         : pageNumBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1)
+                                         : Theme.cardBackground
+                                    radius: Theme.radiusMedium
+                                    Behavior on color { ColorAnimation { duration: 100 } }
+                                }
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: modelData
+                                    color: modelData === currentPage ? Theme.textOnAccent : Theme.textPrimary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    font.bold: modelData === currentPage
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    enabled: modelData !== currentPage
+                                    onClicked: {
+                                        currentPage = modelData
+                                        gridFlickable.contentY = 0
+                                        loadModsRequested(currentPage, gameBananaPage.currentSort, "")
+                                    }
+                                }
+                            }
+                        }
+
+                        // Next button
+                        Item {
+                            width: 32
+                            height: Theme.buttonHeight
+                            visible: currentPage < totalPages
+
+                            HoverHandler { id: nextBgHover }
+
+                            Rectangle {
+                                anchors.fill: parent
+                                color: nextBgHover.hovered ? Qt.lighter(Theme.cardBackground, 1.1) : Theme.cardBackground
+                                radius: Theme.radiusMedium
+                                Behavior on color { ColorAnimation { duration: 100 } }
+                            }
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "\u203a"
+                                color: Theme.textPrimary
+                                font.pixelSize: 18
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    currentPage = currentPage + 1
+                                    gridFlickable.contentY = 0
+                                    loadModsRequested(currentPage, gameBananaPage.currentSort, "")
+                                }
+                            }
+                        }
+                    }
+                } // end RowLayout
 
                 Item {
                     Layout.fillWidth: true

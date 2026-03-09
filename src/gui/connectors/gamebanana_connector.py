@@ -31,6 +31,13 @@ class GameBananaConnector:
             )
         )
 
+        gb.totalModsCount.connect(
+            lambda count: QMetaObject.invokeMethod(
+                self.gamebanana_page, "onTotalModsCount",
+                Qt.QueuedConnection, Q_ARG("QVariant", count)
+            )
+        )
+
         gb.modDetailsLoaded.connect(
             lambda details: QMetaObject.invokeMethod(
                 self.gamebanana_page, "onModDetailsLoaded",
