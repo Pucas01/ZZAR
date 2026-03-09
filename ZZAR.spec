@@ -135,6 +135,7 @@ a = Analysis(
         'gui.backend.import_worker',
         'gui.backend.mod_manager_bridge',
         'gui.backend.native_dialogs',
+        'gui.backend.gamebanana_bridge',
         'gui.backend.update_manager_bridge',
         'PIL',
         'PIL.Image',

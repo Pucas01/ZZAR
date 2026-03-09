@@ -236,6 +236,7 @@ class Application(
 
         if not self.engine.rootObjects():
             print("Error: Failed to load QML")
+            sys.exit(1)
 
         print("[ZZAR] QML loaded successfully!")
         print("[ZZAR] Initializing mod manager...")
