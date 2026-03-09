@@ -162,7 +162,11 @@ a = Analysis(
 #     OpenSSL 3.x. The version mismatch breaks all HTTPS requests (e.g. Wwise download)
 if not sys.platform.startswith('win'):
     exclude_prefixes = ('libwayland-', 'libssl', 'libcrypto')
-    a.binaries = [b for b in a.binaries if not os.path.basename(b[0]).startswith(exclude_prefixes)]
+    a.binaries = [
+        b for b in a.binaries
+        if not os.path.basename(b[0]).startswith(exclude_prefixes)
+        and not os.path.basename(b[1]).startswith(exclude_prefixes)
+    ]
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 

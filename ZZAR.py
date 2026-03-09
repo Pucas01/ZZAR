@@ -9,7 +9,7 @@ if sys.platform.startswith('linux') and 'QT_QPA_PLATFORM' not in os.environ:
 if sys.platform == 'win32':
     os.environ.setdefault('QT_SCALE_FACTOR_ROUNDING_POLICY', 'PassThrough')
 
-os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false;qt.text.font.db=false'
+os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false;qt.text.font.db=false;qt.network.ssl=false'
 
 __version__ = "1.1.0"
 DEV_MODE = False 
