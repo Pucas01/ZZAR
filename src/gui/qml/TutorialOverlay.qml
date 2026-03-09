@@ -380,12 +380,46 @@ Item {
                 font.pixelSize: 18
             }
 
-            Text {
+            Row {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTranslate("Application", "incoming call...")
-                color: "#888888"
-                font.family: "inpin hongmengti"
-                font.pixelSize: 14
+
+                property int dotCount: 0
+
+                Timer {
+                    interval: 600
+                    running: true
+                    repeat: true
+                    onTriggered: parent.dotCount = (parent.dotCount + 1) % 3
+                }
+
+                Text {
+                    text: qsTranslate("Application", "incoming call")
+                    color: "#888888"
+                    font.family: "inpin hongmengti"
+                    font.pixelSize: 14
+                }
+
+                // Fixed-width dot area sized to "..."
+                Item {
+                    width: callDotRef.implicitWidth
+                    height: callDotRef.implicitHeight
+
+                    Text {
+                        id: callDotRef
+                        visible: false
+                        text: "..."
+                        font.family: "inpin hongmengti"
+                        font.pixelSize: 14
+                    }
+
+                    Text {
+                        anchors.left: parent.left
+                        text: ".".repeat(parent.parent.dotCount + 1)
+                        color: "#888888"
+                        font.family: "inpin hongmengti"
+                        font.pixelSize: 14
+                    }
+                }
             }
 
             Rectangle {
