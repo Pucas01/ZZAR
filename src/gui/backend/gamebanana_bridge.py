@@ -911,7 +911,15 @@ def _open_archive(path):
             import rarfile
         except ImportError:
             raise RuntimeError("rarfile is not installed. Run: pip install rarfile")
-        rf = rarfile.RarFile(path, 'r')
+        try:
+            rf = rarfile.RarFile(path, 'r')
+        except Exception as e:
+            if 'RarCannotExec' in type(e).__name__ or 'Cannot find working tool' in str(e):
+                raise RuntimeError(
+                    "Cannot extract .rar files: unrar is not installed.\n"
+                    "Install UnRAR and make sure it's on your PATH, or ask the mod author to provide a .zip."
+                )
+            raise
         return rf, lambda: rf.namelist(), lambda name: rf.read(name)
     elif suffix in ('.7z', '.7zip'):
         try:
