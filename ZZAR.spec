@@ -27,11 +27,28 @@ if sys.platform.startswith('win'):
         import PyQt5
         pyqt5_dir = os.path.dirname(PyQt5.__file__)
         qt_qml_dir = os.path.join(pyqt5_dir, 'Qt5', 'qml')
+        qt_plugins_dir = os.path.join(pyqt5_dir, 'Qt5', 'plugins')
+        qt_bin_dir = os.path.join(pyqt5_dir, 'Qt5', 'bin')
+
         if os.path.isdir(qt_qml_dir):
             added_files.append((qt_qml_dir, 'PyQt5/Qt5/qml'))
             print(f"INFO: Bundled Qt QML modules from {qt_qml_dir}")
         else:
             print("WARNING: Qt QML directory not found — QML will fail to load")
+
+        # Bundle QtMultimedia plugin DLLs (needed for QML QtMultimedia module)
+        for plugin_subdir in ('mediaservice', 'playbackdevices', 'audio'):
+            plugin_path = os.path.join(qt_plugins_dir, plugin_subdir)
+            if os.path.isdir(plugin_path):
+                added_files.append((plugin_path, f'PyQt5/Qt5/plugins/{plugin_subdir}'))
+                print(f"INFO: Bundled Qt plugin: {plugin_subdir}")
+
+        # Bundle Qt5Multimedia*.dll from Qt5/bin
+        if os.path.isdir(qt_bin_dir):
+            for dll in glob.glob(os.path.join(qt_bin_dir, 'Qt5Multimedia*.dll')):
+                extra_binaries.append((dll, '.'))
+                print(f"INFO: Bundled {os.path.basename(dll)}")
+
     except ImportError:
         print("WARNING: PyQt5 not found, skipping QML bundling")
 
