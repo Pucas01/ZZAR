@@ -1,7 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import QtMultimedia 5.15
 
 Item {
     id: tutorialRoot
@@ -109,14 +108,15 @@ Item {
         chatListModel.clear()
         visible = true
         showingIntro = true
-        knockSound.play()
+        var sndUrl = Qt.resolvedUrl("../assets/Knock-Knock-audio.wav").toString()
+        console.log("[Tutorial] playSound:", sndUrl, "backend:", modManagerBackend)
+        if (modManagerBackend) modManagerBackend.playSound(sndUrl)
         knockLoopTimer.restart()
     }
 
     function answerCall() {
         showingIntro = false
         knockLoopTimer.stop()
-        knockSound.stop()
 
         var sec = getCurrentSection()
         if (sec) requestPageChange(sec.tabIndex)
@@ -297,19 +297,12 @@ Item {
         Behavior on height { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
     }
 
-    SoundEffect {
-        id: knockSound
-        source: "../assets/Knock-Knock-audio.wav"
-        loops: 1
-        volume: 0.4
-    }
-
     Timer {
         id: knockLoopTimer
         interval: 2345
         repeat: true
         running: showingIntro
-        onTriggered: knockSound.play()
+        onTriggered: if (modManagerBackend) modManagerBackend.playSound(Qt.resolvedUrl("../assets/Knock-Knock-audio.wav").toString())
     }
 
     // Intro screen — shown before tutorial starts

@@ -769,6 +769,25 @@ class ModManagerBridge(QObject):
             traceback.print_exc()
             return None
 
+    @pyqtSlot(str)
+    def playSound(self, path):
+        try:
+            from urllib.request import url2pathname
+            from urllib.parse import urlparse
+            parsed = urlparse(path)
+            if parsed.scheme == 'file':
+                path = url2pathname(parsed.path)
+                if sys.platform.startswith('win') and path.startswith('/'):
+                    path = path[1:]
+            if sys.platform.startswith('win'):
+                import winsound
+                winsound.PlaySound(path, winsound.SND_FILENAME | winsound.SND_ASYNC)
+            else:
+                subprocess.Popen(['aplay', '-q', path],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception as e:
+            print(f"[playSound] ERROR: {e}")
+
     @pyqtSlot(str, result=list)
     def browseImportFiles(self, mode):
 
