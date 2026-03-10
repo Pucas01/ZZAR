@@ -11,7 +11,7 @@ if sys.platform == 'win32':
 
 os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false;qt.text.font.db=false;qt.network.ssl=false'
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 DEV_MODE = False 
 
 def get_base_path():

@@ -18,7 +18,7 @@ This file shows of all the planned features for ZZAR.
     - [X] Add file to repo
     - [X] Add the ability to download them in app
     - [X] Allow users to open pull requests to add tags
-- [ ] **Gamebanana mod browser**: Download and install mods from gamebanana.
+- [X] **Gamebanana mod browser**: Download and install mods from gamebanana.
 ---
 
 ## Future stuff (none of this stuff is confirmed to be coming)
