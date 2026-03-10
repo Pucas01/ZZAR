@@ -24,7 +24,11 @@ class ModManagerConnector:
         self.mod_page = mod_page
 
         self.mod_manager_bridge.modsLoaded.connect(
-            lambda mods: mod_page.loadMods(mods)
+            lambda mods: QMetaObject.invokeMethod(
+                mod_page, "loadMods",
+                Qt.QueuedConnection,
+                Q_ARG("QVariant", mods)
+            )
         )
         self.mod_manager_bridge.refreshMods()
 
