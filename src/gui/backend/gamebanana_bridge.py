@@ -1,13 +1,44 @@
 
 
 import json
+import os
 import re
 import ssl
+import sys
 import urllib.request
 import urllib.error
 import urllib.parse
 from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
+
+if os.environ.get('ZZAR_FLATPAK'):
+    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+elif hasattr(sys, '_MEIPASS'):
+    _BASE_DIR = Path(sys.executable).parent.resolve()
+else:
+    _BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+
+_UNRAR_URL = "https://www.rarlab.com/rar/unrarw64.exe"
+_UNRAR_PATH = _BASE_DIR / "tools" / "audio" / "unrar.exe"
+
+def _ensure_unrar_windows():
+    
+    if sys.platform != 'win32':
+        return None
+    if _UNRAR_PATH.exists():
+        return str(_UNRAR_PATH)
+    print(f"[ZZAR] Downloading UnRAR to {_UNRAR_PATH} ...")
+    _UNRAR_PATH.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        ctx = ssl._create_unverified_context()
+        with urllib.request.urlopen(_UNRAR_URL, context=ctx, timeout=60) as resp:
+            data = resp.read()
+        _UNRAR_PATH.write_bytes(data)
+        print("[ZZAR] UnRAR downloaded successfully.")
+        return str(_UNRAR_PATH)
+    except Exception as e:
+        print(f"[ZZAR] Failed to download UnRAR: {e}")
+        return None
 
 def _urlopen(req, timeout=10):
     try:
@@ -111,7 +142,6 @@ def extract_media_from_html(html_text):
     clean = re.sub(r'<iframe[^>]*>.*?</iframe>', '', clean, flags=re.IGNORECASE | re.DOTALL)
     clean = re.sub(r'<iframe[^>]*/?>', '', clean, flags=re.IGNORECASE)
 
-    # Style links for Qt RichText rendering
     clean = re.sub(
         r'<a\s',
         '<a style="color:#d8fa00;text-decoration:underline;" ',
@@ -258,8 +288,7 @@ class FetchModsWorker(QThread):
         }
 
 class FetchMiscZZARModsWorker(QThread):
-    """Fetches mods from GameBanana's Mod/Index (Misc/Other section) for ZZZ,
-    then filters to only include entries that contain .zzar files."""
+    
 
     finished = pyqtSignal(bool, object)
 
@@ -311,7 +340,7 @@ class FetchMiscZZARModsWorker(QThread):
                         is_zzar, thumbnail = future.result()
                         if is_zzar:
                             mod['zzar_supported'] = True
-                            # Use ProfilePage thumbnail as fallback if listing had none
+
                             if not mod.get('thumbnail') and thumbnail:
                                 mod['thumbnail'] = thumbnail
                             zzar_mods.append(mod)
@@ -385,7 +414,7 @@ class FetchMiscZZARModsWorker(QThread):
         }
 
     def _check_zzar(self, mod_id):
-        """Returns (is_zzar: bool, thumbnail_url: str) for this Mod-type entry."""
+        
         cached_zzar = _cache_get("zzar_support_mod", mod_id)
         cached_thumb = _cache_get("mod_thumbnail", mod_id) or ''
         if cached_zzar is not None:
@@ -417,18 +446,18 @@ class FetchMiscZZARModsWorker(QThread):
         return (False, '')
 
     def _extract_thumbnail(self, data):
-        """Extract a thumbnail URL from an apiv11 ProfilePage dict."""
+        
         preview_media = data.get('_aPreviewMedia', {})
         if isinstance(preview_media, dict):
             images = preview_media.get('_aImages', [])
             if images:
                 img = images[0]
-                # _sBaseUrl can be at the preview_media level OR inside each image dict
+
                 base_url = preview_media.get('_sBaseUrl', '') or img.get('_sBaseUrl', '')
                 file_name = img.get('_sFile220', '') or img.get('_sFile530', '') or img.get('_sFile', '')
 
                 if file_name.startswith('http'):
-                    # Already a full URL
+
                     return file_name
                 elif file_name.startswith('//'):
                     return f"https:{file_name}"
@@ -506,7 +535,7 @@ class FetchModDetailsWorker(QThread):
         self.finished.emit(True, mod_details)
 
     def _run_mod_type(self):
-        # Use apiv11 ProfilePage — Core/Item/Data doesn't return a list for Mod type
+
         url = f"{GAMEBANANA_API_BASE}/Mod/{self.mod_id}/ProfilePage"
         print(f"[GameBanana] Fetching Mod details (ProfilePage): {url}")
 
@@ -516,14 +545,14 @@ class FetchModDetailsWorker(QThread):
             data = json.loads(response.read().decode('utf-8'))
 
         mod_details = self._parse_mod_profile_page(data)
-        # Misc mods are already pre-filtered for ZZAR, but still verify file-level has_zzar flags
+
         zzar_supported = self._check_zzar_support(mod_details)
         if mod_details:
-            mod_details['zzar_supported'] = zzar_supported or True  # pre-confirmed by FetchMiscZZARModsWorker
+            mod_details['zzar_supported'] = zzar_supported or True
         self.finished.emit(True, mod_details)
 
     def _parse_mod_profile_page(self, data):
-        """Parse an apiv11 ProfilePage dict response for Mod-type items."""
+        
         if not isinstance(data, dict):
             print(f"[GameBanana] Unexpected Mod ProfilePage format: {type(data)}")
             return None
@@ -911,13 +940,17 @@ def _open_archive(path):
             import rarfile
         except ImportError:
             raise RuntimeError("rarfile is not installed. Run: pip install rarfile")
+
+        unrar_path = _ensure_unrar_windows()
+        if unrar_path:
+            rarfile.UNRAR_TOOL = unrar_path
         try:
             rf = rarfile.RarFile(path, 'r')
         except Exception as e:
             if 'RarCannotExec' in type(e).__name__ or 'Cannot find working tool' in str(e):
                 raise RuntimeError(
-                    "Cannot extract .rar files: unrar is not installed.\n"
-                    "Install UnRAR and make sure it's on your PATH, or ask the mod author to provide a .zip."
+                    "Cannot extract .rar files: failed to obtain UnRAR.\n"
+                    "Check your internet connection, or ask the mod author to provide a .zip."
                 )
             raise
         return rf, lambda: rf.namelist(), lambda name: rf.read(name)
@@ -1093,7 +1126,7 @@ class GameBananaBridge(QObject):
         self._install_queue = []
         self._current_download_url = ""
         self._current_download_mod_id = 0
-        self._mod_item_types = {}  # mod_id -> 'Sound' or 'Mod'
+        self._mod_item_types = {}
         self._pending_fetch_count = 0
         self._combined_mods = []
         self._sound_mod_ids = []
@@ -1101,7 +1134,7 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(int)
     def fetchThumbnail(self, mod_id):
-        # Check settings first
+
         try:
             from src.config_manager import get_settings_file
             import json
@@ -1114,7 +1147,6 @@ class GameBananaBridge(QObject):
         except Exception as e:
             print(f"[GameBananaBridge] Error reading thumbnail setting: {e}")
 
-        # Check disk cache first
         cached = _cache_get("thumbnails", mod_id)
         if cached and cached.startswith("file://"):
             from pathlib import Path
@@ -1122,7 +1154,6 @@ class GameBananaBridge(QObject):
                 self.thumbnailUpdated.emit(mod_id, cached)
                 return
 
-        # Queue the request; a single batch worker drains the queue
         if mod_id not in self._thumb_queue and mod_id not in self._thumb_inflight:
             self._thumb_queue.append(mod_id)
             self._maybe_start_thumb_worker()
@@ -1132,7 +1163,7 @@ class GameBananaBridge(QObject):
             return
         if not self._thumb_queue:
             return
-        # Take next batch
+
         batch = self._thumb_queue[:5]
         self._thumb_queue = self._thumb_queue[5:]
         for mid in batch:
@@ -1206,7 +1237,6 @@ class GameBananaBridge(QObject):
             self.totalModsCount.emit(self._total_sound_mods)
             print(f"[GameBanana] Loaded {len(data)} mods ({len(self._sound_mod_ids)} Sound + {len(data) - len(self._sound_mod_ids)} Misc ZZAR), total Sound: {self._total_sound_mods}")
 
-            # Only run lazy ZZAR check for Sound mods — misc mods are pre-filtered
             if self._sound_mod_ids:
                 if self.zzar_support_worker and self.zzar_support_worker.isRunning():
                     self.zzar_support_worker.terminate()
@@ -1277,7 +1307,7 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(str, str)
     def downloadModToPath(self, download_url, filename):
-        """Download a non-ZZAR file to a user-chosen save path."""
+        
         from gui.backend.native_dialogs import NativeDialogs
         save_path = NativeDialogs.get_save_file(
             title="Save Mod File",
@@ -1389,9 +1419,7 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(result='QVariantList')
     def getInstalledDownloadUrls(self):
-        """Returns download URLs that are fully installed.
-        For single-zzar zips: URL is included once any zzar is installed.
-        For multi-zzar zips: URL included only when all zzars in the zip are installed."""
+        
         try:
             from src.mod_package_manager import ModPackageManager
             manager = ModPackageManager()
@@ -1400,7 +1428,7 @@ class GameBananaBridge(QObject):
             for mod in manager.get_installed_mods():
                 url = mod['metadata'].get('gamebanana_download_url')
                 zzar = mod['metadata'].get('gamebanana_chosen_zzar')
-                # Use metadata as fallback for total count (survives cache clears)
+
                 meta_total = mod['metadata'].get('gamebanana_zzar_total')
                 if url and meta_total and url not in totals:
                     totals[url] = meta_total
@@ -1423,7 +1451,7 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(result='QVariant')
     def getInstalledZZARsByUrl(self):
-        """Returns {download_url: [zzar_name, ...]} for tracking partial installs."""
+        
         try:
             from src.mod_package_manager import ModPackageManager
             manager = ModPackageManager()
@@ -1442,7 +1470,7 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(result='QVariant')
     def getZZARTotalsByUrl(self):
-        """Returns {download_url: total_zzar_count}, merging cache and persisted metadata."""
+        
         try:
             from src.mod_package_manager import ModPackageManager
             totals = dict(_cache.get("zzar_totals_by_url", {}))
