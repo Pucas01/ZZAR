@@ -168,7 +168,7 @@ Selecciona un directorio de juego para navegar.</translation>
         <message>
             <location filename="../qml/AudioBrowserPage.qml" line="1415" />
             <location filename="../qml/AudioBrowserPage.qml" line="2556" />
-            <location filename="../qml/ModInfoDialog.qml" line="274" />
+            <location filename="../qml/ModInfoDialog.qml" line="276" />
             <source>Unknown</source>
             <translation>Desconocido</translation>
         </message>
@@ -237,7 +237,7 @@ Selecciona un directorio de juego para navegar.</translation>
             <location filename="../qml/AudioBrowserPage.qml" line="2116" />
             <location filename="../qml/AudioBrowserPage.qml" line="2352" />
             <location filename="../qml/AudioBrowserPage.qml" line="2646" />
-            <location filename="../qml/ModInfoDialog.qml" line="390" />
+            <location filename="../qml/ModInfoDialog.qml" line="392" />
             <source>Close</source>
             <translation>Cerrar</translation>
         </message>
@@ -939,13 +939,13 @@ How would you like to apply them?</source>
         </message>
         <message>
             <location filename="../qml/MainWindow.qml" line="201" />
-            <location filename="../qml/TutorialOverlay.qml" line="38" />
+            <location filename="../qml/TutorialOverlay.qml" line="37" />
             <source>GameBanana</source>
             <translation>GameBanana</translation>
         </message>
         <message>
             <location filename="../qml/MainWindow.qml" line="202" />
-            <location filename="../qml/TutorialOverlay.qml" line="24" />
+            <location filename="../qml/TutorialOverlay.qml" line="23" />
             <location filename="../qml/WelcomeDialog.qml" line="164" />
             <source>Mod Manager</source>
             <translation>Administrador de Mods</translation>
@@ -1061,12 +1061,12 @@ How would you like to apply them?</source>
             <translation>Archivo en conflicto</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="164" />
+            <location filename="../qml/ModInfoDialog.qml" line="166" />
             <source>By %1</source>
             <translation>Por %1</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="171" />
+            <location filename="../qml/ModInfoDialog.qml" line="173" />
             <source>Version %1</source>
             <translation>Versión</translation>
         </message>
@@ -1092,7 +1092,7 @@ How would you like to apply them?</source>
         </message>
         <message>
             <location filename="../qml/GameBananaModDialog.qml" line="540" />
-            <location filename="../qml/ModInfoDialog.qml" line="190" />
+            <location filename="../qml/ModInfoDialog.qml" line="192" />
             <source>Description</source>
             <translation>Descripción</translation>
         </message>
@@ -1140,52 +1140,52 @@ How would you like to apply them?</source>
             <translation>Selecciona los archivos que quieres instalar y pulsa Instalar.</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="211" />
+            <location filename="../qml/ModInfoDialog.qml" line="213" />
             <source>No description provided.</source>
             <translation>Descripción no proporcionado.</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="227" />
+            <location filename="../qml/ModInfoDialog.qml" line="229" />
             <source>Details</source>
             <translation>Detalles</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="248" />
+            <location filename="../qml/ModInfoDialog.qml" line="250" />
             <source>UUID:</source>
             <translation>UUID:</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="267" />
+            <location filename="../qml/ModInfoDialog.qml" line="269" />
             <source>Created:</source>
             <translation>Creado:</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="284" />
+            <location filename="../qml/ModInfoDialog.qml" line="286" />
             <source>Audio Files:</source>
             <translation>Archivos de Audio:</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="291" />
+            <location filename="../qml/ModInfoDialog.qml" line="293" />
             <source>replacement(s)</source>
             <translation>Reemplazo(s)</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="301" />
+            <location filename="../qml/ModInfoDialog.qml" line="303" />
             <source>Target PCKs:</source>
             <translation>PCKs de destino:</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="308" />
+            <location filename="../qml/ModInfoDialog.qml" line="310" />
             <source>PCK file(s)</source>
             <translation>Archivo(s) PCK</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="326" />
+            <location filename="../qml/ModInfoDialog.qml" line="328" />
             <source>Open mod page</source>
             <translation>Abrir página del mod</translation>
         </message>
         <message>
-            <location filename="../qml/ModInfoDialog.qml" line="365" />
+            <location filename="../qml/ModInfoDialog.qml" line="367" />
             <source>Export to .zzar</source>
             <translation>Exportar a .zzar</translation>
         </message>
@@ -1304,42 +1304,42 @@ How would you like to apply them?</source>
         </message>
         <message>
             <location filename="../qml/ModManagerPage.qml" line="450" />
-            <location filename="../qml/ModManagerPage.qml" line="712" />
+            <location filename="../qml/ModManagerPage.qml" line="714" />
             <source>No mods installed.
 Click 'Install .zzar Mod' to get started.</source>
             <translation>No mods instalado.
 Clic e instala mods .zzar para iniciar.</translation>
         </message>
         <message>
-            <location filename="../qml/ModManagerPage.qml" line="577" />
-            <location filename="../qml/ModManagerPage.qml" line="826" />
+            <location filename="../qml/ModManagerPage.qml" line="579" />
+            <location filename="../qml/ModManagerPage.qml" line="830" />
             <location filename="../components/ModCard.qml" line="96" />
             <source>By: </source>
             <translation>Por: </translation>
         </message>
         <message>
-            <location filename="../qml/ModManagerPage.qml" line="632" />
-            <location filename="../qml/ModManagerPage.qml" line="850" />
+            <location filename="../qml/ModManagerPage.qml" line="634" />
+            <location filename="../qml/ModManagerPage.qml" line="854" />
             <location filename="../components/ModCard.qml" line="130" />
             <source>Enabled</source>
             <translation>Habilitado</translation>
         </message>
         <message>
-            <location filename="../qml/ModManagerPage.qml" line="632" />
-            <location filename="../qml/ModManagerPage.qml" line="850" />
+            <location filename="../qml/ModManagerPage.qml" line="634" />
+            <location filename="../qml/ModManagerPage.qml" line="854" />
             <location filename="../components/ModCard.qml" line="130" />
             <source>Disabled</source>
             <translation>Deshabilitado</translation>
         </message>
         <message>
-            <location filename="../qml/ModManagerPage.qml" line="669" />
-            <location filename="../qml/ModManagerPage.qml" line="882" />
+            <location filename="../qml/ModManagerPage.qml" line="671" />
+            <location filename="../qml/ModManagerPage.qml" line="886" />
             <location filename="../components/ModCard.qml" line="161" />
             <source>More info</source>
             <translation>Más información</translation>
         </message>
         <message>
-            <location filename="../qml/ModManagerPage.qml" line="947" />
+            <location filename="../qml/ModManagerPage.qml" line="951" />
             <source>Apply Mods</source>
             <translation>Aplicar Mods</translation>
         </message>
@@ -1778,213 +1778,213 @@ Superar este límite te bloqueará temporalmente el acceso a los mods durante 1 
             <translation>Operación completada de manera sucesiva</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="26" />
+            <location filename="../qml/TutorialOverlay.qml" line="25" />
             <source>You're here. i'll show you how this works.</source>
             <translation>Estas aquí. Te enseñare como esto funciona.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="27" />
+            <location filename="../qml/TutorialOverlay.qml" line="26" />
             <source>These buttons. use them.</source>
             <translation>Estos botones. Usalos.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="28" />
+            <location filename="../qml/TutorialOverlay.qml" line="27" />
             <source>This installs .zzar mod packages. self explanatory.</source>
             <translation>Este instala paquetes de mod .zzar, esté se explica solo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="29" />
+            <location filename="../qml/TutorialOverlay.qml" line="28" />
             <source>This one imports non-ZZAR mods and converts them.</source>
             <translation>Este importa mods que no son de ZZAR y los convierte.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="30" />
+            <location filename="../qml/TutorialOverlay.qml" line="29" />
             <source>Remove button. select a mod first, then press it.</source>
             <translation>Botón de borrar. Selecciona un mod primero, y luego presionalo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="31" />
+            <location filename="../qml/TutorialOverlay.qml" line="30" />
             <source>When you're done picking mods, apply. nothing happens until you do.</source>
             <translation>Cuando has terminado aplicando mods, aplica. Nada sucede hasta que lo hagas.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="33" />
+            <location filename="../qml/TutorialOverlay.qml" line="32" />
             <source>Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github).</source>
             <translation>Ah si quisieras preguntarme algo, estoy a toda oreja (MD Pucas01 en Discord, Pucas02 en Twitter or haz un issue/problema en github (Creador solo puede hablar en Inglés y Holandés!).</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="40" />
+            <location filename="../qml/TutorialOverlay.qml" line="39" />
             <source>GameBanana. browse and download mods made by the community.</source>
             <translation>GameBanana. explora y descarga mods hechos por la comunidad.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="41" />
+            <location filename="../qml/TutorialOverlay.qml" line="40" />
             <source>Search by name, or sort by downloads, likes, or newest.</source>
             <translation>Busca por nombre, u ordena por descargas, gustos o más recientes.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="42" />
+            <location filename="../qml/TutorialOverlay.qml" line="41" />
             <source>The search bar. type anything.</source>
             <translation>La barra de búsqueda. escribe lo que quieras.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="43" />
+            <location filename="../qml/TutorialOverlay.qml" line="42" />
             <source>Sort options. default puts ZZAR-native mods first.</source>
             <translation>Opciones de orden. por defecto pone los mods nativos de ZZAR primero.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="44" />
+            <location filename="../qml/TutorialOverlay.qml" line="43" />
             <source>The mod grid. click a card to see details, screenshots, and files.</source>
             <translation>La cuadrícula de mods. haz clic en una tarjeta para ver detalles, capturas y archivos.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="45" />
+            <location filename="../qml/TutorialOverlay.qml" line="44" />
             <source>Mods with the ZZAR badge install directly. others you download and install manually.</source>
             <translation>Los mods con la insignia ZZAR se instalan directamente. los demás los descargas e instalas manualmente.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="50" />
+            <location filename="../qml/TutorialOverlay.qml" line="49" />
             <source>Audio Browser</source>
             <translation>Navegador de Audio</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="52" />
+            <location filename="../qml/TutorialOverlay.qml" line="51" />
             <source>Audio Browser. Yanagi's favorite tab, apparently.</source>
             <translation>Navegador de Audio. La pestaña favorita de Yanagi, aparentemente.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="53" />
+            <location filename="../qml/TutorialOverlay.qml" line="52" />
             <source>These tabs switch between music / sfx, and voice audio. pick one.</source>
             <translation>Estas pestañas cambian entre música / sonidos y audios de voz. Escoge uno.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="54" />
+            <location filename="../qml/TutorialOverlay.qml" line="53" />
             <source>Search bar. type an ID, name, or tag. it finds things.</source>
             <translation>Barra de búsqueda. Escribe un ID, nombre, o etiqueta. Encuentra cosas.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="55" />
+            <location filename="../qml/TutorialOverlay.qml" line="54" />
             <source>The audio tree. every sound file in the game is in here.</source>
             <translation>La matriz de audio. Cada sonido dentro del juego esta aquí.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="56" />
+            <location filename="../qml/TutorialOverlay.qml" line="55" />
             <source>Open a PCK File then a BNK file and then play a WEM file (WEM files are the audio).</source>
             <translation>Abre un archivo PCK luego un archivo BNK y después reproduce un archivo WEM (archivos WEM son el audio).</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="57" />
+            <location filename="../qml/TutorialOverlay.qml" line="56" />
             <source>Right-click a file to replace it or mute it.</source>
             <translation>Clic derecho un archivo para reemplazarlo o silenciarlo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="58" />
+            <location filename="../qml/TutorialOverlay.qml" line="57" />
             <source>You can also rename and tag a sound by right-clicking.</source>
             <translation>También puedes renombrar y etiquetar un sonido con el clic derecho.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="59" />
+            <location filename="../qml/TutorialOverlay.qml" line="58" />
             <source>Audio player. play, pause, stop. you've seen one before.</source>
             <translation>Reproductor de audio. Reproduce, pausa, detiene. Ya has visto uno antes.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="60" />
+            <location filename="../qml/TutorialOverlay.qml" line="59" />
             <source>Got a .zzar mod already? import it here if you want to keep editing it.</source>
             <translation>Ya tienes un mod .zzar? Importalo aquí si quieres seguir editandolo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="61" />
+            <location filename="../qml/TutorialOverlay.qml" line="60" />
             <source>Shows your changes. also where you apply them for in-game testing.</source>
             <translation>Muestra tus cambios. También donde los aplicas para pruebas dentro del juego.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="62" />
+            <location filename="../qml/TutorialOverlay.qml" line="61" />
             <source>Export. packages everything into a .zzar mod.</source>
             <translation>Exportar. Empaqueta todo en un mod .zzar</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="63" />
+            <location filename="../qml/TutorialOverlay.qml" line="62" />
             <source>Reset. wipes all changes. also required if you have mods enabled in the mod manager.</source>
             <translation>Reiniciar. Limpia todos los cmabios. Además es requerido si tienes mods habilitados en el gestor de mods.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="68" />
+            <location filename="../qml/TutorialOverlay.qml" line="67" />
             <source>Audio Conversion</source>
             <translation>Conversión de Audio</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="70" />
+            <location filename="../qml/TutorialOverlay.qml" line="69" />
             <source>Audio Converter. last one.</source>
             <translation>Convertidor de Audio. El Último</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="71" />
+            <location filename="../qml/TutorialOverlay.qml" line="70" />
             <source>Conversion mode. WEM to WAV, WAV to WEM. pick whichever.</source>
             <translation>Modo de conversión. WEM a WAV, WAV a WEM. Escoge cualquiera.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="72" />
+            <location filename="../qml/TutorialOverlay.qml" line="71" />
             <source>Input goes here. file or folder, doesn't matter.</source>
             <translation>Entrada/Input va aquí. Archivo o carpeta, no importa.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="73" />
+            <location filename="../qml/TutorialOverlay.qml" line="72" />
             <source>Or just use these.</source>
             <translation>O solo usa estos.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="74" />
+            <location filename="../qml/TutorialOverlay.qml" line="73" />
             <source>Output directory. leave it empty and it saves next to the original.</source>
             <translation>Directorio de Salida/Output. Déjalo vacío y lo guarda a lado del original.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="75" />
+            <location filename="../qml/TutorialOverlay.qml" line="74" />
             <source>Sample rate. 48000 is fine. don't change it unless you actually know why.</source>
             <translation>Frecuencia de muestreo. 48000 esta bien. No lo cambias a menos de que sepas qué haces.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="76" />
+            <location filename="../qml/TutorialOverlay.qml" line="75" />
             <source>Press convert. done.</source>
             <translation>Preciona convertir. Listo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="77" />
+            <location filename="../qml/TutorialOverlay.qml" line="76" />
             <source>..that's everything.</source>
             <translation>..eso es todo.</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="396" />
+            <location filename="../qml/TutorialOverlay.qml" line="389" />
             <source>incoming call</source>
             <translation>llamada entrante</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="437" />
+            <location filename="../qml/TutorialOverlay.qml" line="430" />
             <source>Answer</source>
             <translation>Contestar</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="529" />
+            <location filename="../qml/TutorialOverlay.qml" line="522" />
             <source>ZZAR Expert - Chief of Hollow Special Operations Section 6</source>
             <translation>Experto de ZZAR - Jefe/a de Operaciones especiales en Cavidades de Sección 6 (HSOS6)</translation>
         </message>
         <message>
+            <location filename="../qml/TutorialOverlay.qml" line="652" />
             <location filename="../qml/TutorialOverlay.qml" line="659" />
-            <location filename="../qml/TutorialOverlay.qml" line="666" />
             <source>Got it!</source>
             <translation>Entendido!</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="662" />
+            <location filename="../qml/TutorialOverlay.qml" line="655" />
             <source>Next</source>
             <translation>Siguiente</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="664" />
+            <location filename="../qml/TutorialOverlay.qml" line="657" />
             <source>Next Page</source>
             <translation>Siguiente pagina</translation>
         </message>
         <message>
-            <location filename="../qml/TutorialOverlay.qml" line="684" />
+            <location filename="../qml/TutorialOverlay.qml" line="677" />
             <location filename="../qml/WelcomeDialog.qml" line="919" />
             <source>Skip tutorial</source>
             <translation>Saltar tutorial</translation>
@@ -2147,12 +2147,12 @@ Image</source>
 Imagen</translation>
         </message>
         <message>
-            <location filename="../main_qml.py" line="435" />
+            <location filename="../main_qml.py" line="436" />
             <source>Work in Progress</source>
             <translation>Trabajo en progreso</translation>
         </message>
         <message>
-            <location filename="../main_qml.py" line="436" />
+            <location filename="../main_qml.py" line="437" />
             <source>This feature is not yet implemented.
 
 This will be added in a future update. (i hope)</source>
@@ -2173,52 +2173,52 @@ Será agregado en una próxima actualización. (eso espero.)</translation>
             <translation>Error de importación</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="81" />
+            <location filename="../connectors/mod_manager_connector.py" line="85" />
             <source>Select .zzar Mod Package(s)</source>
             <translation>Selecciona paquete(s) de mod .zzar</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="83" />
+            <location filename="../connectors/mod_manager_connector.py" line="87" />
             <source>ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)</source>
             <translation>Paquetes de mod ZZAR (*.zzar);;Archivos ZIP (*.zip);;Todos los archivos (*)</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="119" />
+            <location filename="../connectors/mod_manager_connector.py" line="123" />
             <source>Remove Mod?</source>
             <translation>Borrar mod?</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="120" />
+            <location filename="../connectors/mod_manager_connector.py" line="124" />
             <source>Are you sure you want to remove this mod? This cannot be undone.</source>
             <translation>Estás seguro que quieres borrar este mod? No podrá deshacerse.</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="102" />
+            <location filename="../connectors/mod_manager_connector.py" line="106" />
             <source>Error</source>
             <translation>Error</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="102" />
+            <location filename="../connectors/mod_manager_connector.py" line="106" />
             <source>Import wizard component not found</source>
             <translation>El componente asistente importado, no fue encontrado</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="110" />
+            <location filename="../connectors/mod_manager_connector.py" line="114" />
             <source>Select one or more mods from the list first</source>
             <translation>Selecciona uno o más mods de la lista primera</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="122" />
+            <location filename="../connectors/mod_manager_connector.py" line="126" />
             <source>Remove %1 Mods?</source>
             <translation>Borrar %1 mods?</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="123" />
+            <location filename="../connectors/mod_manager_connector.py" line="127" />
             <source>Are you sure you want to remove %1 mods? This cannot be undone.</source>
             <translation>Estás seguro que quieres borrar %1 mods? No podrá deshacerse</translation>
         </message>
         <message>
-            <location filename="../connectors/mod_manager_connector.py" line="210" />
+            <location filename="../connectors/mod_manager_connector.py" line="214" />
             <source>Could not open folder: %1</source>
             <translation>No se puedo abrir la carpeta: %1</translation>
         </message>
