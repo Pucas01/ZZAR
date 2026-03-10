@@ -2341,7 +2341,8 @@ class AudioBrowserBridge(QObject):
                     }
 
                     replacement_count = 0
-                    for pck_name, files in metadata.get('replacements', {}).items():
+                    normalized_replacements = mod_pkg._normalize_metadata_replacements(metadata)
+                    for pck_name, files in normalized_replacements.items():
                         for file_id, file_info in files.items():
                             wem_file = file_info.get('wem_file', '')
                             if not wem_file:
