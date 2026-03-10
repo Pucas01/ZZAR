@@ -1013,6 +1013,7 @@ Item {
                                             contextMenu.contextItemId = model.itemId
                                             contextMenu.contextItemType = model.itemType
                                             contextMenu.contextPckPath = model.pckPath || ""
+                                            contextMenu.contextParentBnk = model.parentBnk || ""
 
                                             var pos = itemMouse.mapToItem(audioBrowser, mouse.x, mouse.y)
                                             contextMenuX = pos.x
@@ -1056,6 +1057,7 @@ Item {
                         property string contextItemId: ""
                         property string contextItemType: ""
                         property string contextPckPath: ""
+                        property string contextParentBnk: ""
                         property bool visible: false
                         function close() { visible = false }
                     }
@@ -1300,7 +1302,9 @@ Item {
             "expanded": false,
             "depth": item.depth || 0,
             "pckPath": item.pckPath || "",
-            "isModified": item.isModified || false
+            "isModified": item.isModified || false,
+            "parentBnk": item.parentBnk || "",
+            "parentPck": item.parentPck || ""
         })
     }
 
@@ -1352,7 +1356,9 @@ Item {
                 "expanded": false,
                 "depth": items[i].depth || 0,
                 "pckPath": items[i].pckPath || "",
-                "isModified": items[i].isModified || false
+                "isModified": items[i].isModified || false,
+                "parentBnk": items[i].parentBnk || "",
+                "parentPck": items[i].parentPck || ""
             }
             if (insertIdx >= 0) {
                 treeModel.insert(insertIdx + i, row)
@@ -1381,12 +1387,15 @@ Item {
         timeText = timeStr
     }
 
-    function scrollToItem(fileId, pckPath) {
-        console.log("[QML] scrollToItem called: fileId=", fileId, "pckPath=", pckPath)
+    function scrollToItem(fileId, pckPath, bnkId) {
+        console.log("[QML] scrollToItem called: fileId=", fileId, "pckPath=", pckPath, "bnkId=", bnkId)
         console.log("[QML] treeModel.count=", treeModel.count)
 
         for (var i = 0; i < treeModel.count; i++) {
-            if (treeModel.get(i).itemId === fileId && treeModel.get(i).pckPath === pckPath) {
+            var item = treeModel.get(i)
+            if (item.itemId === fileId && item.pckPath === pckPath) {
+                if (bnkId && item.parentBnk && item.parentBnk !== bnkId)
+                    continue
                 console.log("[QML] Found item at index", i, "scrolling to it")
                 treeList.positionViewAtIndex(i, ListView.Center)
                 highlightItemId = fileId
@@ -1454,6 +1463,7 @@ Item {
         for (var i = 0; i < changes.length; i++) {
             changesModel.append({
                 "fileId": changes[i].fileId || "",
+                "trackerKey": changes[i].trackerKey || changes[i].fileId || "",
                 "pckFile": changes[i].pckFile || "",
                 "fileType": changes[i].fileType || "",
                 "itemType": changes[i].itemType || "",
@@ -1803,7 +1813,7 @@ Item {
                         onClicked: {
                             contextMenu.close()
                             audioBrowserBackend.replaceWithCustomAudio(
-                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath, normalizeAudioChecked)
+                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath, normalizeAudioChecked, contextMenu.contextParentBnk)
                         }
                     }
                 }
@@ -1863,7 +1873,7 @@ Item {
                         onClicked: {
                             contextMenu.close()
                             audioBrowserBackend.muteAudio(
-                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath)
+                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath, contextMenu.contextParentBnk)
                         }
                     }
                 }
@@ -1929,7 +1939,7 @@ Item {
                         onClicked: {
                             contextMenu.close()
                             audioBrowserBackend.exportAsWav(
-                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath)
+                                contextMenu.contextItemId, contextMenu.contextItemType, contextMenu.contextPckPath, contextMenu.contextParentBnk)
                         }
                     }
                 }
@@ -2073,6 +2083,15 @@ Item {
                                 font.family: Theme.fontFamily
                                 font.pixelSize: Theme.fontSizeSmall
                                 Layout.preferredWidth: 100
+                            }
+                            Text {
+                                visible: model.bnkId !== ""
+                                text: model.bnkId !== "" ? qsTranslate("Application", "BNK: ") + model.bnkId : ""
+                                color: Theme.textSecondary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: Theme.fontSizeSmall - 1
+                                elide: Text.ElideRight
+                                Layout.preferredWidth: model.bnkId !== "" ? 130 : 0
                             }
                             Text {
                                 text: model.tags
@@ -2591,7 +2610,7 @@ Item {
                                 buttonColor: Theme.disabledAccent
                                 fontSize: 11
                                 onClicked: {
-                                    removeChangeRequested(model.pckFile, model.fileId)
+                                    removeChangeRequested(model.pckFile, model.trackerKey)
                                 }
                             }
                         }
