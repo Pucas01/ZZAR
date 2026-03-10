@@ -756,7 +756,7 @@ class ModManagerBridge(QObject):
                 "fileCount": file_count,
                 "replacements": replacements,
                 "gamebananaUrl": (
-                    f"https://gamebanana.com/mods/{metadata['gamebanana_id']}"
+                    f"https://gamebanana.com/{'sounds' if metadata.get('gamebanana_item_type', 'Sound') == 'Sound' else 'mods'}/{metadata['gamebanana_id']}"
                     if metadata.get("gamebanana_id")
                     else metadata.get("gamebanana_download_url", "")
                 ),

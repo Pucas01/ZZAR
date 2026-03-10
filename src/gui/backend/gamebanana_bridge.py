@@ -18,27 +18,20 @@ elif hasattr(sys, '_MEIPASS'):
 else:
     _BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
-_UNRAR_URL = "https://www.rarlab.com/rar/unrarw64.exe"
-_UNRAR_PATH = _BASE_DIR / "tools" / "audio" / "unrar.exe"
-
-def _ensure_unrar_windows():
-    
+def _find_bundled_unrar():
+    """Find the bundled unrar.exe (Windows only)."""
     if sys.platform != 'win32':
         return None
-    if _UNRAR_PATH.exists():
-        return str(_UNRAR_PATH)
-    print(f"[ZZAR] Downloading UnRAR to {_UNRAR_PATH} ...")
-    _UNRAR_PATH.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        ctx = ssl._create_unverified_context()
-        with urllib.request.urlopen(_UNRAR_URL, context=ctx, timeout=60) as resp:
-            data = resp.read()
-        _UNRAR_PATH.write_bytes(data)
-        print("[ZZAR] UnRAR downloaded successfully.")
-        return str(_UNRAR_PATH)
-    except Exception as e:
-        print(f"[ZZAR] Failed to download UnRAR: {e}")
-        return None
+    candidates = [
+        # PyInstaller bundle: resources/ is next to the exe
+        _BASE_DIR / "resources" / "windows" / "unrar.exe",
+        # Running from source
+        Path(__file__).resolve().parent.parent.parent / "resources" / "windows" / "unrar.exe",
+    ]
+    for path in candidates:
+        if path.exists():
+            return str(path)
+    return None
 
 def _urlopen(req, timeout=10):
     try:
@@ -941,7 +934,7 @@ def _open_archive(path):
         except ImportError:
             raise RuntimeError("rarfile is not installed. Run: pip install rarfile")
 
-        unrar_path = _ensure_unrar_windows()
+        unrar_path = _find_bundled_unrar()
         if unrar_path:
             rarfile.UNRAR_TOOL = unrar_path
             rarfile.tool_setup(force=True)
@@ -950,8 +943,8 @@ def _open_archive(path):
         except Exception as e:
             if 'RarCannotExec' in type(e).__name__ or 'Cannot find working tool' in str(e):
                 raise RuntimeError(
-                    "Cannot extract .rar files: failed to obtain UnRAR.\n"
-                    "Check your internet connection, or ask the mod author to provide a .zip."
+                    "Cannot extract .rar files: UnRAR not found.\n"
+                    "Please reinstall ZZAR, or ask the mod author to provide a .zip."
                 )
             raise
         return rf, lambda: rf.namelist(), lambda name: rf.read(name)
@@ -979,12 +972,13 @@ class InstallModWorker(QThread):
     finished = pyqtSignal(bool, str)
     multipleFound = pyqtSignal(list)
 
-    def __init__(self, archive_path, chosen_zzar=None, gamebanana_id=0, download_url=""):
+    def __init__(self, archive_path, chosen_zzar=None, gamebanana_id=0, download_url="", item_type="Sound"):
         super().__init__()
         self.archive_path = Path(archive_path)
         self.chosen_zzar = chosen_zzar
         self.gamebanana_id = gamebanana_id
         self.download_url = download_url
+        self.item_type = item_type
 
     def run(self):
         import traceback
@@ -1032,6 +1026,7 @@ class InstallModWorker(QThread):
                     mod_uuid = result['uuid']
                     if self.gamebanana_id:
                         manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_id'] = self.gamebanana_id
+                        manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_item_type'] = self.item_type
                     if self.download_url:
                         manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_download_url'] = self.download_url
                         manager.mod_config['installed_mods'][mod_uuid]['metadata']['gamebanana_chosen_zzar'] = Path(target).name
@@ -1339,18 +1334,18 @@ class GameBananaBridge(QObject):
         if success:
             self.downloadComplete.emit(result)
             print(f"[GameBanana] Download complete: {result}")
-            self._run_install(result, chosen_zzar=None, gamebanana_id=self._current_download_mod_id, download_url=self._current_download_url)
+            item_type = self._mod_item_types.get(self._current_download_mod_id, 'Sound')
+            self._run_install(result, chosen_zzar=None, gamebanana_id=self._current_download_mod_id, download_url=self._current_download_url, item_type=item_type)
         else:
             self.errorOccurred.emit("Download Failed", result)
             print(f"[GameBanana] Download error: {result}")
 
-    def _run_install(self, archive_path, chosen_zzar, gamebanana_id=0, download_url=""):
+    def _run_install(self, archive_path, chosen_zzar, gamebanana_id=0, download_url="", item_type="Sound"):
         if self.install_worker and self.install_worker.isRunning():
-
-            self._install_queue.append((archive_path, chosen_zzar, gamebanana_id, download_url))
+            self._install_queue.append((archive_path, chosen_zzar, gamebanana_id, download_url, item_type))
             return
         self.installStateChanged.emit(True)
-        self.install_worker = InstallModWorker(archive_path, chosen_zzar, gamebanana_id, download_url)
+        self.install_worker = InstallModWorker(archive_path, chosen_zzar, gamebanana_id, download_url, item_type)
         self.install_worker.finished.connect(self._on_install_finished)
         captured_url = download_url
         def _on_multiple_found(names):
@@ -1363,7 +1358,8 @@ class GameBananaBridge(QObject):
 
     @pyqtSlot(str, str)
     def installChosenZZAR(self, zip_path, zzar_name):
-        self._run_install(zip_path, zzar_name, self._current_download_mod_id, self._current_download_url)
+        item_type = self._mod_item_types.get(self._current_download_mod_id, 'Sound')
+        self._run_install(zip_path, zzar_name, self._current_download_mod_id, self._current_download_url, item_type)
 
     def _on_install_finished(self, success, message):
         if success:
@@ -1375,8 +1371,8 @@ class GameBananaBridge(QObject):
             print(f"[GameBanana] Install error: {message}")
 
         if self._install_queue:
-            next_path, next_zzar, next_gid, next_url = self._install_queue.pop(0)
-            self.install_worker = InstallModWorker(next_path, next_zzar, next_gid, next_url)
+            next_path, next_zzar, next_gid, next_url, next_type = self._install_queue.pop(0)
+            self.install_worker = InstallModWorker(next_path, next_zzar, next_gid, next_url, next_type)
             self.install_worker.finished.connect(self._on_install_finished)
             self.install_worker.multipleFound.connect(
                 lambda names: self.multipleZZARFound.emit(names, next_path)
