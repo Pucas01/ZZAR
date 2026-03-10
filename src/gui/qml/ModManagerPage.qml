@@ -502,6 +502,8 @@ Item {
                                 anchors.fill: parent
                                 source: model.thumbnailPath || ""
                                 fillMode: Image.PreserveAspectCrop
+                                smooth: true
+                                mipmap: true
                                 visible: false
                                 layer.enabled: true
                             }
@@ -765,6 +767,8 @@ Item {
                                     anchors.fill: parent
                                     source: model.thumbnailPath || ""
                                     fillMode: Image.PreserveAspectCrop
+                                    smooth: true
+                                    mipmap: true
                                     visible: false
                                     layer.enabled: true
                                 }

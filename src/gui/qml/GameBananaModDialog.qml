@@ -486,7 +486,7 @@ Rectangle {
                                     MouseArea {
                                         anchors.fill: parent
                                         cursorShape: Qt.PointingHandCursor
-                                        onClicked: Qt.openUrlExternally("https://gamebanana.com/mods/" + modData.id)
+                                        onClicked: Qt.openUrlExternally(modData.profile_url || ("https://gamebanana.com/sounds/" + modData.id))
                                     }
                                 }
 

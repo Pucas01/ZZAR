@@ -98,6 +98,8 @@ Item {
                             return "file:///" + modThumbnailPath.replace(/\\/g, "/");
                         }
                         fillMode: Image.PreserveAspectCrop
+                        smooth: true
+                        mipmap: true
                         visible: false
                         layer.enabled: true
                     }
