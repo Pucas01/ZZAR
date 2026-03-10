@@ -195,6 +195,6 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,  # TEMP: enable to see QML errors on Windows
+    console=False
     icon=icon_file,
 )

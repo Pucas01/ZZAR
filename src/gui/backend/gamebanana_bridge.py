@@ -944,6 +944,7 @@ def _open_archive(path):
         unrar_path = _ensure_unrar_windows()
         if unrar_path:
             rarfile.UNRAR_TOOL = unrar_path
+            rarfile.tool_setup(force=True)
         try:
             rf = rarfile.RarFile(path, 'r')
         except Exception as e:
