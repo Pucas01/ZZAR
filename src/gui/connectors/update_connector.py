@@ -6,6 +6,7 @@ from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt, QCoreApplication
 from PyQt5.QtWidgets import QApplication
 
 from src.config_manager import get_cache_dir
+from src.app_config import FLATPAK_ENV_VAR
 
 
 class UpdateConnector:
@@ -53,7 +54,7 @@ class UpdateConnector:
             self.settings_page.setProperty("updateAvailable", True)
             self.settings_page.setProperty("latestVersion", version)
 
-        if os.environ.get('ZZAR_FLATPAK'):
+        if os.environ.get(FLATPAK_ENV_VAR):
             # In Flatpak, show an alert instead of the download dialog
             if self._startup_update_check:
                 QMetaObject.invokeMethod(

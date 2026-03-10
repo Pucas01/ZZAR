@@ -7,6 +7,7 @@ import os
 import sys
 import platform
 from pathlib import Path
+from src.app_config import FLATPAK_ENV_VAR, CONFIG_DIR_NAME
 
 _is_windows = platform.system() == "Windows"
 
@@ -25,8 +26,8 @@ if _is_windows:
 else:
     _subprocess_kwargs = {}
 
-if os.environ.get('ZZAR_FLATPAK'):
-    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+if os.environ.get(FLATPAK_ENV_VAR):
+    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
 elif hasattr(sys, '_MEIPASS'):
     _BASE_DIR = Path(sys.executable).parent.resolve()
 else:
@@ -36,7 +37,7 @@ else:
 # For writable operations (mkdir, cache), copy to a persistent writable location.
 _BUNDLED_RESOURCE_DIR = Path(__file__).resolve().parent / "resources"
 
-if os.environ.get('ZZAR_FLATPAK') or hasattr(sys, '_MEIPASS'):
+if os.environ.get(FLATPAK_ENV_VAR) or hasattr(sys, '_MEIPASS'):
     _RESOURCE_DIR = _BASE_DIR / "resources"
     _wproj = _RESOURCE_DIR / "WAVtoWEM" / "WAVtoWEM.wproj"
     if not _wproj.exists() and (_BUNDLED_RESOURCE_DIR / "WAVtoWEM" / "WAVtoWEM.wproj").exists():
@@ -64,7 +65,7 @@ class WwiseConsole:
         self.is_windows = platform.system() == "Windows"
         if self.is_windows:
             self.wine_cmd = None
-        elif os.environ.get('ZZAR_FLATPAK'):
+        elif os.environ.get(FLATPAK_ENV_VAR):
             # In Flatpak, call the host system's Wine via flatpak-spawn
             self.wine_cmd = self._detect_host_wine()
         else:

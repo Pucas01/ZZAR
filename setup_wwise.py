@@ -15,8 +15,17 @@ DEFAULT_WWISE_URL = "https://gitlab.com/ytnshio/ebi/-/raw/main/WWIse.zip"
 # When running from PyInstaller, use the exe's directory (not _MEIPASS temp dir)
 # so tools persist across runs. When running from source, use the script's directory.
 # In Flatpak, /app/bin/ is read-only so use XDG_DATA_HOME instead.
-if os.environ.get('ZZAR_FLATPAK'):
-    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+try:
+    _src = Path(__file__).resolve().parent / 'src'
+    if str(_src) not in sys.path:
+        sys.path.insert(0, str(_src))
+    from app_config import FLATPAK_ENV_VAR, CONFIG_DIR_NAME
+except Exception:
+    FLATPAK_ENV_VAR = 'ZZAR_FLATPAK'
+    CONFIG_DIR_NAME = 'ZZAR'
+
+if os.environ.get(FLATPAK_ENV_VAR):
+    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
 elif hasattr(sys, '_MEIPASS'):
     _BASE_DIR = Path(sys.executable).parent.resolve()
 else:
@@ -64,7 +73,7 @@ class WwiseSetup:
 
     def check_wine(self):
         """Check if Wine is installed"""
-        if os.environ.get('ZZAR_FLATPAK'):
+        if os.environ.get(FLATPAK_ENV_VAR):
             # In Flatpak, check host system's Wine via flatpak-spawn
             for name in ('wine64', 'wine'):
                 try:
@@ -169,7 +178,7 @@ class WwiseSetup:
         try:
             if sys.platform.startswith("win"):
                 cmd = [str(self.wwise_console), '-help']
-            elif os.environ.get('ZZAR_FLATPAK'):
+            elif os.environ.get(FLATPAK_ENV_VAR):
                 # Detect which wine binary the host has
                 wine_name = 'wine'
                 for name in ('wine64', 'wine'):

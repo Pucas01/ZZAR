@@ -244,7 +244,7 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Select the display language for ZZAR.")
+                                text: qsTranslate("Application", "Select the display language for %1.").replace("%1", appName)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -430,8 +430,8 @@ Item {
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
                                             onClicked: mainWindow.showAlertDialog(
-                                                qsTranslate("Application", "Help Translate ZZAR!"),
-                                                qsTranslate("Application", "I need your help to translate ZZAR to more languages!\n\nIf you're interested in translating, reach out to:\n\nDiscord: Pucas01\nTwitter: Pucas02\n\nOr open an issue on the GitHub repo.\n\nI only speak English and Dutch."),
+                                                qsTranslate("Application", "Help Translate %1!").replace("%1", appName),
+                                                qsTranslate("Application", "I need your help to translate %1 to more languages!\n\nIf you're interested in translating, reach out to:\n\nDiscord: Pucas01\nTwitter: Pucas02\n\nOr open an issue on the GitHub repo.\n\nI only speak English and Dutch.").replace("%1", appName),
                                                 "../assets/YeShunguangReed.png"
                                             )
                                         }
@@ -465,7 +465,7 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Select the ZenlessZoneZero_Data folder from your game installation.")
+                                text: qsTranslate("Application", "Select the %1 folder from your game installation.").replace("%1", gameDataFolder)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -503,7 +503,7 @@ Item {
                                         Text {
                                             anchors.fill: parent
                                             verticalAlignment: Text.AlignVCenter
-                                            text: qsTranslate("Application", "Path to ZenlessZoneZero_Data folder...")
+                                            text: qsTranslate("Application", "Path to %1 folder...").replace("%1", gameDataFolder)
                                             color: "#555555"
                                             font.family: "Alatsi"
                                             font.pixelSize: 14
@@ -946,7 +946,7 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Walk through the main features of ZZAR with a guided tutorial.")
+                                text: qsTranslate("Application", "Walk through the main features of %1 with a guided tutorial.").replace("%1", appName)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -1009,7 +1009,7 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Wwise is required to convert audio files for Zenless Zone Zero.")
+                                text: qsTranslate("Application", "Wwise is required to convert audio files for %1.").replace("%1", gameName)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -1309,7 +1309,7 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Check for new versions of ZZAR.")
+                                text: qsTranslate("Application", "Check for new versions of %1.").replace("%1", appName)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -1688,7 +1688,7 @@ Item {
                             spacing: 15
 
                             Text {
-                                text: qsTranslate("Application", "About ZZAR")
+                                text: qsTranslate("Application", "About %1").replace("%1", appName)
                                 color: "#d8fa00"
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
@@ -1696,14 +1696,14 @@ Item {
                             }
 
                             Text {
-                                text: qsTranslate("Application", "Zenless Zone Zero Audio Replacer")
+                                text: appFullName
                                 color: "#ffffff"
                                 font.family: "Alatsi"
                                 font.pixelSize: 16
                             }
 
                             Text {
-                                text: qsTranslate("Application", "A tool for managing, making and applying audio mods to Zenless Zone Zero.")
+                                text: qsTranslate("Application", "A tool for managing, making and applying audio mods to %1.").replace("%1", gameName)
                                 color: "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 14
@@ -1874,7 +1874,7 @@ Item {
                                     width: parent.width
                                 }
                                 Text {
-                                    text: qsTranslate("Application", "For making the first ZZAR logo design.")
+                                    text: qsTranslate("Application", "For making the first %1 logo design.").replace("%1", appName)
                                     color: '#888888'
                                     font.family: "Alatsi"
                                     font.pixelSize: 14

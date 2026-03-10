@@ -148,7 +148,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTranslate("Application", "Install .zzar Mod")
+                        text: qsTranslate("Application", "Install %1 Mod").replace("%1", modFileExt)
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -183,7 +183,7 @@ Item {
                         font.pixelSize: 20
                         font.weight: Font.Normal
                         horizontalAlignment: Text.AlignHCenter
-                        text: qsTranslate("Application", "Import Non-ZZAR Mod")
+                        text: qsTranslate("Application", "Import Non-%1 Mod").replace("%1", appName)
                         textFormat: Text.PlainText
                         verticalAlignment: Text.AlignVCenter
                     }
@@ -447,7 +447,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTranslate("Application", "No mods installed.\nClick 'Install .zzar Mod' to get started.")
+                    text: qsTranslate("Application", "No mods installed.\nClick 'Install %1 Mod' to get started.").replace("%1", modFileExt)
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 18
@@ -711,7 +711,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTranslate("Application", "No mods installed.\nClick 'Install .zzar Mod' to get started.")
+                    text: qsTranslate("Application", "No mods installed.\nClick 'Install %1 Mod' to get started.").replace("%1", modFileExt)
                     color: "#888888"
                     font.family: "Alatsi"
                     font.pixelSize: 18

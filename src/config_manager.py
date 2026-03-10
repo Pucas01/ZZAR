@@ -3,6 +3,7 @@
 import sys
 import os
 from pathlib import Path
+from src.app_config import CONFIG_DIR_NAME
 
 class ConfigManager:
 
@@ -21,11 +22,11 @@ class ConfigManager:
         if self.platform == 'win32':
 
             appdata = Path(os.environ.get('APPDATA', Path.home() / 'AppData' / 'Roaming'))
-            self._config_dir = appdata / 'ZZAR'
+            self._config_dir = appdata / CONFIG_DIR_NAME
         else:
 
             xdg_config = os.environ.get('XDG_CONFIG_HOME', Path.home() / '.config')
-            self._config_dir = Path(xdg_config) / 'ZZAR'
+            self._config_dir = Path(xdg_config) / CONFIG_DIR_NAME
 
         self._config_dir.mkdir(parents=True, exist_ok=True)
         return self._config_dir
@@ -39,11 +40,11 @@ class ConfigManager:
         if self.platform == 'win32':
 
             localappdata = Path(os.environ.get('LOCALAPPDATA', Path.home() / 'AppData' / 'Local'))
-            self._data_dir = localappdata / 'ZZAR'
+            self._data_dir = localappdata / CONFIG_DIR_NAME
         else:
 
             xdg_data = os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')
-            self._data_dir = Path(xdg_data) / 'ZZAR'
+            self._data_dir = Path(xdg_data) / CONFIG_DIR_NAME
 
         self._data_dir.mkdir(parents=True, exist_ok=True)
         return self._data_dir

@@ -15,7 +15,7 @@ ApplicationWindow {
     height: 1024
     minimumWidth: 1024
     minimumHeight: 768
-    title: qsTranslate("Application", "ZZAR - Zenless Zone Zero Audio Replacer")
+    title: appName + " - " + appFullName
 
     property int currentTab: 1
     property bool modCreationEnabled: false
@@ -182,7 +182,7 @@ ApplicationWindow {
                     Image {
                         width: 75
                         height: 75
-                        source: "../assets/ZZAR-Logo2.png"
+                        source: "../assets/" + logoPng
                         fillMode: Image.PreserveAspectFit
                     }
 
@@ -216,7 +216,7 @@ ApplicationWindow {
                     Text {
                         id: pageSubtitle
                         text: currentTab === 0 ? qsTranslate("Application", "Browse and download mods from GameBanana") :
-                              currentTab === 1 ? qsTranslate("Application", "Install and manage .zzar mods") :
+                              currentTab === 1 ? qsTranslate("Application", "Install and manage %1 mods").replace("%1", modFileExt) :
                               currentTab === 2 ? qsTranslate("Application", "Browse and manage audio files") :
                               currentTab === 3 ? qsTranslate("Application", "Convert audio files") :
                               qsTranslate("Application", "Configure application settings")
@@ -891,7 +891,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTranslate("Application", "ZZAR needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically.")
+                        text: appName + qsTranslate("Application", " needs these folders in StreamingAssets to work properly. Click \"Move to Streaming\" to fix this automatically.")
                         color: "#aaaaaa"
                         font.family: "Alatsi"
                         font.pixelSize: 13
@@ -1228,7 +1228,7 @@ ApplicationWindow {
                 var hasZzar = false
                 if (drag.hasUrls) {
                     for (var i = 0; i < drag.urls.length; i++) {
-                        if (drag.urls[i].toString().toLowerCase().endsWith(".zzar")) {
+                        if (drag.urls[i].toString().toLowerCase().endsWith(modFileExt)) {
                             hasZzar = true
                             break
                         }
@@ -1252,7 +1252,7 @@ ApplicationWindow {
                     var installed = 0
                     for (var i = 0; i < drop.urls.length; i++) {
                         var filePath = mainWindow.urlToLocalPath(drop.urls[i])
-                        if (filePath.toLowerCase().endsWith(".zzar")) {
+                        if (filePath.toLowerCase().endsWith(modFileExt)) {
                             console.log("[Drag & Drop] Installing mod: " + filePath)
                             modManagerBackend.installMod(filePath)
                             installed++
@@ -1322,7 +1322,7 @@ ApplicationWindow {
                     }
 
                     Text {
-                        text: qsTranslate("Application", "Drop .zzar mod(s) here to install")
+                        text: qsTranslate("Application", "Drop %1 mod(s) here to install").replace("%1", modFileExt)
                         color: "#d8fa00"
                         font.family: "Alatsi"
                         font.pixelSize: 28

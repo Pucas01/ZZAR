@@ -24,8 +24,8 @@ Item {
             messages: [
                 { text: qsTranslate("Application", "You're here. i'll show you how this works."), highlight: "" },
                 { text: qsTranslate("Application", "These buttons. use them."), highlight: "tutorialButtonRow" },
-                { text: qsTranslate("Application", "This installs .zzar mod packages. self explanatory."), highlight: "tutorialInstallBtn" },
-                { text: qsTranslate("Application", "This one imports non-ZZAR mods and converts them."), highlight: "tutorialImportBtn" },
+                { text: qsTranslate("Application", "This installs %1 mod packages. self explanatory.").replace("%1", modFileExt), highlight: "tutorialInstallBtn" },
+                { text: qsTranslate("Application", "This one imports non-%1 mods and converts them.").replace("%1", appName), highlight: "tutorialImportBtn" },
                 { text: qsTranslate("Application", "Remove button. select a mod first, then press it."), highlight: "tutorialRemoveBtn" },
                 { text: qsTranslate("Application", "When you're done picking mods, apply. nothing happens until you do."), highlight: "tutorialApplyBtn" },
                 { text: "", highlight: "tutorialApplyBtn", sticker: "MiyabiMelon.png" },
@@ -39,9 +39,9 @@ Item {
                 { text: qsTranslate("Application", "GameBanana. browse and download mods made by the community."), highlight: "" },
                 { text: qsTranslate("Application", "Search by name, or sort by downloads, likes, or newest."), highlight: "tutorialGbToolbar" },
                 { text: qsTranslate("Application", "The search bar. type anything."), highlight: "tutorialGbSearch" },
-                { text: qsTranslate("Application", "Sort options. default puts ZZAR-native mods first."), highlight: "tutorialGbSort" },
+                { text: qsTranslate("Application", "Sort options. default puts %1-native mods first.").replace("%1", appName), highlight: "tutorialGbSort" },
                 { text: qsTranslate("Application", "The mod grid. click a card to see details, screenshots, and files."), highlight: "tutorialGbGrid" },
-                { text: qsTranslate("Application", "Mods with the ZZAR badge install directly. others you download and install manually."), highlight: "tutorialGbGrid" },
+                { text: qsTranslate("Application", "Mods with the %1 badge install directly. others you download and install manually.").replace("%1", appName), highlight: "tutorialGbGrid" },
             ]
         },
         {
@@ -56,9 +56,9 @@ Item {
                 { text: qsTranslate("Application", "Right-click a file to replace it or mute it."), highlight: "tutorialTreeList" },
                 { text: qsTranslate("Application", "You can also rename and tag a sound by right-clicking."), highlight: "tutorialTreeList" },
                 { text: qsTranslate("Application", "Audio player. play, pause, stop. you've seen one before."), highlight: "tutorialAudioPlayer" },
-                { text: qsTranslate("Application", "Got a .zzar mod already? import it here if you want to keep editing it."), highlight: "tutorialImportZzarBtn" },
+                { text: qsTranslate("Application", "Got a %1 mod already? import it here if you want to keep editing it.").replace("%1", modFileExt), highlight: "tutorialImportZzarBtn" },
                 { text: qsTranslate("Application", "Shows your changes. also where you apply them for in-game testing."), highlight: "tutorialShowChangesBtn" },
-                { text: qsTranslate("Application", "Export. packages everything into a .zzar mod."), highlight: "tutorialExportBtn" },
+                { text: qsTranslate("Application", "Export. packages everything into a %1 mod.").replace("%1", modFileExt), highlight: "tutorialExportBtn" },
                 { text: qsTranslate("Application", "Reset. wipes all changes. also required if you have mods enabled in the mod manager."), highlight: "tutorialResetBtn" }
             ]
         },
@@ -519,7 +519,7 @@ Item {
                     }
 
                     Text {
-                        text: qsTranslate("Application", "ZZAR Expert - Chief of Hollow Special Operations Section 6")
+                        text: qsTranslate("Application", "%1 Expert - Chief of Hollow Special Operations Section 6").replace("%1", appName)
                         color: "#888888"
                         font.family: "inpin hongmengti"
                         font.pixelSize: 12

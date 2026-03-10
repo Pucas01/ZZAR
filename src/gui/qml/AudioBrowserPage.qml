@@ -1067,7 +1067,7 @@ Item {
 
                     ZZARButton {
                         objectName: "tutorialImportZzarBtn"
-                        text: qsTranslate("Application", "Import .zzar for Editing")
+                        text: qsTranslate("Application", "Import %1 for Editing").replace("%1", modFileExt)
                         buttonColor: Theme.primaryAccent
                         onClicked: importZzarForEditingClicked()
                     }

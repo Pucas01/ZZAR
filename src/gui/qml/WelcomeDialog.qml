@@ -79,7 +79,7 @@ Item {
             spacing: 20
 
             Text {
-                text: qsTranslate("Application", "Welcome to ZZAR!")
+                text: qsTranslate("Application", "Welcome to %1!").replace("%1", appName)
                 color: "#CDEE00"
                 font.family: "Stretch Pro"
                 font.pixelSize: 36
@@ -90,7 +90,7 @@ Item {
             }
 
             Text {
-                text: currentPage === 1 ? qsTranslate("Application", "Choose how you want to use ZZAR") :
+                text: currentPage === 1 ? qsTranslate("Application", "Choose how you want to use %1").replace("%1", appName) :
                         currentPage === 2 ? qsTranslate("Application", "Let's set up your game directory") :
                         currentPage === 3 ? qsTranslate("Application", "Set up Wwise for mod creation") :
                         currentPage === 4 ? qsTranslate("Application", "Install audio conversion tools") :
@@ -173,7 +173,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTranslate("Application", "Download and install\n.zzar mod packages")
+                                    text: qsTranslate("Application", "Download and install\n%1 mod packages").replace("%1", modFileExt)
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -234,7 +234,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTranslate("Application", "Create and export your\nown .zzar mod packages")
+                                    text: qsTranslate("Application", "Create and export your\nown %1 mod packages").replace("%1", modFileExt)
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -289,7 +289,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTranslate("Application", "Select the ZenlessZoneZero_Data folder from your game installation.")
+                                    text: qsTranslate("Application", "Select the %1 folder from your game installation.").replace("%1", gameDataFolder)
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -327,7 +327,7 @@ Item {
                                             Text {
                                                 anchors.fill: parent
                                                 verticalAlignment: Text.AlignVCenter
-                                                text: qsTranslate("Application", "Path to ZenlessZoneZero_Data folder...")
+                                                text: qsTranslate("Application", "Path to %1 folder...").replace("%1", gameDataFolder)
                                                 color: "#555555"
                                                 font.family: "Alatsi"
                                                 font.pixelSize: 14
@@ -485,7 +485,7 @@ Item {
                                 }
 
                                 Text {
-                                    text: qsTranslate("Application", "Wwise is required to convert audio files for Zenless Zone Zero.")
+                                    text: qsTranslate("Application", "Wwise is required to convert audio files for %1.").replace("%1", gameName)
                                     color: "#888888"
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
@@ -811,8 +811,8 @@ Item {
 
                         Text {
                             text: selectedMode === "maker" ?
-                                qsTranslate("Application", "ZZAR is configured for mod creation. Go make something!!") :
-                                qsTranslate("Application", "ZZAR is ready to manage some mods. Install something!")
+                                qsTranslate("Application", "%1 is configured for mod creation. Go make something!!").replace("%1", appName) :
+                                qsTranslate("Application", "%1 is ready to manage some mods. Install something!").replace("%1", appName)
                             color: "#aaaaaa"
                             font.family: "Alatsi"
                             font.pixelSize: 16

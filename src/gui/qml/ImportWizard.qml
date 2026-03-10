@@ -99,7 +99,7 @@ Item {
             }
 
             Text {
-                text: qsTranslate("Application", "Convert PCK or WEM files to .zzar mod package")
+                text: qsTranslate("Application", "Convert PCK or WEM files to %1 mod package").replace("%1", modFileExt)
                 color: "#888888"
                 font.family: "Alatsi"
                 font.pixelSize: 14

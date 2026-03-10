@@ -364,7 +364,7 @@ Item {
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTranslate("Application", "Export to .zzar")
+                    text: qsTranslate("Application", "Export to %1").replace("%1", modFileExt)
                     color: Theme.textOnAccent
                     font.family: Theme.fontFamily
                     font.pixelSize: Theme.fontSizeMedium

@@ -32,6 +32,11 @@ from gui.backend.update_manager_bridge import UpdateManagerBridge
 from gui.backend.gamebanana_bridge import GameBananaBridge
 from gui.backend.native_dialogs import NativeDialogs
 from src.config_manager import get_settings_file, get_cache_dir
+from src.app_config import (
+    APP_NAME, APP_FULL_NAME, GAME_NAME, GAME_SHORT, GAME_DATA_FOLDER,
+    GAME_DATA_FOLDER_SEARCH, GAME_INSTALL_SUBDIRS, GAME_INSTALL_HOME_SUBDIR,
+    LOGO_PNG, MOD_FILE_EXT, MOD_FILE_EXT_UPPER,
+)
 
 from gui.connectors.mod_manager_connector import ModManagerConnector
 from gui.connectors.audio_browser_connector import AudioBrowserConnector
@@ -54,24 +59,22 @@ class AutoDetectWorker(QThread):
 
         if self.system_type == "Windows":
 
-            search_paths = [
-                Path("C:/Program Files/HoYoPlay/games/ZenlessZoneZero Game"),
-                Path("D:/Program Files/HoYoPlay/games/ZenlessZoneZero Game"),
-                Path("E:/Program Files/HoYoPlay/games/ZenlessZoneZero Game"),
-                Path.home() / "Games/ZenlessZoneZero Game",
-            ]
+            search_paths = (
+                [Path(f"{drive}:/{sub}") for drive in "CDEFGH" for sub in GAME_INSTALL_SUBDIRS]
+                + [Path.home() / GAME_INSTALL_HOME_SUBDIR]
+            )
 
             for base_path in search_paths:
-                game_data_dir = base_path / "ZenlessZoneZero_Data"
+                game_data_dir = base_path / GAME_DATA_FOLDER
                 if game_data_dir.exists() and (game_data_dir / "StreamingAssets").exists():
                     self.found.emit(str(game_data_dir))
                     return
         else:
 
-            print("[ZZAR] Searching for ZenlessZoneZero_Data from root directory...")
+            print(f"[{APP_NAME}] Searching for {GAME_DATA_FOLDER_SEARCH} from root directory...")
             try:
                 result = subprocess.run(
-                    ["find", "/", "-name", "ZenlessZoneZero_Data", "-type", "d"],
+                    ["find", "/", "-name", GAME_DATA_FOLDER_SEARCH, "-type", "d"],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.DEVNULL,
                     text=True,
@@ -88,9 +91,9 @@ class AutoDetectWorker(QThread):
                             self.found.emit(str(game_data_dir))
                             return
             except subprocess.TimeoutExpired:
-                print("[ZZAR] Search timed out after 60 seconds")
+                print(f"[{APP_NAME}] Search timed out after 60 seconds")
             except Exception as e:
-                print(f"[ZZAR] Search error: {e}")
+                print(f"[{APP_NAME}] Search error: {e}")
 
         self.notFound.emit()
 
@@ -139,7 +142,7 @@ class Application(
     def run(self):
 
         print("=" * 50)
-        print("ZZAR - Zenless Zone Zero Audio Replacer")
+        print(f"{APP_NAME} - {APP_FULL_NAME}")
         print("QML UI Version")
         print("=" * 50)
 
@@ -152,16 +155,16 @@ class Application(
         format.setSamples(4)
         QSurfaceFormat.setDefaultFormat(format)
 
-        QCoreApplication.setOrganizationName("ZZAR")
-        QCoreApplication.setOrganizationDomain("zzar.local")
-        QCoreApplication.setApplicationName("ZZAR")
+        QCoreApplication.setOrganizationName(APP_NAME)
+        QCoreApplication.setOrganizationDomain(f"{APP_NAME.lower()}.local")
+        QCoreApplication.setApplicationName(APP_NAME)
 
         self.app = QApplication(sys.argv)
-        self.app.setApplicationName("ZZAR")
+        self.app.setApplicationName(APP_NAME)
         self.app.setApplicationVersion(QCoreApplication.applicationVersion())
 
         ui_path = Path(__file__).parent
-        icon_path = ui_path / "assets" / "ZZAR-Logo2.png"
+        icon_path = ui_path / "assets" / LOGO_PNG
         if icon_path.exists():
             self.app.setWindowIcon(QIcon(str(icon_path)))
 
@@ -173,26 +176,26 @@ class Application(
 
         if audiowide_font.exists():
             if QFontDatabase.addApplicationFont(str(audiowide_font)) == -1:
-                print("[ZZAR] WARNING: Failed to load Audiowide font")
+                print(f"[{APP_NAME}] WARNING: Failed to load Audiowide font")
         else:
             print(f"[ZZAR] WARNING: Audiowide font not found at {audiowide_font}")
 
         if alatsi_font.exists():
             if QFontDatabase.addApplicationFont(str(alatsi_font)) == -1:
-                print("[ZZAR] WARNING: Failed to load Alatsi font")
+                print(f"[{APP_NAME}] WARNING: Failed to load Alatsi font")
         else:
             print(f"[ZZAR] WARNING: Alatsi font not found at {alatsi_font}")
 
         if stretch_pro_font.exists():
             if QFontDatabase.addApplicationFont(str(stretch_pro_font)) == -1:
-                print("[ZZAR] WARNING: Failed to load Stretch Pro font")
+                print(f"[{APP_NAME}] WARNING: Failed to load Stretch Pro font")
         else:
             print(f"[ZZAR] WARNING: Stretch Pro font not found at {stretch_pro_font}")
 
         zzz_font = fonts_dir / "ZZZ-Font" / "ZZZ-Font.ttf"
         if zzz_font.exists():
             if QFontDatabase.addApplicationFont(str(zzz_font)) == -1:
-                print("[ZZAR] WARNING: Failed to load ZZZ font")
+                print(f"[{APP_NAME}] WARNING: Failed to load ZZZ font")
         else:
             print(f"[ZZAR] WARNING: ZZZ font not found at {zzz_font}")
 
@@ -211,6 +214,16 @@ class Application(
         context.setContextProperty("gameBananaBackend", self.gamebanana_bridge)
         self.clipboard_helper = ClipboardHelper()
         context.setContextProperty("clipboardHelper", self.clipboard_helper)
+
+        # App/game branding — consumed by QML via these context properties
+        context.setContextProperty("appName", APP_NAME)
+        context.setContextProperty("appFullName", APP_FULL_NAME)
+        context.setContextProperty("gameName", GAME_NAME)
+        context.setContextProperty("gameShort", GAME_SHORT)
+        context.setContextProperty("gameDataFolder", GAME_DATA_FOLDER)
+        context.setContextProperty("modFileExt", MOD_FILE_EXT)
+        context.setContextProperty("modFileExtUpper", MOD_FILE_EXT_UPPER)
+        context.setContextProperty("logoPng", LOGO_PNG)
 
         self.translation_manager = TranslationManager(self.engine)
         context.setContextProperty("translationManager", self.translation_manager)
@@ -238,8 +251,8 @@ class Application(
             print("Error: Failed to load QML")
             sys.exit(1)
 
-        print("[ZZAR] QML loaded successfully!")
-        print("[ZZAR] Initializing mod manager...")
+        print(f"[{APP_NAME}] QML loaded successfully!")
+        print(f"[{APP_NAME}] Initializing mod manager...")
 
         root = self.engine.rootObjects()[0]
         self.root = root
@@ -279,23 +292,23 @@ class Application(
             self.mod_info_dialog.exportRequested.connect(
                 self.mod_manager_bridge.exportMod
             )
-            print("[ZZAR] Mod info dialog connected")
+            print(f"[{APP_NAME}] Mod info dialog connected")
 
         self.update_dialog = root.findChild(QObject, "updateDialog")
         if self.update_dialog:
             self.update_dialog.updateAccepted.connect(self._on_update_dialog_accepted)
             self.update_dialog.updateDismissed.connect(self._on_update_dialog_dismissed)
-            print("[ZZAR] Update dialog connected")
+            print(f"[{APP_NAME}] Update dialog connected")
 
         self.conflict_resolution_dialog = root.findChild(QObject, "conflictResolutionDialog")
         if self.conflict_resolution_dialog:
             self.conflict_resolution_dialog.setProperty("modManager", self.mod_manager_bridge)
-            print("[ZZAR] Conflict resolution dialog connected")
+            print(f"[{APP_NAME}] Conflict resolution dialog connected")
 
         self.mod_conflict_dialog = root.findChild(QObject, "modConflictDialog")
         if self.mod_conflict_dialog:
             self.mod_conflict_dialog.setProperty("modManager", self.mod_manager_bridge)
-            print("[ZZAR] Mod conflict dialog connected")
+            print(f"[{APP_NAME}] Mod conflict dialog connected")
 
         self.audio_match_dialog = root.findChild(QObject, "audioMatchDialog")
         if self.audio_match_dialog:
@@ -309,11 +322,11 @@ class Application(
                 self.audio_browser_bridge.cancelMatchingSound
             )
             self.audio_browser_bridge.audio_match_dialog = self.audio_match_dialog
-            print("[ZZAR] Audio match dialog connected")
+            print(f"[{APP_NAME}] Audio match dialog connected")
 
         self._connect_welcome_dialog()
 
-        print("[ZZAR] Application ready!")
+        print(f"[{APP_NAME}] Application ready!")
         print("-" * 50)
 
         is_first_launch = self.check_first_launch()
@@ -324,7 +337,7 @@ class Application(
         self._check_update_success_flag()
 
         if hasattr(sys, '_MEIPASS'):
-            print("[ZZAR] PyInstaller build detected, checking for updates...")
+            print(f"[{APP_NAME}] PyInstaller build detected, checking for updates...")
             self._startup_update_check = True
             self.update_manager_bridge.checkForUpdates()
 
@@ -389,7 +402,7 @@ class Application(
         )
         self.conversion_page.setProperty("normalizeChecked", ab.normalize_audio_enabled)
 
-        print("[ZZAR] Audio conversion page connected")
+        print(f"[{APP_NAME}] Audio conversion page connected")
 
     def load_settings(self):
         try:

@@ -708,7 +708,7 @@ Item {
                                                     Text {
                                                         id: zzarBadgeLabel
                                                         anchors.centerIn: parent
-                                                        text: "ZZAR Native"
+                                                        text: appName + " Native"
                                                         color: Theme.textOnAccent
                                                         font.family: Theme.fontFamilyTitle
                                                         font.pixelSize: 10

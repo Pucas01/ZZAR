@@ -8,6 +8,7 @@ import os
 import sys
 import shutil
 import subprocess
+from src.app_config import FLATPAK_ENV_VAR, CONFIG_DIR_NAME, MOD_FILE_EXT, MOD_FILE_EXT_UPPER
 
 from src.mod_package_manager import ModPackageManager, InvalidModPackageError
 from src.persistent_mod_manager import PersistentModManager
@@ -238,8 +239,8 @@ class ModManagerBridge(QObject):
     @pyqtSlot()
     def checkWwiseInstalled(self):
 
-        if os.environ.get('ZZAR_FLATPAK'):
-            base_dir = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+        if os.environ.get(FLATPAK_ENV_VAR):
+            base_dir = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
         elif hasattr(sys, '_MEIPASS'):
             base_dir = Path(sys.executable).parent.resolve()
         else:
@@ -289,8 +290,8 @@ class ModManagerBridge(QObject):
             self.audioToolsStatusChanged.emit(False)
             return False
 
-        if os.environ.get('ZZAR_FLATPAK'):
-            base_dir = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+        if os.environ.get(FLATPAK_ENV_VAR):
+            base_dir = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
         elif hasattr(sys, '_MEIPASS'):
             base_dir = Path(sys.executable).parent.resolve()
         else:
@@ -880,11 +881,11 @@ class ModManagerBridge(QObject):
     def askSavePath(self, mod_name):
 
 
-        default_name = mod_name.replace(" ", "_") + ".zzar"
+        default_name = mod_name.replace(" ", "_") + MOD_FILE_EXT
         save_path = NativeDialogs.get_save_file(
-            "Save .zzar Mod Package",
+            f"Save {MOD_FILE_EXT} Mod Package",
             str(Path.home() / default_name),
-            "ZZAR Mod Packages (*.zzar);;All Files (*)",
+            f"{MOD_FILE_EXT_UPPER} Mod Packages (*{MOD_FILE_EXT});;All Files (*)",
         )
 
         return save_path if save_path else ""
@@ -911,11 +912,11 @@ class ModManagerBridge(QObject):
             mod_name = metadata.get('name', 'Unknown')
             mod_version = metadata.get('version', '1.0.0')
 
-            default_name = mod_name.replace(" ", "_") + "_v" + mod_version + ".zzar"
+            default_name = mod_name.replace(" ", "_") + "_v" + mod_version + MOD_FILE_EXT
             save_path = NativeDialogs.get_save_file(
-                "Export Mod as .zzar",
+                f"Export Mod as {MOD_FILE_EXT}",
                 str(Path.home() / default_name),
-                "ZZAR Mod Packages (*.zzar);;All Files (*)",
+                f"{MOD_FILE_EXT_UPPER} Mod Packages (*{MOD_FILE_EXT});;All Files (*)",
             )
 
             if not save_path:

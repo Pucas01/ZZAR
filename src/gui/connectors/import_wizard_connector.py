@@ -4,6 +4,7 @@ from pathlib import Path
 from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 
 from gui.backend.native_dialogs import NativeDialogs
+from src.app_config import MOD_FILE_EXT, MOD_FILE_EXT_UPPER
 
 
 class ImportWizardConnector:
@@ -116,17 +117,17 @@ class ImportWizardConnector:
             return
 
         save_path = NativeDialogs.get_save_file(
-            "Save .zzar Mod Package",
-            str(Path.home() / f"{wizard_data['modName']}.zzar"),
-            "ZZAR Mod Packages (*.zzar)",
+            f"Save {MOD_FILE_EXT} Mod Package",
+            str(Path.home() / f"{wizard_data['modName']}{MOD_FILE_EXT}"),
+            f"{MOD_FILE_EXT_UPPER} Mod Packages (*{MOD_FILE_EXT})",
         )
 
         if not save_path:
             print("[Import Wizard] Save cancelled")
             return
 
-        if not save_path.endswith(".zzar"):
-            save_path += ".zzar"
+        if not save_path.endswith(MOD_FILE_EXT):
+            save_path += MOD_FILE_EXT
 
         print(f"[Import Wizard] Saving to: {save_path}")
 

@@ -3,6 +3,7 @@
 import sys
 from pathlib import Path
 from pck_packer import PCKPacker
+from src.app_config import GAME_DATA_FOLDER
 
 def prepare_bnk_structure(wem_files_dir, bnk_id, output_structure_dir):
 
@@ -58,7 +59,7 @@ def mod_soundbank_pck(original_pck, wem_files_dir, bnk_id, output_pck, lang_id=0
     print(f"BNK ID: {bnk_id}")
     print(f"Modified WEMs: {len(list(Path(wem_files_dir).glob('*.wem')))}")
     print("\nInstall to:")
-    print("  ZenlessZoneZero_Data/Persistent/Audio/Windows/Full/")
+    print(f"  {GAME_DATA_FOLDER}/Persistent/Audio/Windows/Full/")
 
 def main():
 

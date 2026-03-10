@@ -7,6 +7,7 @@ from pathlib import Path
 from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 
 from gui.backend.native_dialogs import NativeDialogs
+from src.app_config import MOD_FILE_EXT, MOD_FILE_EXT_UPPER
 
 
 class ModManagerConnector:
@@ -82,9 +83,9 @@ class ModManagerConnector:
         start_dir = self._get_last_install_dir()
 
         file_paths = NativeDialogs.get_open_files(
-            QCoreApplication.translate("Application", "Select .zzar Mod Package(s)"),
+            QCoreApplication.translate("Application", "Select %1 Mod Package(s)").replace("%1", MOD_FILE_EXT),
             start_dir,
-            QCoreApplication.translate("Application", "ZZAR Mod Packages (*.zzar);;ZIP Files (*.zip);;All Files (*)"),
+            QCoreApplication.translate("Application", "%1 Mod Packages (*%2);;ZIP Files (*.zip);;All Files (*)").replace("%1", MOD_FILE_EXT_UPPER).replace("%2", MOD_FILE_EXT),
         )
 
         if file_paths:

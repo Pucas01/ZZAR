@@ -10,9 +10,10 @@ import urllib.error
 import urllib.parse
 from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
+from src.app_config import FLATPAK_ENV_VAR, GAMEBANANA_GAME_ID, CONFIG_DIR_NAME
 
-if os.environ.get('ZZAR_FLATPAK'):
-    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+if os.environ.get(FLATPAK_ENV_VAR):
+    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
 elif hasattr(sys, '_MEIPASS'):
     _BASE_DIR = Path(sys.executable).parent.resolve()
 else:
@@ -157,7 +158,6 @@ def is_audio_media(url):
     return lower.endswith(AUDIO_EXTENSIONS)
 
 GAMEBANANA_API_BASE = "https://gamebanana.com/apiv11"
-ZENLESS_ZONE_ZERO_GAME_ID = 19567
 
 class FetchModsWorker(QThread):
     
@@ -174,7 +174,7 @@ class FetchModsWorker(QThread):
     def run(self):
         try:
 
-            filters = f"_aFilters[Generic_Game]={ZENLESS_ZONE_ZERO_GAME_ID}"
+            filters = f"_aFilters[Generic_Game]={GAMEBANANA_GAME_ID}"
 
             params = {
                 '_nPage': self.page,
@@ -295,7 +295,7 @@ class FetchMiscZZARModsWorker(QThread):
 
     def run(self):
         try:
-            filters = f"_aFilters[Generic_Game]={ZENLESS_ZONE_ZERO_GAME_ID}"
+            filters = f"_aFilters[Generic_Game]={GAMEBANANA_GAME_ID}"
             params = {'_nPage': self.page, '_nPerpage': self.per_page}
             if self.sort and self.sort != "default":
                 params['_sOrderBy'] = self.sort

@@ -14,6 +14,7 @@ from PyQt5.QtCore import (
     QObject, pyqtSlot, pyqtSignal, QMetaObject, Qt, Q_ARG, QThread, QCoreApplication
 )
 
+from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER
 from src.pck_indexer import PCKIndexer
 from src.bnk_indexer import BNKIndexer
 from src.temp_cache_manager import TempCacheManager
@@ -391,14 +392,14 @@ class AudioBrowserBridge(QObject):
         selected_dir = Path(selected_dir)
 
         data_folder = None
-        if selected_dir.name == "ZenlessZoneZero_Data":
+        if selected_dir.name == GAME_DATA_FOLDER:
             data_folder = selected_dir
-        elif (selected_dir / "ZenlessZoneZero_Data").exists():
-            data_folder = selected_dir / "ZenlessZoneZero_Data"
+        elif (selected_dir / GAME_DATA_FOLDER).exists():
+            data_folder = selected_dir / GAME_DATA_FOLDER
 
         if not data_folder or not data_folder.exists():
             self.errorOccurred.emit(QCoreApplication.translate("Application", "Invalid Directory"),
-                                    QCoreApplication.translate("Application", "Could not find ZenlessZoneZero_Data folder."))
+                                    QCoreApplication.translate("Application", f"Could not find {GAME_DATA_FOLDER} folder."))
             return
 
         self.game_root_dir = data_folder
@@ -1666,19 +1667,19 @@ class AudioBrowserBridge(QObject):
             self.errorOccurred.emit(QCoreApplication.translate("Application", "No Replacements"), QCoreApplication.translate("Application", "No audio replacements found."))
             return
 
-        default_name = f"{name.replace(' ', '_')}_v{version}.zzar"
+        default_name = f"{name.replace(' ', '_')}_v{version}{MOD_FILE_EXT}"
 
         from .native_dialogs import NativeDialogs
         filename = NativeDialogs.get_save_file(
             "Save Mod Package",
             str(Path.home() / default_name),
-            "ZZAR Mod Packages (*.zzar);;All Files (*)",
+            f"{MOD_FILE_EXT_UPPER} Mod Packages (*{MOD_FILE_EXT});;All Files (*)",
         )
         if not filename:
             return
 
-        if not filename.endswith(".zzar"):
-            filename += ".zzar"
+        if not filename.endswith(MOD_FILE_EXT):
+            filename += MOD_FILE_EXT
 
         try:
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Creating mod package..."))
@@ -2274,9 +2275,9 @@ class AudioBrowserBridge(QObject):
 
         from .native_dialogs import NativeDialogs
         zzar_path = NativeDialogs.get_open_file(
-            "Select .zzar Mod to Import for Editing",
+            f"Select {MOD_FILE_EXT} Mod to Import for Editing",
             str(Path.home()),
-            "ZZAR Mod Packages (*.zzar);;All Files (*)",
+            f"{MOD_FILE_EXT_UPPER} Mod Packages (*{MOD_FILE_EXT});;All Files (*)",
         )
         if not zzar_path:
             return

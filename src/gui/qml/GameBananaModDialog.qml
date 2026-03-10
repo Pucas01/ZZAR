@@ -148,7 +148,7 @@ Rectangle {
                             Text {
                                 id: zzarDialogBadgeText
                                 anchors.centerIn: parent
-                                text: "ZZAR Native"
+                                text: appName + " Native"
                                 color: Theme.textOnAccent
                                 font.family: Theme.fontFamilyTitle
                                 font.pixelSize: 11
@@ -587,7 +587,7 @@ Rectangle {
                                     spacing: 8
 
                                     Text {
-                                        text: qsTranslate("Application", "ZZAR Files")
+                                        text: qsTranslate("Application", "%1 Files").replace("%1", appName)
                                         color: Theme.primaryAccent
                                         font.family: Theme.fontFamily
                                         font.pixelSize: 12
@@ -1004,7 +1004,7 @@ Rectangle {
                 }
 
                 Text {
-                    text: qsTranslate("Application", "Multiple .zzar files found")
+                    text: qsTranslate("Application", "Multiple %1 files found").replace("%1", modFileExt)
                     color: "#d8fa00"
                     font.family: "Alatsi"
                     font.pixelSize: 24

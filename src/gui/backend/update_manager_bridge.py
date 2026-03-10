@@ -14,8 +14,9 @@ from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
 
 from src.config_manager import get_cache_dir, get_settings_file
+from src.app_config import APP_NAME
 
-GITHUB_API_URL = "https://api.github.com/repos/Pucas01/ZZAR/releases/latest"
+GITHUB_API_URL = f"https://api.github.com/repos/Pucas01/{APP_NAME}/releases/latest"
 
 
 def _get_ssl_context():
@@ -159,11 +160,11 @@ class UpdateDownloadWorker(QThread):
             if sys.platform.startswith("win"):
                 with zipfile.ZipFile(archive_path, "r") as zf:
                     zf.extractall(update_dir)
-                binary_path = update_dir / "ZZAR.exe"
+                binary_path = update_dir / f"{APP_NAME}.exe"
             else:
                 with tarfile.open(archive_path, "r:gz") as tf:
                     tf.extractall(update_dir)
-                binary_path = update_dir / "ZZAR"
+                binary_path = update_dir / APP_NAME
 
             archive_path.unlink(missing_ok=True)
 

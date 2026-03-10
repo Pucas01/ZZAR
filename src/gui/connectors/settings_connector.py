@@ -7,6 +7,7 @@ from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 from PyQt5.QtWidgets import QApplication
 
 from gui.backend.native_dialogs import NativeDialogs
+from src.app_config import GAME_DATA_FOLDER
 
 
 class SettingsConnector:
@@ -248,14 +249,14 @@ class SettingsConnector:
         start_dir = current if current and Path(current).exists() else str(Path.home())
 
         dirname = NativeDialogs.get_directory(
-            QCoreApplication.translate("Application", "Select ZenlessZoneZero_Data Folder"), start_dir
+            QCoreApplication.translate("Application", "Select %1 Folder").replace("%1", GAME_DATA_FOLDER), start_dir
         )
 
         if dirname:
             selected_path = Path(dirname)
 
             if (
-                selected_path.name != "ZenlessZoneZero_Data"
+                selected_path.name != GAME_DATA_FOLDER
                 and not (selected_path / "StreamingAssets").exists()
             ):
                 QMetaObject.invokeMethod(
@@ -265,7 +266,7 @@ class SettingsConnector:
                     Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
                     Q_ARG(
                         "QVariant",
-                        QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
+                        QCoreApplication.translate("Application", "Please select the %1 folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders.").replace("%1", GAME_DATA_FOLDER),
                     ),
                     Q_ARG("QVariant", ""),
                 )
@@ -323,7 +324,7 @@ class SettingsConnector:
             Q_ARG("QVariant", QCoreApplication.translate("Application", "Not Found")),
             Q_ARG(
                 "QVariant",
-                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
+                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the %1 folder manually using the Browse button.").replace("%1", GAME_DATA_FOLDER),
             ),
             Q_ARG("QVariant", ""),
         )
@@ -363,7 +364,7 @@ class SettingsConnector:
             if not game_data_path.exists():
                 print(f"[Settings] WARNING: Path does not exist: {game_data_path}")
             elif (
-                game_data_path.name != "ZenlessZoneZero_Data"
+                game_data_path.name != GAME_DATA_FOLDER
                 and not (game_data_path / "StreamingAssets").exists()
             ):
                 print(f"[Settings] WARNING: Invalid directory structure")
@@ -689,7 +690,7 @@ class SettingsConnector:
             QApplication.processEvents()
 
         dirname = NativeDialogs.get_directory(
-            QCoreApplication.translate("Application", "Select ZenlessZoneZero_Data Folder"), start_dir
+            QCoreApplication.translate("Application", "Select %1 Folder").replace("%1", GAME_DATA_FOLDER), start_dir
         )
 
         if was_visible:
@@ -699,7 +700,7 @@ class SettingsConnector:
             selected_path = Path(dirname)
 
             if (
-                selected_path.name != "ZenlessZoneZero_Data"
+                selected_path.name != GAME_DATA_FOLDER
                 and not (selected_path / "StreamingAssets").exists()
             ):
                 QMetaObject.invokeMethod(
@@ -709,7 +710,7 @@ class SettingsConnector:
                     Q_ARG("QVariant", QCoreApplication.translate("Application", "Invalid Directory")),
                     Q_ARG(
                         "QVariant",
-                        QCoreApplication.translate("Application", "Please select the ZenlessZoneZero_Data folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders."),
+                        QCoreApplication.translate("Application", "Please select the %1 folder.\n\nThis folder should contain 'StreamingAssets' and other game data folders.").replace("%1", GAME_DATA_FOLDER),
                     ),
                     Q_ARG("QVariant", ""),
                 )
@@ -765,7 +766,7 @@ class SettingsConnector:
             Q_ARG("QVariant", QCoreApplication.translate("Application", "Not Found")),
             Q_ARG(
                 "QVariant",
-                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the ZenlessZoneZero_Data folder manually using the Browse button."),
+                QCoreApplication.translate("Application", "Could not auto-detect game directory.\n\nPlease select the %1 folder manually using the Browse button.").replace("%1", GAME_DATA_FOLDER),
             ),
             Q_ARG("QVariant", ""),
         )

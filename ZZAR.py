@@ -22,8 +22,9 @@ def get_base_path():
     return Path(__file__).parent
 
 def get_temp_dir():
-    if os.environ.get('ZZAR_FLATPAK'):
-        base = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+    from src.app_config import FLATPAK_ENV_VAR, CONFIG_DIR_NAME
+    if os.environ.get(FLATPAK_ENV_VAR):
+        base = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
     elif hasattr(sys, '_MEIPASS'):
         base = Path(sys.executable).parent.resolve()
     else:

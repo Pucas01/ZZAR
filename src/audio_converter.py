@@ -6,6 +6,7 @@ import sys
 import platform
 from pathlib import Path
 import shutil
+from src.app_config import FLATPAK_ENV_VAR, CONFIG_DIR_NAME
 
 _is_windows = platform.system() == "Windows"
 
@@ -26,8 +27,8 @@ if _is_windows:
 else:
     _subprocess_kwargs = {}
 
-if os.environ.get('ZZAR_FLATPAK'):
-    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / 'ZZAR'
+if os.environ.get(FLATPAK_ENV_VAR):
+    _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
 elif hasattr(sys, '_MEIPASS'):
     _BASE_DIR = Path(sys.executable).parent.resolve()
 else:
