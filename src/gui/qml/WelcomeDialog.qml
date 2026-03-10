@@ -137,7 +137,7 @@ Item {
 
                         Rectangle {
                             width: 250
-                            height: 280
+                            height: Math.max(280, installColumn.implicitHeight + 40)
                             color: installMouseArea.containsMouse ? "#2a2a2a" : "#1a1a1a"
                             radius: 15
                             border.color: installMouseArea.containsMouse ? Theme.primaryAccent : "#3c3d3f"
@@ -148,6 +148,7 @@ Item {
                             Behavior on border.color { ColorAnimation { duration: Theme.animationDuration } }
 
                             Column {
+                                id: installColumn
                                 anchors.centerIn: parent
                                 spacing: 15
 
@@ -166,6 +167,9 @@ Item {
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
                                     anchors.horizontalCenter: parent.horizontalCenter
+                                    width: 220
+                                    wrapMode: Text.WordWrap
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
 
                                 Text {
@@ -194,7 +198,7 @@ Item {
 
                         Rectangle {
                             width: 250
-                            height: 280
+                            height: Math.max(280, makerColumn.implicitHeight + 40)
                             color: makerMouseArea.containsMouse ? "#2a2a2a" : "#1a1a1a"
                             radius: 15
                             border.color: makerMouseArea.containsMouse ? Theme.primaryAccent : "#3c3d3f"
@@ -205,6 +209,7 @@ Item {
                             Behavior on border.color { ColorAnimation { duration: Theme.animationDuration } }
 
                             Column {
+                                id: makerColumn
                                 anchors.centerIn: parent
                                 spacing: 15
 
@@ -223,6 +228,9 @@ Item {
                                     font.family: "Audiowide"
                                     font.pixelSize: 22
                                     anchors.horizontalCenter: parent.horizontalCenter
+                                    width: 220
+                                    wrapMode: Text.WordWrap
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
 
                                 Text {
@@ -922,7 +930,7 @@ Item {
                 font.pixelSize: 13
                 width: parent.width
                 horizontalAlignment: Text.AlignHCenter
-                visible: currentPage === 5
+                visible: false
                 Behavior on color { ColorAnimation { duration: 100 } }
 
                 MouseArea {
