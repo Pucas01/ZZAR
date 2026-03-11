@@ -4049,6 +4049,18 @@
     "date_added": "2026-03-06T22:14:13.771283",
     "date_modified": "2026-03-06T22:14:13.771283"
   },
+  "4c02ea6aad52764c4311bc121e5e1446d9c0dc50b59e758a220673fbf923acb0": {
+    "name": "Shield Break",
+    "tags": [
+      "Shield Break"
+    ],
+    "notes": "3514206965.bnk - Whole section is for Shield Break as far as i know",
+    "file_ids": [
+      131488023
+    ],
+    "date_added": "2026-03-06T23:10:43.186113",
+    "date_modified": "2026-03-11T11:46:30.223959"
+  },
   "6a9d6da1547d73799a7f3141ea0473afc706afeb0ab0eabc90cefcdc8b05c2f6": {
     "name": "Bardic needle background music",
     "tags": [
