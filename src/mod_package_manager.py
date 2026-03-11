@@ -9,6 +9,7 @@ from datetime import datetime
 from collections import defaultdict
 from src.config_manager import get_mod_library_dir, get_mod_config_file
 
+
 class InvalidModPackageError(Exception):
 
     pass
@@ -79,6 +80,43 @@ class ModPackageManager:
         except Exception as e:
             print(f"Warning: Failed to save mod config: {e}")
 
+    def _normalize_metadata_replacements(self, metadata):
+        """Convert v1.0 or v2.0 replacements to flat internal format:
+        {pck_name: {file_id_str: {wem_file, sound_name, lang_id, bnk_id, file_type}}}
+        v1.0: {pck: {file_id: {bnk_id, ...}}}   (already flat)
+        v2.0: {pck: {"bnk_id.bnk" | "direct": {file_id: {...}}}}
+        """
+        format_version = metadata.get('format_version', '1.0')
+        replacements = metadata.get('replacements', {})
+
+        if format_version != '2.0':
+            return replacements
+
+        normalized = {}
+        for pck_name, bnk_entries in replacements.items():
+            normalized[pck_name] = {}
+            for bnk_key, files in bnk_entries.items():
+                if bnk_key == 'direct':
+                    bnk_id = None
+                else:
+                    try:
+                        bnk_id = int(bnk_key.replace('.bnk', ''))
+                    except ValueError:
+                        bnk_id = None
+                for file_id, file_info in files.items():
+                    # Use compound key for BNK entries so the same WEM ID in
+                    # multiple BNKs doesn't overwrite itself in the flat dict.
+                    internal_key = f"{bnk_id}|{file_id}" if bnk_id is not None else file_id
+                    normalized[pck_name][internal_key] = {
+                        'wem_file': file_info.get('wem_file', ''),
+                        'sound_name': file_info.get('sound_name', ''),
+                        'lang_id': file_info.get('lang_id', 0),
+                        'bnk_id': bnk_id,
+                        'file_type': file_info.get('file_type', 'wem'),
+                        'file_id': file_id,
+                    }
+        return normalized
+
     def validate_mod_package(self, zzar_path):
 
         zzar_path = Path(zzar_path)
@@ -107,13 +145,25 @@ class ModPackageManager:
                     metadata['format_version'] = '1.0'
 
                 file_list = zf.namelist()
-                for pck_name, files in metadata['replacements'].items():
-                    for file_id, file_info in files.items():
-                        wem_file = file_info.get('wem_file', '')
-                        if wem_file and wem_file not in file_list:
-                            raise InvalidModPackageError(
-                                f"Referenced WEM file not found in archive: {wem_file}"
-                            )
+                format_version = metadata.get('format_version', '1.0')
+
+                if format_version == '2.0':
+                    for pck_name, bnk_entries in metadata['replacements'].items():
+                        for bnk_key, files in bnk_entries.items():
+                            for file_id, file_info in files.items():
+                                wem_file = file_info.get('wem_file', '')
+                                if wem_file and wem_file not in file_list:
+                                    raise InvalidModPackageError(
+                                        f"Referenced WEM file not found in archive: {wem_file}"
+                                    )
+                else:
+                    for pck_name, files in metadata['replacements'].items():
+                        for file_id, file_info in files.items():
+                            wem_file = file_info.get('wem_file', '')
+                            if wem_file and wem_file not in file_list:
+                                raise InvalidModPackageError(
+                                    f"Referenced WEM file not found in archive: {wem_file}"
+                                )
 
                 return metadata
 
@@ -313,7 +363,8 @@ class ModPackageManager:
 
             mod_dir = self.mods_dir / mod_uuid
 
-            for pck_name, files in metadata.get('replacements', {}).items():
+            normalized_replacements = self._normalize_metadata_replacements(metadata)
+            for pck_name, files in normalized_replacements.items():
                 if pck_name not in resolved:
                     resolved[pck_name] = {}
 
@@ -322,25 +373,32 @@ class ModPackageManager:
                     wem_file = file_info.get('wem_file', '')
                     wem_path = mod_dir / wem_file if wem_file else None
 
+                    bnk_id = file_info.get('bnk_id')
+                    actual_wem_id = file_info.get('file_id') or file_id
+                    # Normalize conflict key to "bnk_id|wem_id" (or plain wem_id for direct)
+                    # so v1.0 and v2.0 mods targeting the same sound share the same key
+                    conflict_key = f"{bnk_id}|{actual_wem_id}" if bnk_id is not None else str(actual_wem_id)
+
                     replacement_info = {
                         'wem_path': str(wem_path) if wem_path else '',
                         'mod_uuid': mod_uuid,
                         'mod_name': mod_name,
                         'lang_id': file_info.get('lang_id', 0),
-                        'bnk_id': file_info.get('bnk_id'),
+                        'bnk_id': bnk_id,
                         'file_type': file_info.get('file_type', 'wem'),
                         'sound_name': file_info.get('sound_name', ''),
+                        'file_id': file_info.get('file_id'),
                         'conflicts_with': []
                     }
 
-                    all_replacements[pck_name][file_id][mod_name] = replacement_info
+                    all_replacements[pck_name][conflict_key][mod_name] = replacement_info
 
-                    if file_id in resolved[pck_name]:
+                    if conflict_key in resolved[pck_name]:
 
-                        prev_uuid = resolved[pck_name][file_id]['mod_uuid']
-                        conflicts_tracker[pck_name][file_id].append(prev_uuid)
+                        prev_uuid = resolved[pck_name][conflict_key]['mod_uuid']
+                        conflicts_tracker[pck_name][conflict_key].append(prev_uuid)
 
-                    resolved[pck_name][file_id] = replacement_info
+                    resolved[pck_name][conflict_key] = replacement_info
 
         for pref_key, preferred_mod in preferences.items():
             try:
@@ -540,27 +598,31 @@ class ModPackageManager:
                 packer = PCKPacker(str(original_pck), str(output_pck))
                 packer.load_original_pck()
 
-                direct_wems = {}
+                direct_wems = {}   # {wem_id: (wem_path, lang_id)}
                 bnk_wems = defaultdict(dict)
+                bnk_lang_ids = {}  # {bnk_id: lang_id} for fallback
 
-                for file_id, file_info in resolved[pck_name].items():
+                for key, file_info in resolved[pck_name].items():
                     wem_path = file_info['wem_path']
 
                     if not Path(wem_path).exists():
                         print(f"Warning: WEM file not found: {wem_path}, skipping...")
                         continue
 
+                    # key is always compound "bnk_id|wem_id" now; file_info['file_id'] has plain wem_id for v2.0
+                    raw_id = file_info.get('file_id') or (str(key).split('|')[-1] if '|' in str(key) else key)
+                    actual_wem_id = int(raw_id)
+                    lang_id = file_info.get('lang_id', 0)
+
                     if file_info.get('bnk_id'):
-
-                        bnk_wems[file_info['bnk_id']][int(file_id)] = wem_path
+                        bnk_id = file_info['bnk_id']
+                        bnk_wems[bnk_id][actual_wem_id] = wem_path
+                        bnk_lang_ids[bnk_id] = lang_id
                     else:
+                        direct_wems[actual_wem_id] = (wem_path, lang_id)
 
-                        direct_wems[int(file_id)] = wem_path
-
-                for file_id, wem_path in direct_wems.items():
-
-                    lang_id = resolved[pck_name][str(file_id)].get('lang_id', 0)
-                    packer.replace_file(file_id, wem_path, lang_id=lang_id)
+                for wem_id, (wem_path, lang_id) in direct_wems.items():
+                    packer.replace_file(wem_id, wem_path, lang_id=lang_id)
 
                 for bnk_id, wem_map in bnk_wems.items():
 
@@ -580,7 +642,7 @@ class ModPackageManager:
 
                     if lang_id is None:
                         # Fallback to stored lang_id if BNK not found
-                        lang_id = resolved[pck_name][str(list(wem_map.keys())[0])].get('lang_id', 0)
+                        lang_id = bnk_lang_ids.get(bnk_id, 0)
                         print(f"Warning: BNK {bnk_id} not found in PCK, using stored lang_id={lang_id}")
 
                     packer.replace_bnk_wems(bnk_id, str(bnk_dir), lang_id=lang_id)
@@ -601,8 +663,9 @@ class ModPackageManager:
             persistent_format = {}
             for pck_name, files in resolved.items():
                 persistent_format[pck_name] = {}
-                for file_id, file_info in files.items():
-                    persistent_format[pck_name][file_id] = {
+                for key, file_info in files.items():
+                    actual_wem_id = file_info.get('file_id', key)
+                    persistent_format[pck_name][actual_wem_id] = {
                         'wem_path': file_info['wem_path'],
                         'file_type': file_info.get('file_type', 'wem'),
                         'lang_id': file_info.get('lang_id', 0),
@@ -623,7 +686,7 @@ class ModPackageManager:
 
         output_path = Path(output_path)
 
-        from ZZAR import get_temp_dir
+        from ZZAR import get_temp_dir, __version__ as zzar_version
         temp_dir = Path(tempfile.mkdtemp(prefix='zzar_mod_', dir=str(get_temp_dir())))
 
         try:
@@ -635,21 +698,36 @@ class ModPackageManager:
             for pck_name, files in current_replacements.items():
                 replacements_data[pck_name] = {}
 
-                for file_id, file_info in files.items():
+                for tracker_key, file_info in files.items():
                     wem_path = Path(file_info['wem_path'])
 
                     if not wem_path.exists():
                         print(f"Warning: WEM file not found: {wem_path}, skipping...")
                         continue
 
-                    dest_wem = wem_dir / f"{file_id}.wem"
-                    shutil.copy2(wem_path, dest_wem)
+                    # tracker_key may be "bnk_id|wem_id" or plain "wem_id"
+                    actual_file_id = str(tracker_key).split('|')[1] if '|' in str(tracker_key) else str(tracker_key)
 
-                    replacements_data[pck_name][file_id] = {
-                        'wem_file': f'wem_files/{file_id}.wem',
+                    bnk_id = file_info.get('bnk_id')
+                    if bnk_id:
+                        bnk_key = f"{bnk_id}.bnk"
+                        sub_dir = wem_dir / str(bnk_id)
+                        wem_relative = f'wem_files/{bnk_id}/{actual_file_id}.wem'
+                    else:
+                        bnk_key = 'direct'
+                        sub_dir = wem_dir / 'direct'
+                        wem_relative = f'wem_files/direct/{actual_file_id}.wem'
+
+                    sub_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(wem_path, sub_dir / f"{actual_file_id}.wem")
+
+                    if bnk_key not in replacements_data[pck_name]:
+                        replacements_data[pck_name][bnk_key] = {}
+
+                    replacements_data[pck_name][bnk_key][actual_file_id] = {
+                        'wem_file': wem_relative,
                         'sound_name': file_info.get('sound_name', ''),
                         'lang_id': file_info.get('lang_id', 0),
-                        'bnk_id': file_info.get('bnk_id'),
                         'file_type': file_info.get('file_type', 'wem')
                     }
 
@@ -664,14 +742,14 @@ class ModPackageManager:
                     print(f"Warning: Failed to process thumbnail: {e}")
 
             metadata_content = {
-                'format_version': '1.0',
+                'format_version': '2.0',
                 'name': metadata['name'],
                 'author': metadata['author'],
                 'version': metadata.get('version', '1.0.0'),
                 'description': metadata.get('description', ''),
                 'created_date': datetime.now().isoformat(),
                 'replacements': replacements_data,
-                'zzar_version': '1.0.0'
+                'zzar_version': zzar_version
             }
 
             if thumbnail_filename:

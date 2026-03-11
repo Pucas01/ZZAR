@@ -28,7 +28,8 @@ class PersistentModManager:
         if pck_filename not in self.mod_tracker:
             self.mod_tracker[pck_filename] = {}
 
-        self.mod_tracker[pck_filename][str(file_id)] = {
+        key = f"{bnk_id}|{file_id}" if bnk_id is not None else str(file_id)
+        self.mod_tracker[pck_filename][key] = {
             'wem_path': str(wem_path),
             'file_type': file_type,
             'lang_id': lang_id,
@@ -46,11 +47,12 @@ class PersistentModManager:
 
         return pck_filename in self.mod_tracker and len(self.mod_tracker[pck_filename]) > 0
 
-    def remove_replacement(self, pck_filename, file_id):
+    def remove_replacement(self, pck_filename, file_id, bnk_id=None):
+        key = f"{bnk_id}|{file_id}" if bnk_id is not None else str(file_id)
 
         if pck_filename in self.mod_tracker:
-            if str(file_id) in self.mod_tracker[pck_filename]:
-                del self.mod_tracker[pck_filename][str(file_id)]
+            if key in self.mod_tracker[pck_filename]:
+                del self.mod_tracker[pck_filename][key]
 
                 if not self.mod_tracker[pck_filename]:
                     del self.mod_tracker[pck_filename]
