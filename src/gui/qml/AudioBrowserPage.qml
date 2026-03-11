@@ -2405,7 +2405,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -2932,7 +2932,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -3225,7 +3225,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -3263,7 +3263,7 @@ Item {
                 Item { height: 10; width: 1 }
 
                 Image {
-                    source: "../assets/ZhuYuanWrite.png"
+                    source: "../assets/" + assetsDir + "/ZhuYuanWrite.png"
                     width: 160
                     height: 160
                     fillMode: Image.PreserveAspectFit
@@ -3273,7 +3273,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "Official Tag Database")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 24
                     width: parent.width
@@ -3427,7 +3427,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -3465,7 +3465,7 @@ Item {
                 Item { height: 10; width: 1 }
 
                 Image {
-                    source: "../assets/EvelynCall.png"
+                    source: "../assets/" + assetsDir + "/EvelynCall.png"
                     width: 160
                     height: 160
                     fillMode: Image.PreserveAspectFit
@@ -3475,7 +3475,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "New Official Tags Available!")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 22
                     width: parent.width
@@ -3656,7 +3656,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -3685,7 +3685,7 @@ Item {
                 Item { height: 10; width: 1 }
 
                 Image {
-                    source: "../assets/PiperHmm.png"
+                    source: "../assets/" + assetsDir + "/PiperHmm.png"
                     width: 160
                     height: 160
                     fillMode: Image.PreserveAspectFit
@@ -3695,7 +3695,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "Audio Fingerprint Found!")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 22
                     width: parent.width
@@ -3823,7 +3823,7 @@ Item {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -3861,7 +3861,7 @@ Item {
                 Item { height: 10; width: 1 }
 
                 Image {
-                    source: "../assets/ZhuYuanWrite.png"
+                    source: "../assets/" + assetsDir + "/ZhuYuanWrite.png"
                     width: 160
                     height: 160
                     fillMode: Image.PreserveAspectFit
@@ -3871,7 +3871,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "Official Fingerprint Database")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 24
                     width: parent.width

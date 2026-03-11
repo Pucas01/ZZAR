@@ -14,7 +14,7 @@ from PyQt5.QtCore import (
     QObject, pyqtSlot, pyqtSignal, QMetaObject, Qt, Q_ARG, QThread, QCoreApplication
 )
 
-from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER
+from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR
 from src.pck_indexer import PCKIndexer
 from src.bnk_indexer import BNKIndexer
 from src.temp_cache_manager import TempCacheManager
@@ -1456,7 +1456,7 @@ class AudioBrowserBridge(QObject):
 
         replacements = self._get_user_replacements()
         if not replacements:
-            self.alertDialogRequested.emit(QCoreApplication.translate("Application", "No Changes found"), QCoreApplication.translate("Application", "No audio replacements found.\n\nDid you even replace anything?."), "../assets/EllenSleep.png")
+            self.alertDialogRequested.emit(QCoreApplication.translate("Application", "No Changes found"), QCoreApplication.translate("Application", "No audio replacements found.\n\nDid you even replace anything?."), f"../assets/{ASSETS_DIR}/EllenSleep.png")
             return
 
         changes = []
@@ -1499,7 +1499,7 @@ class AudioBrowserBridge(QObject):
                 })
 
         if not changes:
-            self.alertDialogRequested.emit(QCoreApplication.translate("Application", "No Changes found"), QCoreApplication.translate("Application", "No manual audio replacements found.\n\nChanges from installed mods are managed in the Mod Manager."), "../assets/EllenSleep.png")
+            self.alertDialogRequested.emit(QCoreApplication.translate("Application", "No Changes found"), QCoreApplication.translate("Application", "No manual audio replacements found.\n\nChanges from installed mods are managed in the Mod Manager."), f"../assets/{ASSETS_DIR}/EllenSleep.png")
             return
 
         self.changesReady.emit(changes)
@@ -2396,7 +2396,7 @@ class AudioBrowserBridge(QObject):
                         "or export as a new mod package.")
                         .replace("%1", mod_name).replace("%2", mod_author)
                         .replace("%3", mod_version).replace("%4", str(replacement_count)),
-                        "../assets/YanagiSmug.png"
+                        f"../assets/{ASSETS_DIR}/YanagiSmug.png"
                     )
 
                 except Exception as e:

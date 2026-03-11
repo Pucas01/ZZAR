@@ -35,7 +35,8 @@ from src.config_manager import get_settings_file, get_cache_dir
 from src.app_config import (
     APP_NAME, APP_FULL_NAME, GAME_NAME, GAME_SHORT, GAME_DATA_FOLDER,
     GAME_DATA_FOLDER_SEARCH, GAME_INSTALL_SUBDIRS, GAME_INSTALL_HOME_SUBDIR,
-    LOGO_PNG, MOD_FILE_EXT, MOD_FILE_EXT_UPPER,
+    LOGO_PNG, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR,
+    ACCENT_COLOR, ACCENT_COLOR_LIGHT, ACCENT_COLOR_DARK,
 )
 
 from gui.connectors.mod_manager_connector import ModManagerConnector
@@ -224,6 +225,10 @@ class Application(
         context.setContextProperty("modFileExt", MOD_FILE_EXT)
         context.setContextProperty("modFileExtUpper", MOD_FILE_EXT_UPPER)
         context.setContextProperty("logoPng", LOGO_PNG)
+        context.setContextProperty("assetsDir", ASSETS_DIR)
+        context.setContextProperty("accentColor", ACCENT_COLOR)
+        context.setContextProperty("accentColorLight", ACCENT_COLOR_LIGHT)
+        context.setContextProperty("accentColorDark", ACCENT_COLOR_DARK)
 
         self.translation_manager = TranslationManager(self.engine)
         context.setContextProperty("translationManager", self.translation_manager)
@@ -448,7 +453,7 @@ class Application(
             Qt.QueuedConnection,
             Q_ARG("QVariant", QCoreApplication.translate("Application", "Work in Progress")),
             Q_ARG("QVariant", QCoreApplication.translate("Application", "This feature is not yet implemented.\n\nThis will be added in a future update. (i hope)")),
-            Q_ARG("QVariant", "../assets/YuzuhaSilly.png")
+            Q_ARG("QVariant", f"../assets/{ASSETS_DIR}/YuzuhaSilly.png")
         )
 
     def on_wwise_error_dialog(self, title, message):

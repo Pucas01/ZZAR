@@ -51,7 +51,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -89,9 +89,9 @@ Item {
 
             Image {
                 source: root.customStickerPath !== "" ? root.customStickerPath :
-                        root.randomSticker === 0 ? "../assets/SunnaMad.png" :
-                        root.randomSticker === 1 ? "../assets/AntonWHAT.png" :
-                        "../assets/SeedSuprise.png"
+                        root.randomSticker === 0 ? "../assets/" + assetsDir + "/SunnaMad.png" :
+                        root.randomSticker === 1 ? "../assets/" + assetsDir + "/AntonWHAT.png" :
+                        "../assets/" + assetsDir + "/SeedSuprise.png"
                 width: 160
                 height: 160
                 fillMode: Image.PreserveAspectFit
@@ -101,7 +101,7 @@ Item {
 
             Text {
                 text: root.title
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "Alatsi"
                 font.pixelSize: 24
                 font.bold: false
@@ -142,7 +142,7 @@ Item {
                             width: 12
                             height: 12
                             radius: 2
-                            color: "#d8fa00"
+                            color: Theme.primaryAccent
                             visible: root.isChecked
                         }
                     }

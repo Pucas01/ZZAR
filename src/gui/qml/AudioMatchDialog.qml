@@ -78,7 +78,7 @@ Item {
             Item { height: 10; width: 1 }
 
             Image {
-                source: "../assets/AriaScared.png"
+                source: "../assets/" + assetsDir + "/AriaScared.png"
                 width: 160
                 height: 160
                 fillMode: Image.PreserveAspectFit
@@ -88,7 +88,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Find Matching Sound")
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "Alatsi"
                 font.pixelSize: 24
                 width: parent.width
@@ -101,7 +101,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "⚠️ Experimental Beta Feature")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 14
                     font.bold: true
@@ -172,7 +172,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 90
                         height: 34
-                        color: browseMouse.pressed ? "#a8c800" : (browseMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                        color: browseMouse.pressed ? Theme.accentDark : (browseMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                         radius: 8
                         scale: browseMouse.pressed ? 0.97 : (browseMouse.containsMouse ? 1.03 : 1.0)
                         Behavior on scale { NumberAnimation { duration: 100 } }
@@ -212,14 +212,14 @@ Item {
                         width: parent.width * (root.matchProgress / 100)
                         height: parent.height
                         radius: 4
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         Behavior on width { NumberAnimation { duration: 150 } }
                     }
                 }
 
                 Text {
                     text: root.matchProgress + "%"
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 16
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -276,7 +276,7 @@ Item {
                 Rectangle {
                     width: 140
                     height: 45
-                    color: (!root.selectedFilePath || root.isMatching) ? "#3c3d3f" : (startMouse.pressed ? "#a8c800" : startMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                    color: (!root.selectedFilePath || root.isMatching) ? "#3c3d3f" : (startMouse.pressed ? Theme.accentDark : startMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                     radius: Theme.radiusMedium
                     opacity: (!root.selectedFilePath || root.isMatching) ? 0.5 : 1.0
                     scale: (root.selectedFilePath && !root.isMatching && startMouse.pressed) ? 0.97 : ((root.selectedFilePath && !root.isMatching && startMouse.containsMouse) ? 1.03 : 1.0)

@@ -50,7 +50,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -89,7 +89,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Import Existing Mod")
-                color: "#CDEE00"
+                color: Theme.primaryAccent
                 font.family: "Stretch Pro"
                 font.pixelSize: 28
                 font.letterSpacing: 2
@@ -115,7 +115,7 @@ Item {
                         width: 120
                         height: 6
                         radius: 3
-                        color: index < currentPage ? "#CDEE00" : "#3c3d3f"
+                        color: index < currentPage ? Theme.primaryAccent : "#3c3d3f"
 
                         Behavior on color { ColorAnimation { duration: 200 } }
                     }
@@ -161,7 +161,7 @@ Item {
                             height: 50
                             radius: 10
                             color: importMode === "pck_file" ? "#3c3d3f" : "#2a2a2a"
-                            border.color: importMode === "pck_file" ? "#CDEE00" : "transparent"
+                            border.color: importMode === "pck_file" ? Theme.primaryAccent : "transparent"
                             border.width: 2
 
                             Row {
@@ -174,8 +174,8 @@ Item {
                                     height: 20
                                     radius: 10
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: importMode === "pck_file" ? "#CDEE00" : "#555555"
-                                    border.color: "#CDEE00"
+                                    color: importMode === "pck_file" ? Theme.primaryAccent : "#555555"
+                                    border.color: Theme.primaryAccent
                                     border.width: 2
 
                                     Rectangle {
@@ -209,7 +209,7 @@ Item {
                             height: 50
                             radius: 10
                             color: importMode === "pck_folder" ? "#3c3d3f" : "#2a2a2a"
-                            border.color: importMode === "pck_folder" ? "#CDEE00" : "transparent"
+                            border.color: importMode === "pck_folder" ? Theme.primaryAccent : "transparent"
                             border.width: 2
 
                             Row {
@@ -222,8 +222,8 @@ Item {
                                     height: 20
                                     radius: 10
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: importMode === "pck_folder" ? "#CDEE00" : "#555555"
-                                    border.color: "#CDEE00"
+                                    color: importMode === "pck_folder" ? Theme.primaryAccent : "#555555"
+                                    border.color: Theme.primaryAccent
                                     border.width: 2
 
                                     Rectangle {
@@ -257,7 +257,7 @@ Item {
                             height: 50
                             radius: 10
                             color: importMode === "wem_file" ? "#3c3d3f" : "#2a2a2a"
-                            border.color: importMode === "wem_file" ? "#CDEE00" : "transparent"
+                            border.color: importMode === "wem_file" ? Theme.primaryAccent : "transparent"
                             border.width: 2
 
                             Row {
@@ -270,8 +270,8 @@ Item {
                                     height: 20
                                     radius: 10
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: importMode === "wem_file" ? "#CDEE00" : "#555555"
-                                    border.color: "#CDEE00"
+                                    color: importMode === "wem_file" ? Theme.primaryAccent : "#555555"
+                                    border.color: Theme.primaryAccent
                                     border.width: 2
 
                                     Rectangle {
@@ -305,7 +305,7 @@ Item {
                             height: 50
                             radius: 10
                             color: importMode === "wem_folder" ? "#3c3d3f" : "#2a2a2a"
-                            border.color: importMode === "wem_folder" ? "#CDEE00" : "transparent"
+                            border.color: importMode === "wem_folder" ? Theme.primaryAccent : "transparent"
                             border.width: 2
 
                             Row {
@@ -318,8 +318,8 @@ Item {
                                     height: 20
                                     radius: 10
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: importMode === "wem_folder" ? "#CDEE00" : "#555555"
-                                    border.color: "#CDEE00"
+                                    color: importMode === "wem_folder" ? Theme.primaryAccent : "#555555"
+                                    border.color: Theme.primaryAccent
                                     border.width: 2
 
                                     Rectangle {
@@ -842,14 +842,14 @@ Item {
                                 width: parent.width * (importPercent / 100)
                                 height: parent.height
                                 radius: 4
-                                color: "#CDEE00"
+                                color: Theme.primaryAccent
                                 Behavior on width { NumberAnimation { duration: 200 } }
                             }
                         }
 
                         Text {
                             text: importPercent + "%"
-                            color: "#CDEE00"
+                            color: Theme.primaryAccent
                             font.family: "Alatsi"
                             font.pixelSize: 16
                             anchors.horizontalCenter: parent.horizontalCenter

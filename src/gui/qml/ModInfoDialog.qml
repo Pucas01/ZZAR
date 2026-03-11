@@ -39,7 +39,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -154,7 +154,7 @@ Item {
 
                     Text {
                         text: modName
-                        color: "#CDEE00"
+                        color: Theme.primaryAccent
                         font.family: "Audiowide"
                         font.pixelSize: 24
                         font.letterSpacing: 1
@@ -326,7 +326,7 @@ Item {
                             }
                             Text {
                                 text: qsTranslate("Application", "Open mod page")
-                                color: gbLinkMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                color: gbLinkMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 13
                                 font.underline: true

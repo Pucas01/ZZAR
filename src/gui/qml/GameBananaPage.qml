@@ -354,7 +354,7 @@ Item {
 
                         Rectangle {
                             anchors.fill: parent
-                            color: refreshMouse.pressed ? "#a8c800" : refreshMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                            color: refreshMouse.pressed ? Theme.accentDark : refreshMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                             radius: Theme.radiusMedium
                             scale: refreshMouse.pressed ? 0.95 : 1.0
                             Behavior on color { ColorAnimation { duration: 100 } }
@@ -535,7 +535,7 @@ Item {
                                 ctx.arc(cx, cy, r, 0, Math.PI * 2)
                                 ctx.stroke()
                                 // accent arc (~270°)
-                                ctx.strokeStyle = "#CDEE00"
+                                ctx.strokeStyle = Theme.primaryAccent
                                 ctx.lineWidth = 5
                                 ctx.lineCap = "round"
                                 ctx.beginPath()

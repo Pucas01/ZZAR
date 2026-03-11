@@ -194,7 +194,7 @@ class UpdateConnector:
                     Qt.QueuedConnection,
                     Q_ARG("QVariant", QCoreApplication.translate("Application", "Update Successful!")),
                     Q_ARG("QVariant", QCoreApplication.translate("Application", "ZZAR has been updated to version %1.").replace("%1", new_version)),
-                    Q_ARG("QVariant", "../assets/VivianHappy.png"),
+                    Q_ARG("QVariant", f"../assets/{ASSETS_DIR}/VivianHappy.png"),
                 )
         except Exception as e:
             print(f"[ZZAR] Error checking update success flag: {e}")

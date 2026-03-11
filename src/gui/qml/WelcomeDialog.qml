@@ -47,7 +47,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -80,7 +80,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Welcome to %1!").replace("%1", appName)
-                color: "#CDEE00"
+                color: Theme.primaryAccent
                 font.family: "Stretch Pro"
                 font.pixelSize: 36
                 font.letterSpacing: 2
@@ -113,7 +113,7 @@ Item {
                         width: (selectedMode === "maker" && Qt.platform.os === "windows") ? 104 : (selectedMode === "maker" ? 130 : 180)
                         height: 6
                         radius: 3
-                        color: index < currentPage ? "#CDEE00" : "#3c3d3f"
+                        color: index < currentPage ? Theme.primaryAccent : "#3c3d3f"
                         Behavior on color { ColorAnimation { duration: 200 } }
                     }
                 }
@@ -153,7 +153,7 @@ Item {
                                 spacing: 15
 
                                 Image {
-                                    source: "../assets/MiyabiMelon.png"
+                                    source: "../assets/" + assetsDir + "/MiyabiMelon.png"
                                     width: 120
                                     height: 120
                                     fillMode: Image.PreserveAspectFit
@@ -214,7 +214,7 @@ Item {
                                 spacing: 15
 
                                 Image {
-                                    source: "../assets/SunnaSmug.png"
+                                    source: "../assets/" + assetsDir + "/SunnaSmug.png"
                                     width: 120
                                     height: 120
                                     fillMode: Image.PreserveAspectFit
@@ -283,7 +283,7 @@ Item {
 
                                 Text {
                                     text: qsTranslate("Application", "Game Directory")
-                                    color: "#CDEE00"
+                                    color: Theme.primaryAccent
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
@@ -340,7 +340,7 @@ Item {
                                         id: browseBtnWelcome
                                         width: 100
                                         height: 45
-                                        color: browseMouse.pressed ? "#a8c800" : (browseMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent)
+                                        color: browseMouse.pressed ? Theme.accentDark : (browseMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                         radius: Theme.radiusMedium
                                         scale: browseMouse.pressed ? 0.97 : (browseMouse.containsMouse ? 1.03 : 1.0)
                                         Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
@@ -370,7 +370,7 @@ Item {
                                         id: autoDetectBtnWelcome
                                         width: 145
                                         height: 45
-                                        color: root.isAutoDetecting ? "#888888" : (autoDetectMouse.pressed ? "#a8c800" : (autoDetectMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent))
+                                        color: root.isAutoDetecting ? "#888888" : (autoDetectMouse.pressed ? Theme.accentDark : (autoDetectMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent))
                                         radius: Theme.radiusMedium
                                         scale: autoDetectMouse.pressed ? 0.97 : (autoDetectMouse.containsMouse ? 1.03 : 1.0)
                                         opacity: root.isAutoDetecting ? 0.7 : 1.0
@@ -436,7 +436,7 @@ Item {
 
                                 Text {
                                     text: gameDirectory.length > 0 ? qsTranslate("Application", "✓ Game directory set") : qsTranslate("Application", "⚠ No game directory configured")
-                                    color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
+                                    color: gameDirectory.length > 0 ? Theme.accentDark : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 13
                                 }
@@ -479,7 +479,7 @@ Item {
 
                                 Text {
                                     text: qsTranslate("Application", "Wwise Setup")
-                                    color: "#CDEE00"
+                                    color: Theme.primaryAccent
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
@@ -506,7 +506,7 @@ Item {
 
                                     Text {
                                         text: wwiseInstalled ? qsTranslate("Application", "INSTALLED ✓") : qsTranslate("Application", "NOT INSTALLED")
-                                        color: wwiseInstalled ? "#92fa00" : "#e91a1a"
+                                        color: wwiseInstalled ? Theme.accentDark : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                         font.bold: false
@@ -543,7 +543,7 @@ Item {
                                 Rectangle {
                                     width: parent.width
                                     height: 50
-                                    color: wwiseInstalled ? "#3c3d3f" : (setupBtnMouse.pressed ? "#a8c800" : setupBtnMouse.containsMouse ? "#e8ff33" : "#CDEE00")
+                                    color: wwiseInstalled ? "#3c3d3f" : (setupBtnMouse.pressed ? Theme.accentDark : setupBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                     radius: 10
                                     opacity: (wwiseInstalled || isInstallingWwise) ? 0.5 : 1.0
                                     visible: !wwiseInstalled || isInstallingWwise
@@ -644,7 +644,7 @@ Item {
 
                                 Text {
                                     text: qsTranslate("Application", "Windows Audio Tools")
-                                    color: "#CDEE00"
+                                    color: Theme.primaryAccent
                                     font.family: "Audiowide"
                                     font.pixelSize: 20
                                 }
@@ -671,7 +671,7 @@ Item {
 
                                     Text {
                                         text: audioToolsInstalled ? qsTranslate("Application", "INSTALLED ✓") : qsTranslate("Application", "NOT INSTALLED")
-                                        color: audioToolsInstalled ? "#92fa00" : "#e91a1a"
+                                        color: audioToolsInstalled ? Theme.accentDark : "#e91a1a"
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                         font.bold: false
@@ -708,7 +708,7 @@ Item {
                                 Rectangle {
                                     width: parent.width
                                     height: 50
-                                    color: audioToolsInstalled ? "#3c3d3f" : (audioToolsSetupBtnMouse.pressed ? "#a8c800" : audioToolsSetupBtnMouse.containsMouse ? "#e8ff33" : "#CDEE00")
+                                    color: audioToolsInstalled ? "#3c3d3f" : (audioToolsSetupBtnMouse.pressed ? Theme.accentDark : audioToolsSetupBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                     radius: 10
                                     opacity: (audioToolsInstalled || isInstallingAudioTools) ? 0.5 : 1.0
                                     visible: !audioToolsInstalled || isInstallingAudioTools
@@ -792,7 +792,7 @@ Item {
                         width: parent.width
 
                         Image {
-                            source: "../assets/BurniceYay.png"
+                            source: "../assets/" + assetsDir + "/BurniceYay.png"
                             width: 240
                             height: 240
                             fillMode: Image.PreserveAspectFit
@@ -803,7 +803,7 @@ Item {
 
                         Text {
                             text: qsTranslate("Application", "You're all set!")
-                            color: "#CDEE00"
+                            color: Theme.primaryAccent
                             font.family: "Audiowide"
                             font.pixelSize: 32
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -870,7 +870,7 @@ Item {
                     width: 150
                     height: 50
                     radius: Theme.radiusMedium
-                    color: continueMouse.pressed ? "#a8c800" : (continueMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent)
+                    color: continueMouse.pressed ? Theme.accentDark : (continueMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                     scale: continueMouse.pressed ? 0.97 : (continueMouse.containsMouse ? 1.03 : 1.0)
                     Behavior on scale { NumberAnimation { duration: Theme.animationDuration } }
                     Behavior on color { ColorAnimation { duration: Theme.animationDuration } }
@@ -925,7 +925,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Skip tutorial")
-                color: skipTutorialMouse.containsMouse ? "#d8fa00" : "#888888"
+                color: skipTutorialMouse.containsMouse ? Theme.primaryAccent : "#888888"
                 font.family: "Alatsi"
                 font.pixelSize: 13
                 width: parent.width

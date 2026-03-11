@@ -96,7 +96,7 @@ Item {
                     y: 0
                     height: 44
                     radius: 22
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
 
                     property var tabWidths: []
 
@@ -200,7 +200,7 @@ Item {
                         implicitWidth: 8
                         radius: 4
                         HoverHandler { id: settingsScrollHover }
-                        color: parent.pressed ? "#d8fa00" : (settingsScrollHover.hovered ? "#aac800" : "#555555")
+                        color: parent.pressed ? Theme.primaryAccent : (settingsScrollHover.hovered ? Theme.accentLight : "#555555")
                         opacity: parent.active ? 1.0 : 0.5
 
                         Behavior on color { ColorAnimation { duration: 150 } }
@@ -237,7 +237,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Language")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -418,7 +418,7 @@ Item {
                                         Text {
                                             id: helpLink
                                             text: qsTranslate("Application", "Want to help?")
-                                            color: helpArea.containsMouse ? "#ffffff" : "#d8fa00"
+                                            color: helpArea.containsMouse ? "#ffffff" : Theme.primaryAccent
                                             font.family: "Alatsi"
                                             font.pixelSize: 12
                                             font.underline: helpArea.containsMouse
@@ -432,7 +432,7 @@ Item {
                                             onClicked: mainWindow.showAlertDialog(
                                                 qsTranslate("Application", "Help Translate %1!").replace("%1", appName),
                                                 qsTranslate("Application", "I need your help to translate %1 to more languages!\n\nIf you're interested in translating, reach out to:\n\nDiscord: Pucas01\nTwitter: Pucas02\n\nOr open an issue on the GitHub repo.\n\nI only speak English and Dutch.").replace("%1", appName),
-                                                "../assets/YeShunguangReed.png"
+                                                "../assets/" + assetsDir + "/YeShunguangReed.png"
                                             )
                                         }
                                     }
@@ -458,7 +458,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Game Directory")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -616,7 +616,7 @@ Item {
                             Text {
                                 id: statusText
                                 text: gameDirectory.length > 0 ? qsTranslate("Application", "Game directory set") : qsTranslate("Application", "No game directory configured")
-                                color: gameDirectory.length > 0 ? "#92fa00" : "#e91a1a"
+                                color: gameDirectory.length > 0 ? Theme.accentDark : "#e91a1a"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
                             }
@@ -648,7 +648,7 @@ Item {
 
                                     Text {
                                         text: qsTranslate("Application", "GameBanana Thumbnails")
-                                        color: "#d8fa00"
+                                        color: Theme.primaryAccent
                                         font.family: "Alatsi"
                                         font.pixelSize: 24
                                         font.weight: Font.Normal
@@ -672,7 +672,7 @@ Item {
                                         id: gbThumbnailsSwitchBg
                                         anchors.fill: parent
                                         radius: 15
-                                        color: settingsPage.enableGbThumbnails ? "#d8fa00" : "#555555"
+                                        color: settingsPage.enableGbThumbnails ? Theme.primaryAccent : "#555555"
                                         Behavior on color { ColorAnimation { duration: 200 } }
 
                                         Rectangle {
@@ -723,7 +723,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Mods Directory")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -840,7 +840,7 @@ Item {
 
                             Text {
                                 text: modsDirectory.length > 0 ? qsTranslate("Application", "Custom mods directory set") : qsTranslate("Application", "Using default: ") + defaultModsDirectory
-                                color: modsDirectory.length > 0 ? "#92fa00" : "#888888"
+                                color: modsDirectory.length > 0 ? Theme.accentDark : "#888888"
                                 font.family: "Alatsi"
                                 font.pixelSize: 12
                             }
@@ -872,7 +872,7 @@ Item {
 
                                     Text {
                                         text: qsTranslate("Application", "Mod Creation Mode")
-                                        color: "#d8fa00"
+                                        color: Theme.primaryAccent
                                         font.family: "Alatsi"
                                         font.pixelSize: 24
                                         font.weight: Font.Normal
@@ -896,7 +896,7 @@ Item {
                                         id: modCreationSwitchBg
                                         anchors.fill: parent
                                         radius: 15
-                                        color: settingsPage.modCreationEnabled ? "#d8fa00" : "#555555"
+                                        color: settingsPage.modCreationEnabled ? Theme.primaryAccent : "#555555"
                                         Behavior on color { ColorAnimation { duration: 200 } }
 
                                         Rectangle {
@@ -939,7 +939,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Tutorial")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -960,7 +960,7 @@ Item {
 
                                 Rectangle {
                                     anchors.fill: parent
-                                    color: redoTutorialMouse.pressed ? "#a8c800" : redoTutorialMouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                                    color: redoTutorialMouse.pressed ? Theme.accentDark : redoTutorialMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                     radius: 10
                                     Behavior on color { ColorAnimation { duration: 100 } }
                                 }
@@ -1002,7 +1002,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Wwise Setup")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1029,7 +1029,7 @@ Item {
 
                                 Text {
                                     text: settingsPage.wwiseInstalled ? qsTranslate("Application", "INSTALLED") : qsTranslate("Application", "NOT INSTALLED")
-                                    color: settingsPage.wwiseInstalled ? "#92fa00" : "#e91a1a"
+                                    color: settingsPage.wwiseInstalled ? Theme.accentDark : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                     font.bold: false
@@ -1073,7 +1073,7 @@ Item {
 
                                 Rectangle {
                                     anchors.fill: parent
-                                    color: settingsPage.wwiseInstalled ? "#3c3d3f" : (setupBtnMouse.pressed ? "#a8c800" : setupBtnMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                                    color: settingsPage.wwiseInstalled ? "#3c3d3f" : (setupBtnMouse.pressed ? Theme.accentDark : setupBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                     radius: 10
                                     opacity: (settingsPage.wwiseInstalled || settingsPage.isInstallingWwise) ? 0.5 : 1.0
                                     Behavior on color { ColorAnimation { duration: 100 } }
@@ -1152,7 +1152,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Windows Audio Tools")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1179,7 +1179,7 @@ Item {
 
                                 Text {
                                     text: settingsPage.audioToolsInstalled ? qsTranslate("Application", "INSTALLED") : qsTranslate("Application", "NOT INSTALLED")
-                                    color: settingsPage.audioToolsInstalled ? "#92fa00" : "#e91a1a"
+                                    color: settingsPage.audioToolsInstalled ? Theme.accentDark : "#e91a1a"
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                     font.bold: false
@@ -1223,7 +1223,7 @@ Item {
 
                                 Rectangle {
                                     anchors.fill: parent
-                                    color: settingsPage.audioToolsInstalled ? "#3c3d3f" : (audioToolsSetupBtnMouse.pressed ? "#a8c800" : audioToolsSetupBtnMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                                    color: settingsPage.audioToolsInstalled ? "#3c3d3f" : (audioToolsSetupBtnMouse.pressed ? Theme.accentDark : audioToolsSetupBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                     radius: 10
                                     opacity: (settingsPage.audioToolsInstalled || settingsPage.isInstallingAudioTools) ? 0.5 : 1.0
                                     Behavior on color { ColorAnimation { duration: 100 } }
@@ -1302,7 +1302,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Updates")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1329,7 +1329,7 @@ Item {
 
                                 Text {
                                     text: Qt.application.version
-                                    color: "#d8fa00"
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                 }
@@ -1424,7 +1424,7 @@ Item {
 
                                     Rectangle {
                                         anchors.fill: parent
-                                        color: testDialogMouse.pressed ? "#a8c800" : testDialogMouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                                        color: testDialogMouse.pressed ? Theme.accentDark : testDialogMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                         radius: 20
                                         Behavior on color { ColorAnimation { duration: 100 } }
                                     }
@@ -1460,7 +1460,7 @@ Item {
 
                                     Text {
                                         text: qsTranslate("Application", "Version %1 is available!").arg(settingsPage.latestVersion)
-                                        color: "#92fa00"
+                                        color: Theme.accentDark
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
@@ -1471,7 +1471,7 @@ Item {
 
                                         Rectangle {
                                             anchors.fill: parent
-                                            color: settingsPage.isDownloadingUpdate ? "#3c3d3f" : (downloadBtnMouse.pressed ? "#a8c800" : downloadBtnMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                                            color: settingsPage.isDownloadingUpdate ? "#3c3d3f" : (downloadBtnMouse.pressed ? Theme.accentDark : downloadBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                                             radius: 10
                                             opacity: settingsPage.isDownloadingUpdate ? 0.7 : 1.0
                                             Behavior on color { ColorAnimation { duration: 100 } }
@@ -1546,7 +1546,7 @@ Item {
 
                                     Text {
                                         text: qsTranslate("Application", "Update downloaded! Restart to apply.")
-                                        color: "#92fa00"
+                                        color: Theme.accentDark
                                         font.family: "Alatsi"
                                         font.pixelSize: 16
                                     }
@@ -1557,7 +1557,7 @@ Item {
 
                                         Rectangle {
                                             anchors.fill: parent
-                                            color: restartBtnMouse.pressed ? "#a8c800" : restartBtnMouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                                            color: restartBtnMouse.pressed ? Theme.accentDark : restartBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                             radius: 10
                                             Behavior on color { ColorAnimation { duration: 100 } }
                                         }
@@ -1589,7 +1589,7 @@ Item {
 
                                 Text {
                                     text: qsTranslate("Application", "GitHub Token (Dev Mode)")
-                                    color: "#d8fa00"
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 16
                                 }
@@ -1646,7 +1646,7 @@ Item {
 
                                         Rectangle {
                                             anchors.fill: parent
-                                            color: saveTokenMouse.pressed ? "#a8c800" : saveTokenMouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                                            color: saveTokenMouse.pressed ? Theme.accentDark : saveTokenMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                             radius: 10
                                             Behavior on color { ColorAnimation { duration: 100 } }
                                         }
@@ -1689,7 +1689,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "About %1").replace("%1", appName)
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1766,7 +1766,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Credits")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1784,7 +1784,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "failsafe65"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1805,7 +1805,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "mob159"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1826,7 +1826,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "Thoronium"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1847,7 +1847,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "noirs_rf"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1867,7 +1867,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "Retrotecho"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1888,7 +1888,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "alver_418"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1906,7 +1906,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Testers")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1917,7 +1917,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "mob159"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1938,7 +1938,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "Marbles"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1959,7 +1959,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "Skysill"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -1977,7 +1977,7 @@ Item {
 
                             Text {
                                 text: qsTranslate("Application", "Translators")
-                                color: "#d8fa00"
+                                color: Theme.primaryAccent
                                 font.family: "Alatsi"
                                 font.pixelSize: 24
                                 font.weight: Font.Normal
@@ -1988,7 +1988,7 @@ Item {
                             width: parent.width
                                 Text {
                                     text: "Luafile_Gabriel"
-                                    color: '#d8fa00'
+                                    color: Theme.primaryAccent
                                     font.family: "Alatsi"
                                     font.pixelSize: 14
                                     wrapMode: Text.WordWrap
@@ -2060,7 +2060,7 @@ Item {
                     anchors.fill: parent
                     anchors.topMargin: 4
                     radius: 30
-                    color: saveMouse.containsMouse ? "#40CDEE00" : "#30000000"
+                    color: saveMouse.containsMouse ? Qt.rgba(Theme.primaryAccent.r, Theme.primaryAccent.g, Theme.primaryAccent.b, 0.25) : "#30000000"
                     Behavior on color { ColorAnimation { duration: 150 } }
                 }
 
@@ -2068,7 +2068,7 @@ Item {
                     id: saveButtonBg
                     anchors.fill: parent
                     radius: 30
-                    color: saveMouse.pressed ? "#b8de00" : saveMouse.containsMouse ? "#e0f533" : "#CDEE00"
+                    color: saveMouse.pressed ? Theme.accentDark : saveMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                     scale: saveMouse.pressed ? 0.97 : 1.0
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutQuad } }

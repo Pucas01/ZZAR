@@ -134,7 +134,7 @@ Item {
                     Rectangle {
                         id: rectangle_37
                         anchors.fill: parent
-                        color: btn_install_mouse.pressed ? "#a8c800" : btn_install_mouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                        color: btn_install_mouse.pressed ? Theme.accentDark : btn_install_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                         radius: 36.44
                         scale: btn_install_mouse.pressed ? 0.95 : 1.0
                         Behavior on color { ColorAnimation { duration: 100 } }
@@ -169,7 +169,7 @@ Item {
                     Rectangle {
                         id: rectangle_38
                         anchors.fill: parent
-                        color: btn_import_mouse.pressed ? "#a8c800" : btn_import_mouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                        color: btn_import_mouse.pressed ? Theme.accentDark : btn_import_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                         radius: 20
                         scale: btn_import_mouse.pressed ? 0.95 : 1.0
                         Behavior on color { ColorAnimation { duration: 100 } }
@@ -204,7 +204,7 @@ Item {
                     Rectangle {
                         id: rectangle_39
                         anchors.fill: parent
-                        color: btn_remove_mouse.pressed ? "#a8c800" : btn_remove_mouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                        color: btn_remove_mouse.pressed ? Theme.accentDark : btn_remove_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                         radius: 20
                         scale: btn_remove_mouse.pressed ? 0.95 : 1.0
                         Behavior on color { ColorAnimation { duration: 100 } }
@@ -238,7 +238,7 @@ Item {
                     Rectangle {
                         id: rectangle_40
                         anchors.fill: parent
-                        color: btn_refresh_mouse.pressed ? "#a8c800" : btn_refresh_mouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                        color: btn_refresh_mouse.pressed ? Theme.accentDark : btn_refresh_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                         radius: 20
                         scale: btn_refresh_mouse.pressed ? 0.95 : 1.0
                         Behavior on color { ColorAnimation { duration: 100 } }
@@ -272,7 +272,7 @@ Item {
                     Rectangle {
                         id: rectangle_41
                         anchors.fill: parent
-                        color: btn_openfolder_mouse.pressed ? "#a8c800" : btn_openfolder_mouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                        color: btn_openfolder_mouse.pressed ? Theme.accentDark : btn_openfolder_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                         radius: 20
                         scale: btn_openfolder_mouse.pressed ? 0.95 : 1.0
                         Behavior on color { ColorAnimation { duration: 100 } }
@@ -461,7 +461,7 @@ Item {
                     height: 108
                     color: modMouseArea.containsMouse ? "#6e6e6e" : "#666666"
                     radius: 36.44
-                    border.color: selectedModUuids.indexOf(model.uuid) !== -1 ? "#d8fa00" : "transparent"
+                    border.color: selectedModUuids.indexOf(model.uuid) !== -1 ? Theme.primaryAccent : "transparent"
                     border.width: 2
 
                     Behavior on color { ColorAnimation { duration: 100 } }
@@ -541,7 +541,7 @@ Item {
                                 Image {
                                     anchors.centerIn: parent
                                     width: 14; height: 14
-                                    source: "../assets/Gamebanana.png"
+                                    source: "../assets/" + assetsDir + "/Gamebanana.png"
                                     fillMode: Image.PreserveAspectFit
                                     mipmap: true
                                 }
@@ -613,7 +613,7 @@ Item {
                                     anchors.fill: parent
                                     color: {
                                         if (model.enabled) {
-                                            return toggleMouse.pressed ? "#72ca00" : toggleMouse.containsMouse ? "#a2ff22" : "#92fa00"
+                                            return toggleMouse.pressed ? "#72ca00" : toggleMouse.containsMouse ? "#a2ff22" : Theme.accentDark
                                         } else {
                                             return toggleMouse.pressed ? "#666666" : toggleMouse.containsMouse ? "#999999" : "#808080"
                                         }
@@ -654,7 +654,7 @@ Item {
 
                                 Rectangle {
                                     anchors.fill: parent
-                                    color: infoMouse.pressed ? "#a8c800" : infoMouse.containsMouse ? "#e8ff33" : "#d8fa00"
+                                    color: infoMouse.pressed ? Theme.accentDark : infoMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                     radius: 20
                                     scale: infoMouse.pressed ? 0.95 : 1.0
                                     Behavior on color { ColorAnimation { duration: 100 } }
@@ -729,7 +729,7 @@ Item {
                         anchors.margins: 6
                         color: gridCardMouse.containsMouse ? "#6e6e6e" : "#666666"
                         radius: 20
-                        border.color: selectedModUuids.indexOf(model.uuid) !== -1 ? "#d8fa00" : "transparent"
+                        border.color: selectedModUuids.indexOf(model.uuid) !== -1 ? Theme.primaryAccent : "transparent"
                         border.width: 2
                         Behavior on color { ColorAnimation { duration: 100 } }
                         Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -803,7 +803,7 @@ Item {
                                     Image {
                                         anchors.centerIn: parent
                                         width: 16; height: 16
-                                        source: "../assets/Gamebanana.png"
+                                        source: "../assets/" + assetsDir + "/Gamebanana.png"
                                         fillMode: Image.PreserveAspectFit
                                         mipmap: true
                                     }
@@ -838,7 +838,7 @@ Item {
                                 Rectangle {
                                     anchors.fill: parent
                                     color: {
-                                        if (model.enabled) return gridToggleBtn.pressed ? "#72ca00" : gridToggleBtn.containsMouse ? "#a2ff22" : "#92fa00"
+                                        if (model.enabled) return gridToggleBtn.pressed ? "#72ca00" : gridToggleBtn.containsMouse ? "#a2ff22" : Theme.accentDark
                                         else return gridToggleBtn.pressed ? "#666666" : gridToggleBtn.containsMouse ? "#999999" : "#808080"
                                     }
                                     radius: 16
@@ -872,7 +872,7 @@ Item {
 
                                 Rectangle {
                                     anchors.fill: parent
-                                    color: gridInfoBtn.pressed ? "#a8c800" : gridInfoBtn.containsMouse ? "#e8ff33" : "#d8fa00"
+                                    color: gridInfoBtn.pressed ? Theme.accentDark : gridInfoBtn.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                     radius: 13
                                     scale: gridInfoBtn.pressed ? 0.95 : 1.0
                                     Behavior on color { ColorAnimation { duration: 100 } }
@@ -911,7 +911,7 @@ Item {
                     anchors.fill: parent
                     anchors.topMargin: 4
                     radius: 30
-                    color: btn_apply_mouse.containsMouse ? "#40CDEE00" : "#30000000"
+                    color: btn_apply_mouse.containsMouse ? Qt.rgba(Theme.primaryAccent.r, Theme.primaryAccent.g, Theme.primaryAccent.b, 0.25) : "#30000000"
                     Behavior on color { ColorAnimation { duration: 150 } }
                 }
 
@@ -919,7 +919,7 @@ Item {
                     id: applyButtonBg
                     anchors.fill: parent
                     radius: 30
-                    color: btn_apply_mouse.pressed ? "#b8de00" : btn_apply_mouse.containsMouse ? "#e0f533" : "#CDEE00"
+                    color: btn_apply_mouse.pressed ? Theme.accentDark : btn_apply_mouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                     scale: btn_apply_mouse.pressed ? 0.97 : 1.0
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutQuad } }

@@ -41,7 +41,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -79,9 +79,9 @@ Item {
 
             Image {
                 source: root.customStickerPath !== "" ? root.customStickerPath :
-                        (root.randomSticker === 0 ? "../assets/AliceMoney.png" :
-                         root.randomSticker === 1 ? "../assets/AriaHappy.png" :
-                         "../assets/HarumasaHehe.png")
+                        (root.randomSticker === 0 ? "../assets/" + assetsDir + "/AliceMoney.png" :
+                         root.randomSticker === 1 ? "../assets/" + assetsDir + "/AriaHappy.png" :
+                         "../assets/" + assetsDir + "/HarumasaHehe.png")
                 width: 160
                 height: 160
                 fillMode: Image.PreserveAspectFit
@@ -91,7 +91,7 @@ Item {
 
             Text {
                 text: root.title
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "Alatsi"
                 font.pixelSize: 24
                 font.bold: false

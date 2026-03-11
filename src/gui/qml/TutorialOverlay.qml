@@ -21,7 +21,10 @@ Item {
         {
             tabIndex: 1,
             sectionTitle: qsTranslate("Application", "Mod Manager"),
-            messages: [
+            messages: (appName !== "ZZAR" ? [
+                { text: qsTranslate("Application", "Oh hey... looks like i'm in the wrong game."), highlight: "" },
+                { text: qsTranslate("Application", "Doesn't matter i know how audio mods work. i trained for this."), highlight: "" },
+            ] : []).concat([
                 { text: qsTranslate("Application", "You're here. i'll show you how this works."), highlight: "" },
                 { text: qsTranslate("Application", "These buttons. use them."), highlight: "tutorialButtonRow" },
                 { text: qsTranslate("Application", "This installs %1 mod packages. self explanatory.").replace("%1", modFileExt), highlight: "tutorialInstallBtn" },
@@ -30,7 +33,7 @@ Item {
                 { text: qsTranslate("Application", "When you're done picking mods, apply. nothing happens until you do."), highlight: "tutorialApplyBtn" },
                 { text: "", highlight: "tutorialApplyBtn", sticker: "MiyabiMelon.png" },
                 { text: qsTranslate("Application", "Oh and if you ever wanted to ask me something, im all ears (DM Pucas01 on Discord, Pucas02 on Twitter or make an issue on the github)."), highlight: "tutorialApplyBtn" },
-            ]
+            ])
         },
         {
             tabIndex: 0,
@@ -108,7 +111,7 @@ Item {
         chatListModel.clear()
         visible = true
         showingIntro = true
-        var sndUrl = Qt.resolvedUrl("../assets/Knock-Knock-audio.wav").toString()
+        var sndUrl = Qt.resolvedUrl("../assets/" + assetsDir + "/Knock-Knock-audio.wav").toString()
         console.log("[Tutorial] playSound:", sndUrl, "backend:", modManagerBackend)
         if (modManagerBackend) modManagerBackend.playSound(sndUrl)
         knockLoopTimer.restart()
@@ -273,7 +276,7 @@ Item {
         width: spotW
         height: spotH
         color: "transparent"
-        border.color: "#d8fa00"
+        border.color: Theme.primaryAccent
         border.width: 2
         radius: 8
         visible: hasSpotlight
@@ -302,7 +305,7 @@ Item {
         interval: 2345
         repeat: true
         running: showingIntro
-        onTriggered: if (modManagerBackend) modManagerBackend.playSound(Qt.resolvedUrl("../assets/Knock-Knock-audio.wav").toString())
+        onTriggered: if (modManagerBackend) modManagerBackend.playSound(Qt.resolvedUrl("../assets/" + assetsDir + "/Knock-Knock-audio.wav").toString())
     }
 
     // Intro screen — shown before tutorial starts
@@ -323,20 +326,26 @@ Item {
                 width: 140
                 height: 140
                 anchors.horizontalCenter: parent.horizontalCenter
+                clip: false
 
                 Image {
                     id: phoneImage
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: bobOffset
                     width: 120
                     height: 120
-                    source: "../assets/Knock-Knock.png"
+                    source: "../assets/" + assetsDir + "/Knock-Knock.png"
                     fillMode: Image.PreserveAspectFit
                     mipmap: true
                     transformOrigin: Item.Bottom
+
+                    property real bobOffset: 0
                 }
 
+                // ZZAR: knock/vibrate animation
                 SequentialAnimation {
-                    running: showingIntro
+                    running: showingIntro && appName === "ZZAR"
                     loops: Animation.Infinite
                     // Knock 1 (~0ms)
                     NumberAnimation { target: phoneImage; property: "rotation"; to: -6; duration: 30; easing.type: Easing.OutQuad }
@@ -363,12 +372,56 @@ Item {
                     // Tail silence to match 2345ms total loop
                     PauseAnimation { duration: 1087 }
                 }
+
+                // SRAR: one bob up then settle, badge pops in after
+                SequentialAnimation {
+                    id: srarIntroAnim
+                    running: showingIntro && appName !== "ZZAR"
+                    loops: 1
+                    // bob up — quick burst
+                    NumberAnimation { target: phoneImage; property: "bobOffset"; to: -14; duration: 220; easing.type: Easing.OutQuad }
+                    // fall back with gravity + small squash overshoot
+                    NumberAnimation { target: phoneImage; property: "bobOffset"; to: 3;   duration: 360; easing.type: Easing.InQuad }
+                    NumberAnimation { target: phoneImage; property: "bobOffset"; to: 0;   duration: 160; easing.type: Easing.OutQuad }
+                    // brief pause, then badge pops in
+                    PauseAnimation { duration: 100 }
+                    NumberAnimation { target: notifBadge; property: "badgeScale"; from: 0; to: 1.3; duration: 150; easing.type: Easing.OutBack }
+                    NumberAnimation { target: notifBadge; property: "badgeScale"; to: 1.0; duration: 120; easing.type: Easing.InQuad }
+                }
+
+                // Notification badge (SRAR only) — positioned relative to Item, outside clip
+                Rectangle {
+                    id: notifBadge
+                    visible: appName !== "ZZAR"
+                    width: 30
+                    height: 30
+                    radius: 13
+                    color: "#e8365d"
+                    x: parent.width - 26
+                    y: 4
+
+                    property real badgeScale: appName !== "ZZAR" ? 0 : 1
+                    transform: Scale {
+                        origin.x: notifBadge.width / 2
+                        origin.y: notifBadge.height / 2
+                        xScale: notifBadge.badgeScale
+                        yScale: notifBadge.badgeScale
+                    }
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: "1"
+                        color: "#ffffff"
+                        font.pixelSize: 13
+                        font.bold: true
+                    }
+                }
             }
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "Hoshimi Miyabi"
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "inpin hongmengti"
                 font.pixelSize: 18
             }
@@ -386,7 +439,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTranslate("Application", "incoming call")
+                    text: appName !== "ZZAR" ? qsTranslate("Application", "new message") : qsTranslate("Application", "incoming call")
                     color: "#888888"
                     font.family: "inpin hongmengti"
                     font.pixelSize: 14
@@ -420,14 +473,14 @@ Item {
                 width: 160
                 height: 50
                 radius: 25
-                color: answerMouse.pressed ? "#b8de00" : (answerMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                color: answerMouse.pressed ? Theme.accentDark : (answerMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                 scale: answerMouse.pressed ? 0.95 : 1.0
                 Behavior on color { ColorAnimation { duration: 100 } }
                 Behavior on scale { NumberAnimation { duration: 100 } }
 
                 Text {
                     anchors.centerIn: parent
-                    text: qsTranslate("Application", "Answer")
+                    text: appName !== "ZZAR" ? qsTranslate("Application", "Open") : qsTranslate("Application", "Answer")
                     color: "#000000"
                     font.family: "inpin hongmengti"
                     font.pixelSize: 18
@@ -500,7 +553,7 @@ Item {
                 Image {
                     width: 38
                     height: 38
-                    source: "../assets/IconMessageRoleCircle07.png"
+                    source: "../assets/" + assetsDir + "/IconMessageRoleCircle07.png"
                     fillMode: Image.PreserveAspectFit
                     mipmap: true
                 }
@@ -512,7 +565,7 @@ Item {
 
                     Text {
                         text: "Hoshimi Miyabi"
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         font.family: "inpin hongmengti"
                         font.pixelSize: 16
                         font.bold: false
@@ -539,7 +592,7 @@ Item {
                         width: index === currentSection ? 24 : 8
                         height: 8
                         radius: 4
-                        color: index <= currentSection ? "#d8fa00" : "#555555"
+                        color: index <= currentSection ? Theme.primaryAccent : "#555555"
                         Behavior on width { NumberAnimation { duration: 200 } }
                         Behavior on color { ColorAnimation { duration: 200 } }
                     }
@@ -569,7 +622,7 @@ Item {
                     Image {
                         width: 40
                         height: 40
-                        source: "../assets/IconMessageRoleCircle07.png"
+                        source: "../assets/" + assetsDir + "/IconMessageRoleCircle07.png"
                         fillMode: Image.PreserveAspectFit
                         mipmap: true
                         anchors.top: parent.top
@@ -585,7 +638,7 @@ Item {
                             y: 0
                             width: 14
                             height: 16
-                            source: "../assets/chat_message_arrow_left_.png"
+                            source: "../assets/" + assetsDir + "/chat_message_arrow_left_.png"
                             fillMode: Image.PreserveAspectFit
                         }
 
@@ -615,7 +668,7 @@ Item {
                                 anchors.centerIn: parent
                                 width: 120
                                 height: 120
-                                source: model.stickerSource !== "" ? ("../assets/" + model.stickerSource) : ""
+                                source: model.stickerSource !== "" ? ("../assets/ZZAR/" + model.stickerSource) : ""
                                 fillMode: Image.PreserveAspectFit
                                 mipmap: true
                                 visible: model.stickerSource !== ""
@@ -639,7 +692,7 @@ Item {
                     width: parent.width
                     height: 44
                     radius: 22
-                    color: nextBtnMouse.pressed ? "#b8de00" : (nextBtnMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                    color: nextBtnMouse.pressed ? Theme.accentDark : (nextBtnMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                     scale: nextBtnMouse.pressed ? 0.97 : 1.0
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on scale { NumberAnimation { duration: 100 } }
@@ -685,7 +738,7 @@ Item {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
                         hoverEnabled: true
-                        onEntered: parent.color = "#d8fa00"
+                        onEntered: parent.color = Theme.primaryAccent
                         onExited: parent.color = "#888888"
                         onClicked: finish()
                     }

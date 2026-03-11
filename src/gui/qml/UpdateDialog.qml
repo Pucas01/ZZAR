@@ -44,7 +44,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -79,7 +79,7 @@ Item {
             spacing: 20
 
             Image {
-                source: "../assets/VivianScribble.png"
+                source: "../assets/" + assetsDir + "/VivianScribble.png"
                 width: 120
                 height: 120
                 fillMode: Image.PreserveAspectFit
@@ -89,7 +89,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Update Available!")
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "Alatsi"
                 font.pixelSize: 24
                 width: parent.width
@@ -112,7 +112,7 @@ Item {
 
                 Text {
                     text: qsTranslate("Application", "What's New")
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 16
                 }
@@ -173,7 +173,7 @@ Item {
                         width: parent.width * (root.downloadPercent / 100)
                         height: parent.height
                         radius: 3
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         Behavior on width { NumberAnimation { duration: 150 } }
                     }
                 }
@@ -226,7 +226,7 @@ Item {
                 Rectangle {
                     width: 140
                     height: 45
-                    color: root.isDownloading ? "#3c3d3f" : (updateMouse.pressed ? "#a8c800" : updateMouse.containsMouse ? "#e8ff33" : "#d8fa00")
+                    color: root.isDownloading ? "#3c3d3f" : (updateMouse.pressed ? Theme.accentDark : updateMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent)
                     radius: Theme.radiusMedium
                     opacity: root.isDownloading ? 0.7 : 1.0
                     scale: (!root.isDownloading && updateMouse.pressed) ? 0.97 : ((!root.isDownloading && updateMouse.containsMouse) ? 1.03 : 1.0)

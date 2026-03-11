@@ -28,7 +28,7 @@ ApplicationWindow {
 
     function showToast(message, isSuccess) {
         toastText.text = message
-        toastBackground.color = isSuccess ? "#CDEE00" : "#e91a1a"
+        toastBackground.color = isSuccess ? Theme.primaryAccent : "#e91a1a"
         toastText.color = isSuccess ? "#000000" : "#ffffff"
         toastIcon.color = isSuccess ? "#000000" : "#ffffff"
         toastAnimation.start()
@@ -182,7 +182,7 @@ ApplicationWindow {
                     Image {
                         width: 75
                         height: 75
-                        source: "../assets/" + logoPng
+                        source: "../assets/" + assetsDir + "/" + logoPng
                         fillMode: Image.PreserveAspectFit
                     }
 
@@ -305,7 +305,7 @@ ApplicationWindow {
                                 Image {
                                     id: gamebananaImage
                                     anchors.fill: parent
-                                    source: "../assets/Gamebanana.png"
+                                    source: "../assets/" + assetsDir + "/Gamebanana.png"
                                     fillMode: Image.PreserveAspectFit
                                     visible: false
                                 }
@@ -313,7 +313,7 @@ ApplicationWindow {
                                 ColorOverlay {
                                     anchors.fill: parent
                                     source: gamebananaImage
-                                    color: currentTab === 0 ? "#d8fa00" : (gamebanana.hovered ? "#d8fa00" : "#ffffff")
+                                    color: currentTab === 0 ? Theme.primaryAccent : (gamebanana.hovered ? Theme.primaryAccent : "#ffffff")
                                     cached: true
 
                                     Behavior on color {
@@ -367,7 +367,7 @@ ApplicationWindow {
 
                                         ShapePath {
                                             id: stadia_controller_1_ShapePath0
-                                            fillColor: currentTab === 1 ? "#d8fa00" : (home.hovered ? "#d8fa00" : "#ffffff")
+                                            fillColor: currentTab === 1 ? Theme.primaryAccent : (home.hovered ? Theme.primaryAccent : "#ffffff")
                                             fillRule: ShapePath.WindingFill
                                             joinStyle: ShapePath.MiterJoin
                                             strokeColor: "#00000000"
@@ -430,7 +430,7 @@ ApplicationWindow {
 
                                     ShapePath {
                                         id: audio_file_1_ShapePath0
-                                        fillColor: currentTab === 2 ? "#d8fa00" : (news.hovered ? "#d8fa00" : "#ffffff")
+                                        fillColor: currentTab === 2 ? Theme.primaryAccent : (news.hovered ? Theme.primaryAccent : "#ffffff")
                                         fillRule: ShapePath.WindingFill
                                         joinStyle: ShapePath.MiterJoin
                                         strokeColor: "#00000000"
@@ -486,7 +486,7 @@ ApplicationWindow {
                                 Image {
                                     id: conversion_image
                                     anchors.fill: parent
-                                    source: "../assets/ConversionPageIcon.png"
+                                    source: "../assets/" + assetsDir + "/ConversionPageIcon.png"
                                     fillMode: Image.PreserveAspectFit
                                     visible: false
                                 }
@@ -494,7 +494,7 @@ ApplicationWindow {
                                 ColorOverlay {
                                     anchors.fill: parent
                                     source: conversion_image
-                                    color: currentTab === 3 ? "#d8fa00" : (conversion.hovered ? "#d8fa00" : "#ffffff")
+                                    color: currentTab === 3 ? Theme.primaryAccent : (conversion.hovered ? Theme.primaryAccent : "#ffffff")
                                     cached: true
 
                                     Behavior on color {
@@ -548,7 +548,7 @@ ApplicationWindow {
 
                                         ShapePath {
                                             id: _vector_ShapePath0
-                                            fillColor: currentTab === 4 ? "#d8fa00" : (others.hovered ? "#d8fa00" : "#ffffff")
+                                            fillColor: currentTab === 4 ? Theme.primaryAccent : (others.hovered ? Theme.primaryAccent : "#ffffff")
                                             fillRule: ShapePath.WindingFill
                                             joinStyle: ShapePath.MiterJoin
                                             strokeColor: "#00000000"
@@ -723,7 +723,7 @@ ApplicationWindow {
 
                 Image {
                     anchors.fill: parent
-                    source: "../assets/gradient.png"
+                    source: "../assets/" + assetsDir + "/gradient.png"
                     fillMode: Image.Stretch
                     mipmap: true
                     opacity: 0.6
@@ -757,7 +757,7 @@ ApplicationWindow {
 
                     Item { height: 10; width: 1 }
                     Image {
-                        source: "../assets/GraceFuck.png"
+                        source: "../assets/" + assetsDir + "/GraceFuck.png"
                         width: 240
                         height: 240
                         fillMode: Image.PreserveAspectFit
@@ -767,7 +767,7 @@ ApplicationWindow {
 
                     Text {
                         text: qsTranslate("Application", "Oops! We found some files in the wrong place!")
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         font.family: "Alatsi"
                         font.pixelSize: 22
                         font.bold: false
@@ -828,7 +828,7 @@ ApplicationWindow {
 
                                         Text {
                                             text: "• " + modelData
-                                            color: "#d8fa00"
+                                            color: Theme.primaryAccent
                                             font.family: "Alatsi"
                                             font.pixelSize: 16
                                             anchors.verticalCenter: parent.verticalCenter
@@ -842,7 +842,7 @@ ApplicationWindow {
                                             width: 170
                                             height: 36
                                             radius: 8
-                                            color: moveBtnMouse.pressed ? "#a0c800" : (moveBtnMouse.containsMouse ? "#e0ff20" : "#d8fa00")
+                                            color: moveBtnMouse.pressed ? "#a0c800" : (moveBtnMouse.containsMouse ? "#e0ff20" : Theme.primaryAccent)
                                             anchors.verticalCenter: parent.verticalCenter
                                             Behavior on color { ColorAnimation { duration: 100 } }
 
@@ -1041,7 +1041,7 @@ ApplicationWindow {
                 id: toastBackground
                 anchors.fill: parent
                 radius: 35
-                color: "#CDEE00"
+                color: Theme.primaryAccent
 
                 Rectangle {
                     anchors.fill: parent
@@ -1170,7 +1170,7 @@ ApplicationWindow {
                                 height: 40
                                 radius: 20
                                 color: "transparent"
-                                border.color: "#d8fa00"
+                                border.color: Theme.primaryAccent
                                 border.width: 4
 
                                 visible: false
@@ -1188,7 +1188,7 @@ ApplicationWindow {
                                     ctx.reset()
                                     ctx.beginPath()
                                     ctx.arc(width / 2, height / 2, 18, angle, angle + Math.PI * 0.75)
-                                    ctx.strokeStyle = "#d8fa00"
+                                    ctx.strokeStyle = Theme.primaryAccent
                                     ctx.lineWidth = 4
                                     ctx.lineCap = "round"
                                     ctx.stroke()
@@ -1307,7 +1307,7 @@ ApplicationWindow {
                 anchors.margins: 30
                 color: "transparent"
                 radius: 20
-                border.color: "#d8fa00"
+                border.color: Theme.primaryAccent
                 border.width: 3
 
                 Column {
@@ -1316,14 +1316,14 @@ ApplicationWindow {
 
                     Text {
                         text: "\u2B07"
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         font.pixelSize: 64
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     Text {
                         text: qsTranslate("Application", "Drop %1 mod(s) here to install").replace("%1", modFileExt)
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         font.family: "Alatsi"
                         font.pixelSize: 28
                         anchors.horizontalCenter: parent.horizontalCenter

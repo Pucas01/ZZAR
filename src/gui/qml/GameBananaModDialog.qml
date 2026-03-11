@@ -79,7 +79,7 @@ Rectangle {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -176,7 +176,7 @@ Rectangle {
                                 implicitWidth: 8
                                 radius: 4
                                 HoverHandler { id: gbDialogScrollHover }
-                                color: parent.pressed ? "#d8fa00" : (gbDialogScrollHover.hovered ? "#aac800" : "#555555")
+                                color: parent.pressed ? Theme.primaryAccent : (gbDialogScrollHover.hovered ? Theme.accentLight : "#555555")
                                 opacity: parent.active ? 1.0 : 0.5
 
                                 Behavior on color { ColorAnimation { duration: 150 } }
@@ -714,7 +714,7 @@ Rectangle {
                                                     id: dlBtnBg
                                                     anchors.fill: parent
                                                     color: parent.installed ? "#555555"
-                                                        : dlMouse.pressed ? "#a8c800" : dlMouse.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                                        : dlMouse.pressed ? Theme.accentDark : dlMouse.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
                                                     scale: dlMouse.pressed && !parent.installed ? 0.95 : 1.0
                                                     opacity: parent.installed ? 0.5 : 1.0
@@ -850,7 +850,7 @@ Rectangle {
                                                 Rectangle {
                                                     anchors.fill: parent
                                                     color: parent.installed ? "#555555"
-                                                        : dlMouse2.pressed ? "#a8c800" : dlMouse2.containsMouse ? "#e8ff33" : Theme.primaryAccent
+                                                        : dlMouse2.pressed ? Theme.accentDark : dlMouse2.containsMouse ? Theme.accentLight : Theme.primaryAccent
                                                     radius: Theme.radiusMedium
                                                     scale: dlMouse2.pressed && !parent.installed ? 0.95 : 1.0
                                                     opacity: parent.installed ? 0.5 : parent.busy ? 0.7 : 1.0
@@ -963,7 +963,7 @@ Rectangle {
 
             Image {
                 anchors.fill: parent
-                source: "../assets/gradient.png"
+                source: "../assets/" + assetsDir + "/gradient.png"
                 fillMode: Image.Stretch
                 mipmap: true
                 opacity: 0.6
@@ -995,7 +995,7 @@ Rectangle {
                 Item { height: 10; width: 1 }
 
                 Image {
-                    source: "../assets/YuFufuEat.png"
+                    source: "../assets/" + assetsDir + "/YuFufuEat.png"
                     width: 160
                     height: 160
                     fillMode: Image.PreserveAspectFit
@@ -1005,7 +1005,7 @@ Rectangle {
 
                 Text {
                     text: qsTranslate("Application", "Multiple %1 files found").replace("%1", modFileExt)
-                    color: "#d8fa00"
+                    color: Theme.primaryAccent
                     font.family: "Alatsi"
                     font.pixelSize: 24
                     width: parent.width
@@ -1041,7 +1041,7 @@ Rectangle {
                                 anchors.fill: parent
                                 color: rowHover.containsMouse ? "#3a3a3a" : "#2e2e2e"
                                 radius: 10
-                                border.color: checked ? "#d8fa00" : "transparent"
+                                border.color: checked ? Theme.primaryAccent : "transparent"
                                 border.width: 2
                                 Behavior on color        { ColorAnimation { duration: 100 } }
                                 Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -1056,8 +1056,8 @@ Rectangle {
                                 Rectangle {
                                     width: 20; height: 20; radius: 10
                                     anchors.verticalCenter: parent.verticalCenter
-                                    color: checked ? "#d8fa00" : "transparent"
-                                    border.color: checked ? "#d8fa00" : "#888888"
+                                    color: checked ? Theme.primaryAccent : "transparent"
+                                    border.color: checked ? Theme.primaryAccent : "#888888"
                                     border.width: 2
                                     Behavior on color        { ColorAnimation { duration: 100 } }
                                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -1128,7 +1128,7 @@ Rectangle {
                     Rectangle {
                         width: 120
                         height: 45
-                        color: "#d8fa00"
+                        color: Theme.primaryAccent
                         radius: Theme.radiusMedium
                         opacity: zzarChooser.checkedNames.length === 0 ? 0.4 : 1.0
                         scale: installSelMouse.pressed ? 0.97 : (installSelMouse.containsMouse ? 1.03 : 1.0)

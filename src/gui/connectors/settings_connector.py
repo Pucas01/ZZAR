@@ -196,7 +196,7 @@ class SettingsConnector:
             Q_ARG("QVariant", title),
             Q_ARG("QVariant", message),
             Q_ARG("QVariant", "wwise_setup"),
-            Q_ARG("QVariant", "../assets/BellNervous.png")
+            Q_ARG("QVariant", f"../assets/{ASSETS_DIR}/BellNervous.png")
         )
 
     def on_wwise_setup_success(self, title, message):
