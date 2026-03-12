@@ -14,7 +14,7 @@ from PyQt5.QtCore import (
     QObject, pyqtSlot, pyqtSignal, QMetaObject, Qt, Q_ARG, QThread, QCoreApplication
 )
 
-from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR
+from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR, APP_NAME, DATA_SUBDIR
 from src.pck_indexer import PCKIndexer
 from src.bnk_indexer import BNKIndexer
 from src.temp_cache_manager import TempCacheManager
@@ -28,20 +28,20 @@ from src.mod_package_manager import ModPackageManager
 from src.config_manager import get_settings_file, get_config_dir
 from gui.backend.update_manager_bridge import _urlopen
 
-OFFICIAL_TAG_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_sound_database.json"
-OFFICIAL_FINGERPRINT_DB_URL = "https://raw.githubusercontent.com/Pucas01/ZZAR/main/data/official_fingerprint_database.json"
+OFFICIAL_TAG_DB_URL = f"https://raw.githubusercontent.com/Pucas01/{APP_NAME}/main/data/{DATA_SUBDIR}/official_sound_database.json"
+OFFICIAL_FINGERPRINT_DB_URL = f"https://raw.githubusercontent.com/Pucas01/{APP_NAME}/main/data/{DATA_SUBDIR}/official_fingerprint_database.json"
 
 def _get_tag_db_url():
     from ZZAR import DEV_MODE, get_base_path
     if DEV_MODE:
-        dev_path = get_base_path() / "data" / "dev_sound_database.json"
+        dev_path = get_base_path() / "data" / DATA_SUBDIR / "dev_sound_database.json"
         return dev_path.as_uri()
     return OFFICIAL_TAG_DB_URL
 
 def _get_fingerprint_db_url():
     from ZZAR import DEV_MODE, get_base_path
     if DEV_MODE:
-        dev_path = get_base_path() / "data" / "dev_fingerprint_database.json"
+        dev_path = get_base_path() / "data" / DATA_SUBDIR / "dev_fingerprint_database.json"
         return dev_path.as_uri()
     return OFFICIAL_FINGERPRINT_DB_URL
 

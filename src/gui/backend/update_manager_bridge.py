@@ -57,7 +57,7 @@ class UpdateCheckWorker(QThread):
         try:
             req = urllib.request.Request(GITHUB_API_URL)
             req.add_header("Accept", "application/vnd.github.v3+json")
-            req.add_header("User-Agent", "ZZAR-Updater")
+            req.add_header("User-Agent", f"{APP_NAME}-Updater")
 
             if self.github_token:
                 req.add_header("Authorization", f"token {self.github_token}")
@@ -78,9 +78,9 @@ class UpdateCheckWorker(QThread):
                 return
 
             if sys.platform.startswith("win"):
-                asset_name = "ZZAR-windows-x64.zip"
+                asset_name = f"{APP_NAME}-windows-x64.zip"
             else:
-                asset_name = "ZZAR-linux-x64.flatpak"
+                asset_name = f"{APP_NAME}-linux-x64.flatpak"
 
             download_url = ""
             for asset in data.get("assets", []):
@@ -129,14 +129,14 @@ class UpdateDownloadWorker(QThread):
             update_dir.mkdir(parents=True, exist_ok=True)
 
             if sys.platform.startswith("win"):
-                archive_name = "ZZAR-windows-x64.zip"
+                archive_name = f"{APP_NAME}-windows-x64.zip"
             else:
-                archive_name = "ZZAR-linux-x64.flatpak"
+                archive_name = f"{APP_NAME}-linux-x64.flatpak"
 
             archive_path = update_dir / archive_name
 
             req = urllib.request.Request(self.download_url)
-            req.add_header("User-Agent", "ZZAR-Updater")
+            req.add_header("User-Agent", f"{APP_NAME}-Updater")
             req.add_header("Accept", "application/octet-stream")
             if self.github_token:
                 req.add_header("Authorization", f"token {self.github_token}")
@@ -345,42 +345,42 @@ class UpdateManagerBridge(QObject):
         new_binary = Path(self._downloaded_binary)
         target = Path(current_exe)
         target_dir = target.parent
-        backup = target_dir / "ZZAR.exe.bak"
+        backup = target_dir / f"{APP_NAME}.exe.bak"
         log_file = get_cache_dir() / "updates" / "update.log"
 
         bat_path = get_cache_dir() / "updates" / "update.bat"
         # ping for delays since timeout crashes without a console window
         bat_content = f"""@echo off
-echo [ZZAR Updater] Starting update... > "{log_file}"
-echo [ZZAR Updater] Target: {target} >> "{log_file}"
-echo [ZZAR Updater] Source: {new_binary} >> "{log_file}"
-echo [ZZAR Updater] Waiting for ZZAR to exit... >> "{log_file}"
+echo [{APP_NAME} Updater] Starting update... > "{log_file}"
+echo [{APP_NAME} Updater] Target: {target} >> "{log_file}"
+echo [{APP_NAME} Updater] Source: {new_binary} >> "{log_file}"
+echo [{APP_NAME} Updater] Waiting for {APP_NAME} to exit... >> "{log_file}"
 set RETRIES=0
 :waitloop
 ping -n 3 127.0.0.1 >nul
 set /a RETRIES+=1
 if %RETRIES% GEQ 30 (
-    echo [ZZAR Updater] ERROR: Timed out after 60s >> "{log_file}"
+    echo [{APP_NAME} Updater] ERROR: Timed out after 60s >> "{log_file}"
     goto :eof
 )
 rem Try to rename the running exe - fails if still locked
 if exist "{backup}" del /F "{backup}" >nul 2>&1
-rename "{target}" "ZZAR.exe.bak" >nul 2>&1
+rename "{target}" "{APP_NAME}.exe.bak" >nul 2>&1
 if exist "{target}" (
-    echo [ZZAR Updater] Still locked, attempt %RETRIES% >> "{log_file}"
+    echo [{APP_NAME} Updater] Still locked, attempt %RETRIES% >> "{log_file}"
     goto waitloop
 )
-echo [ZZAR Updater] Old binary renamed >> "{log_file}"
+echo [{APP_NAME} Updater] Old binary renamed >> "{log_file}"
 copy /Y /B "{new_binary}" "{target}" >nul 2>&1
 if not exist "{target}" (
-    echo [ZZAR Updater] Copy failed, restoring backup >> "{log_file}"
-    rename "{backup}" "ZZAR.exe" >nul 2>&1
+    echo [{APP_NAME} Updater] Copy failed, restoring backup >> "{log_file}"
+    rename "{backup}" "{APP_NAME}.exe" >nul 2>&1
     goto :eof
 )
-echo [ZZAR Updater] Copy successful >> "{log_file}"
+echo [{APP_NAME} Updater] Copy successful >> "{log_file}"
 del /F "{backup}" >nul 2>&1
 del /F "{new_binary}" >nul 2>&1
-echo [ZZAR Updater] Launching updated ZZAR >> "{log_file}"
+echo [{APP_NAME} Updater] Launching updated {APP_NAME} >> "{log_file}"
 explorer.exe "{target}"
 del "%~f0"
 """
