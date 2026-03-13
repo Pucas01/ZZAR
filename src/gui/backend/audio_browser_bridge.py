@@ -66,22 +66,33 @@ class _WorkerThread(QThread):
             import traceback
             self.finished.emit(False, f"{e}\n{traceback.format_exc()}")
 
+def _pck_rel_key(pck_file_path, audio_root):
+    """Return relative path like 'English/Banks0.pck' from audio_root, falling back to filename."""
+    try:
+        norm_pck = Path(str(pck_file_path).replace("Persistent", "StreamingAssets"))
+        norm_root = Path(str(audio_root).replace("Persistent", "StreamingAssets"))
+        return str(norm_pck.relative_to(norm_root)).replace("\\", "/")
+    except (ValueError, TypeError):
+        return pck_file_path.name
+
+
 class ReplaceAudioWorker(QThread):
 
     progress = pyqtSignal(str)
     finished = pyqtSignal(bool, str)
 
-    def __init__(self, custom_file_path, meta, normalize, mod_manager):
+    def __init__(self, custom_file_path, meta, normalize, mod_manager, audio_root=None):
         super().__init__()
         self.custom_file_path = custom_file_path
         self.meta = meta
         self.normalize = normalize
         self.mod_manager = mod_manager
+        self.audio_root = audio_root
 
     def run(self):
         try:
             pck_file_path = Path(self.meta["pck_path"])
-            pck_filename = pck_file_path.name
+            pck_filename = _pck_rel_key(pck_file_path, self.audio_root) if self.audio_root else pck_file_path.name
 
             if self.meta["type"] == "wem":
                 file_id = self.meta["file_id"]
@@ -313,6 +324,7 @@ class AudioBrowserBridge(QObject):
         self._index_cache = {}
         self._tree_cache = {}
         self._current_directory = None
+        self._audio_root = None
         self._match_metadata = {}
 
         self._worker = None
@@ -414,6 +426,7 @@ class AudioBrowserBridge(QObject):
                                     QCoreApplication.translate("Application", "Could not find audio folder at:\n%1").replace("%1", str(full_folder)))
             return
 
+        self._audio_root = full_folder
         self.language_folders = {}
         language_mapping = LANGUAGE_FOLDERS
 
@@ -1278,7 +1291,7 @@ class AudioBrowserBridge(QObject):
         self.loadingStarted.emit(QCoreApplication.translate("Application", "Converting audio..."))
         self.statusUpdate.emit(QCoreApplication.translate("Application", "Processing your custom audio..."))
 
-        self._replace_worker = ReplaceAudioWorker(filename, meta, normalize, self.mod_manager)
+        self._replace_worker = ReplaceAudioWorker(filename, meta, normalize, self.mod_manager, self._audio_root)
         self._replace_worker.progress.connect(self._on_replace_progress)
         self._replace_worker.finished.connect(self._on_replace_finished)
         self._replace_worker.start()
@@ -1365,7 +1378,7 @@ class AudioBrowserBridge(QObject):
 
         try:
             pck_file_path = Path(meta["pck_path"])
-            pck_filename = pck_file_path.name
+            pck_filename = _pck_rel_key(pck_file_path, self._audio_root) if self._audio_root else pck_file_path.name
 
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Creating silent audio replacement..."))
 

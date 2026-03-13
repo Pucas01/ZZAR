@@ -131,10 +131,13 @@ class ImportWorker(QThread):
                         indexer = PCKIndexer(str(game_pck_path))
                         indexer.build_index()
 
-                        game_pck_name = game_pck_path.name
-                        if game_pck_name.startswith(SOUNDBANK_PCK_PREFIX):
+                        try:
+                            game_pck_name = str(game_pck_path.relative_to(game_audio_dir)).replace("\\", "/")
+                        except ValueError:
+                            game_pck_name = game_pck_path.name
+                        if game_pck_path.name.startswith(SOUNDBANK_PCK_PREFIX):
                             priority = 1
-                        elif game_pck_name.startswith(STREAMED_PCK_PREFIX):
+                        elif game_pck_path.name.startswith(STREAMED_PCK_PREFIX):
                             priority = 0
                         else:
                             priority = 0
@@ -261,10 +264,13 @@ class ImportWorker(QThread):
                         indexer = PCKIndexer(str(pck_path))
                         indexer.build_index()
 
-                        pck_name = pck_path.name
-                        if pck_name.startswith(SOUNDBANK_PCK_PREFIX):
+                        try:
+                            pck_name = str(pck_path.relative_to(game_audio_dir)).replace("\\", "/")
+                        except ValueError:
+                            pck_name = pck_path.name
+                        if pck_path.name.startswith(SOUNDBANK_PCK_PREFIX):
                             priority = 1
-                        elif pck_name.startswith(STREAMED_PCK_PREFIX):
+                        elif pck_path.name.startswith(STREAMED_PCK_PREFIX):
                             priority = 0
                         else:
                             priority = 0
@@ -364,7 +370,7 @@ class ImportWorker(QThread):
 
             from ZZAR import __version__ as zzar_version
             metadata_content = {
-                'format_version': '2.0',
+                'format_version': '3.0',
                 'name': self.data['metadata']['name'],
                 'author': self.data['metadata']['author'],
                 'version': self.data['metadata'].get('version', '1.0.0'),

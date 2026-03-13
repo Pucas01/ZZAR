@@ -89,7 +89,7 @@ class ModPackageManager:
         format_version = metadata.get('format_version', '1.0')
         replacements = metadata.get('replacements', {})
 
-        if format_version != '2.0':
+        if format_version not in ('2.0', '3.0'):
             return replacements
 
         normalized = {}
@@ -147,7 +147,7 @@ class ModPackageManager:
                 file_list = zf.namelist()
                 format_version = metadata.get('format_version', '1.0')
 
-                if format_version == '2.0':
+                if format_version in ('2.0', '3.0'):
                     for pck_name, bnk_entries in metadata['replacements'].items():
                         for bnk_key, files in bnk_entries.items():
                             for file_id, file_info in files.items():
@@ -567,6 +567,7 @@ class ModPackageManager:
             if (game_audio_dir / pck_name).exists():
                 original_pck = game_audio_dir / pck_name
                 output_pck = persistent_audio_dir / pck_name
+                output_pck.parent.mkdir(parents=True, exist_ok=True)
             else:
 
                 candidates = []
@@ -766,7 +767,7 @@ class ModPackageManager:
                     print(f"Warning: Failed to process thumbnail: {e}")
 
             metadata_content = {
-                'format_version': '2.0',
+                'format_version': '3.0',
                 'name': metadata['name'],
                 'author': metadata['author'],
                 'version': metadata.get('version', '1.0.0'),
