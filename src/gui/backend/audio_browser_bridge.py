@@ -1616,7 +1616,8 @@ class AudioBrowserBridge(QObject):
                             bnk_temp = Path(tempfile.mkdtemp(prefix="zzar_bnk_", dir=str(get_temp_dir())))
                             bnk_wem_dir = bnk_temp / f"{repl_bnk_id}_bnk"
                             bnk_wem_dir.mkdir(parents=True, exist_ok=True)
-                            shutil.copy(str(repl_wem), str(bnk_wem_dir / f"{file_id}.wem"))
+                            plain_wem_id = str(file_id).split('|')[-1] if '|' in str(file_id) else str(file_id)
+                            shutil.copy(str(repl_wem), str(bnk_wem_dir / f"{plain_wem_id}.wem"))
                             packer.replace_bnk_wems(repl_bnk_id, str(bnk_wem_dir), repl_info["lang_id"])
                             shutil.rmtree(str(bnk_temp), ignore_errors=True)
 
