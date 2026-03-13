@@ -148,7 +148,7 @@ Item {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: Qt.openUrlExternally("https://discord.gg/PLACEHOLDER")
+                        onClicked: Qt.openUrlExternally("https://discord.gg/dFbJy8gaCh")
                     }
                 }
 
