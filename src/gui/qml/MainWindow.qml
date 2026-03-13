@@ -238,6 +238,7 @@ ApplicationWindow {
                     anchors.right: navBar_Frm.left
                     anchors.rightMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: appName === "SRAR" ? 6 : 0
 
                     property bool hovered: false
 
@@ -246,7 +247,7 @@ ApplicationWindow {
                         anchors.centerIn: parent
                         width: 52
                         height: 52
-                        source: "../assets/Knock-Knock.png"
+                        source: "../assets/" + assetsDir + "/Knock-Knock.png"
                         fillMode: Image.PreserveAspectFit
                         mipmap: true
                         transformOrigin: Item.Bottom
@@ -282,11 +283,10 @@ ApplicationWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onEntered: { discordBtn.hovered = true; knockShakeAnim.start() }
+                        onEntered: { discordBtn.hovered = true; if (appName !== "SRAR") knockShakeAnim.start() }
                         onExited: {
                             discordBtn.hovered = false
-                            knockShakeAnim.stop()
-                            knockKnockImg.rotation = 0
+                            if (appName !== "SRAR") { knockShakeAnim.stop(); knockKnockImg.rotation = 0 }
                         }
                         onClicked: discordDialog.visible = true
                     }

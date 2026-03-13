@@ -27,7 +27,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "../assets/gradient.png"
+            source: "../assets/" + assetsDir + "/gradient.png"
             fillMode: Image.Stretch
             mipmap: true
             opacity: 0.6
@@ -62,7 +62,7 @@ Item {
             Item { height: 10; width: 1 }
 
             Image {
-                source: "../assets/Knock-Knock.png"
+                source: "../assets/" + assetsDir + "/Knock-Knock.png"
                 width: 160
                 height: 160
                 fillMode: Image.PreserveAspectFit
@@ -72,7 +72,7 @@ Item {
 
             Text {
                 text: qsTranslate("Application", "Need Help?")
-                color: "#d8fa00"
+                color: Theme.primaryAccent
                 font.family: "Alatsi"
                 font.pixelSize: 24
                 font.bold: false
