@@ -231,6 +231,40 @@ ApplicationWindow {
                     }
                 }
 
+                Item {
+                    id: discordBtn
+                    width: 60
+                    height: 60
+                    anchors.right: navBar_Frm.left
+                    anchors.rightMargin: 12
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    property bool hovered: false
+
+                    Image {
+                        anchors.centerIn: parent
+                        width: 52
+                        height: 52
+                        source: "../assets/Knock-Knock.png"
+                        fillMode: Image.PreserveAspectFit
+                        mipmap: true
+                        opacity: discordBtn.hovered ? 1.0 : 0.75
+                        scale: discordMouse.pressed ? 0.92 : (discordBtn.hovered ? 1.08 : 1.0)
+                        Behavior on opacity { NumberAnimation { duration: 150 } }
+                        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
+                    }
+
+                    MouseArea {
+                        id: discordMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onEntered: discordBtn.hovered = true
+                        onExited: discordBtn.hovered = false
+                        onClicked: discordDialog.visible = true
+                    }
+                }
+
                 Rectangle {
                     id: navBar_Frm
                     anchors.right: parent.right
@@ -625,6 +659,12 @@ ApplicationWindow {
             id: modInfoDialog
             anchors.fill: parent
             z: 998
+        }
+
+        DiscordDialog {
+            id: discordDialog
+            anchors.fill: parent
+            z: 2000
         }
 
         CustomDialog {
