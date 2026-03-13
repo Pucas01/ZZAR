@@ -48,6 +48,11 @@
   </requires>
 
   <releases>
+    <release version="1.2.3" date="2026-03-13">
+      <description>
+        <p>ZZAR Version 1.2.3.</p>
+      </description>
+    </release>
     <release version="1.2.2" date="2026-03-10">
       <description>
         <p>ZZAR Version 1.2.2.</p>
