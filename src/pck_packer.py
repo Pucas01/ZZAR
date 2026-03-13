@@ -192,7 +192,10 @@ class PCKPacker:
                 'soundbank_files': self.soundbank_files,
                 'stream_files': self.stream_files
             }
-            found_section = section_map_dict[target_section]
+            if file_id > 0xFFFFFFFF:
+                found_section = self.stream_files
+            else:
+                found_section = section_map_dict[target_section]
             if lang_id not in found_section:
                 found_section[lang_id] = {}
 

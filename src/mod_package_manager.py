@@ -569,16 +569,40 @@ class ModPackageManager:
                 output_pck = persistent_audio_dir / pck_name
             else:
 
-                for subdir in game_audio_dir.iterdir():
+                candidates = []
+                for subdir in sorted(game_audio_dir.iterdir()):
                     if subdir.is_dir():
                         candidate = subdir / pck_name
                         if candidate.exists():
-                            original_pck = candidate
+                            candidates.append((subdir, candidate))
 
-                            persistent_subdir = persistent_audio_dir / subdir.name
-                            persistent_subdir.mkdir(parents=True, exist_ok=True)
-                            output_pck = persistent_subdir / pck_name
-                            break
+                if candidates:
+                    target_int_ids = set()
+                    for key, file_info in resolved[pck_name].items():
+                        raw = file_info.get('file_id') or (str(key).split('|')[-1] if '|' in str(key) else key)
+                        try:
+                            target_int_ids.add(int(raw) if str(raw).isdigit() else int(str(raw), 16))
+                        except (ValueError, TypeError):
+                            pass
+
+                    chosen_subdir, chosen_candidate = candidates[0]
+                    if target_int_ids and len(candidates) > 1:
+                        from src.pck_indexer import PCKIndexer
+                        for subdir, candidate in candidates:
+                            try:
+                                idx = PCKIndexer(str(candidate))
+                                data = idx.build_index()
+                                pck_ids = {e['id'] for e in data['banks'] + data['sounds'] + data['externals']}
+                                if target_int_ids & pck_ids:
+                                    chosen_subdir, chosen_candidate = subdir, candidate
+                                    break
+                            except Exception:
+                                pass
+
+                    original_pck = chosen_candidate
+                    persistent_subdir = persistent_audio_dir / chosen_subdir.name
+                    persistent_subdir.mkdir(parents=True, exist_ok=True)
+                    output_pck = persistent_subdir / pck_name
 
             if not original_pck or not original_pck.exists():
                 print(f"Warning: Original PCK not found: {pck_name}, skipping...")
@@ -611,7 +635,7 @@ class ModPackageManager:
 
                     # key is always compound "bnk_id|wem_id" now; file_info['file_id'] has plain wem_id for v2.0
                     raw_id = file_info.get('file_id') or (str(key).split('|')[-1] if '|' in str(key) else key)
-                    actual_wem_id = int(raw_id)
+                    actual_wem_id = int(raw_id) if str(raw_id).isdigit() else int(str(raw_id), 16)
                     lang_id = file_info.get('lang_id', 0)
 
                     if file_info.get('bnk_id'):

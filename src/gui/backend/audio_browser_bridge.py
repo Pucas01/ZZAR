@@ -298,7 +298,7 @@ class AudioBrowserBridge(QObject):
         self.game_root_dir = None
         self.language_folders = {}
         self.current_language_folder = ""
-        self.merge_wem_enabled = True
+        self.merge_wem_enabled = BUILD_TARGET != "SRAR"
         self.hide_useless_pck_enabled = BUILD_TARGET != "SRAR"
         self.hide_empty_bnk_enabled = True
         self.normalize_audio_enabled = True
@@ -1610,7 +1610,7 @@ class AudioBrowserBridge(QObject):
                     print(f"[Apply] Replacing file_id={file_id}, lang_id={repl_info['lang_id']}, type={repl_info['file_type']}")
 
                     if repl_info["file_type"] == "wem":
-                        packer.replace_file(int(file_id), str(repl_wem), repl_info["lang_id"])
+                        packer.replace_file(int(file_id) if str(file_id).isdigit() else int(str(file_id), 16), str(repl_wem), repl_info["lang_id"])
                     else:
                         repl_bnk_id = repl_info.get("bnk_id")
                         if repl_bnk_id:

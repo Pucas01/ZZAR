@@ -191,14 +191,29 @@ class ImportWorker(QThread):
                 for file_id in file_id_to_pck:
                     game_pck_name, bnk_id, lang_id, priority = file_id_to_pck[file_id]
 
+                    if bnk_id:
+                        sub_dir = wem_dir / str(bnk_id)
+                        wem_relative = f'wem_files/{bnk_id}/{file_id}.wem'
+                        bnk_key = f"{bnk_id}.bnk"
+                    else:
+                        sub_dir = wem_dir / 'direct'
+                        wem_relative = f'wem_files/direct/{file_id}.wem'
+                        bnk_key = 'direct'
+
+                    sub_dir.mkdir(parents=True, exist_ok=True)
+                    src = wem_dir / f"{file_id}.wem"
+                    if src.exists():
+                        shutil.move(str(src), str(sub_dir / f"{file_id}.wem"))
+
                     if game_pck_name not in replacements:
                         replacements[game_pck_name] = {}
+                    if bnk_key not in replacements[game_pck_name]:
+                        replacements[game_pck_name][bnk_key] = {}
 
-                    replacements[game_pck_name][file_id] = {
-                        'wem_file': f'wem_files/{file_id}.wem',
+                    replacements[game_pck_name][bnk_key][file_id] = {
+                        'wem_file': wem_relative,
                         'sound_name': '',
                         'lang_id': lang_id,
-                        'bnk_id': bnk_id,
                         'file_type': 'bnk' if bnk_id else 'wem'
                     }
 
@@ -216,6 +231,14 @@ class ImportWorker(QThread):
                     raise Exception("Game audio directory not set. Please set it in Settings first.")
 
                 target_wem_ids = set(files.keys())
+                # Build int→key mapping to match both decimal and hex string IDs
+                target_id_to_key = {}
+                for fid in files.keys():
+                    try:
+                        int_id = int(fid) if str(fid).isdigit() else int(str(fid), 16)
+                        target_id_to_key[int_id] = fid
+                    except (ValueError, TypeError):
+                        pass
                 self.progress.emit(f"Looking for {len(target_wem_ids)} WEM file(s) in game PCKs...")
 
                 file_id_to_pck = {}
@@ -257,9 +280,9 @@ class ImportWorker(QThread):
 
                                 for wem in bnk_indexer.wem_list:
                                     wem_id = wem['wem_id']
-                                    file_id = str(wem_id)
+                                    file_id = target_id_to_key.get(wem_id)
 
-                                    if file_id in target_wem_ids:
+                                    if file_id is not None:
                                         lang_id = bnk_info['lang_id']
 
                                         if file_id not in file_id_to_pck or priority >= file_id_to_pck[file_id][3]:
@@ -271,10 +294,10 @@ class ImportWorker(QThread):
                         standalone_wems = 0
                         for wem_info in indexer.index_data['sounds'] + indexer.index_data['externals']:
                             wem_id = wem_info['id']
-                            file_id = str(wem_id)
+                            file_id = target_id_to_key.get(wem_id)
                             lang_id = wem_info['lang_id']
 
-                            if file_id in target_wem_ids:
+                            if file_id is not None:
 
                                 if file_id not in file_id_to_pck or priority >= file_id_to_pck[file_id][3]:
                                     file_id_to_pck[file_id] = (pck_name, None, lang_id, priority)
@@ -295,9 +318,6 @@ class ImportWorker(QThread):
 
                 for file_id, wem_info in files.items():
                     wem_path = wem_info['path']
-                    dest_wem = wem_dir / f"{file_id}.wem"
-
-                    shutil.copy2(wem_path, dest_wem)
 
                     if file_id in file_id_to_pck:
                         pck_name, bnk_id, lang_id, priority = file_id_to_pck[file_id]
@@ -305,20 +325,32 @@ class ImportWorker(QThread):
                         location_str = f" in BNK {bnk_id}" if bnk_id else ""
                         self.progress.emit(f"File {file_id} -> {pck_name}{priority_str}{location_str} (lang {lang_id})")
                     else:
-
                         pck_name = "Unknown.pck"
                         bnk_id = None
                         lang_id = 0
                         self.progress.emit(f"Warning: File ID {file_id} not found in any game PCK")
 
+                    if bnk_id:
+                        sub_dir = wem_dir / str(bnk_id)
+                        wem_relative = f'wem_files/{bnk_id}/{file_id}.wem'
+                        bnk_key = f"{bnk_id}.bnk"
+                    else:
+                        sub_dir = wem_dir / 'direct'
+                        wem_relative = f'wem_files/direct/{file_id}.wem'
+                        bnk_key = 'direct'
+
+                    sub_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(wem_path, sub_dir / f"{file_id}.wem")
+
                     if pck_name not in replacements:
                         replacements[pck_name] = {}
+                    if bnk_key not in replacements[pck_name]:
+                        replacements[pck_name][bnk_key] = {}
 
-                    replacements[pck_name][file_id] = {
-                        'wem_file': f'wem_files/{file_id}.wem',
+                    replacements[pck_name][bnk_key][file_id] = {
+                        'wem_file': wem_relative,
                         'sound_name': '',
                         'lang_id': lang_id,
-                        'bnk_id': bnk_id,
                         'file_type': 'bnk' if bnk_id else 'wem'
                     }
 
@@ -330,15 +362,16 @@ class ImportWorker(QThread):
             self.progress.emit(f"Creating {MOD_FILE_EXT} package...")
             self.progressPercent.emit(70)
 
+            from ZZAR import __version__ as zzar_version
             metadata_content = {
-                'format_version': '1.0',
+                'format_version': '2.0',
                 'name': self.data['metadata']['name'],
                 'author': self.data['metadata']['author'],
                 'version': self.data['metadata'].get('version', '1.0.0'),
                 'description': self.data['metadata'].get('description', ''),
                 'created_date': datetime.now().isoformat(),
                 'replacements': replacements,
-                'zzar_version': '1.0.0'
+                'zzar_version': zzar_version
             }
 
             if self.data.get('thumbnail'):
