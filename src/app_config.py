@@ -4,7 +4,7 @@ if BUILD_TARGET == "ZZAR":
 
     APP_NAME            = "ZZAR"
     APP_FULL_NAME       = "Zenless Zone Zero Audio Replacer"
-    APP_VERSION         = "1.2.0"
+    APP_VERSION         = "1.2.2"
 
     GAME_NAME           = "Zenless Zone Zero"
     GAME_SHORT          = "ZZZ"
@@ -51,7 +51,7 @@ elif BUILD_TARGET == "SRAR":
 
     APP_NAME            = "SRAR"
     APP_FULL_NAME       = "Honkai Star Rail Audio Replacer"
-    APP_VERSION         = "1.2.2"
+    APP_VERSION         = "1.0.0"
 
     GAME_NAME           = "Honkai Star Rail"
     GAME_SHORT          = "HSR"
