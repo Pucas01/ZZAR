@@ -7,7 +7,7 @@ from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 from PyQt5.QtWidgets import QApplication
 
 from gui.backend.native_dialogs import NativeDialogs
-from src.app_config import GAME_DATA_FOLDER
+from src.app_config import GAME_DATA_FOLDER, AUDIO_SUBPATH
 
 
 class SettingsConnector:
@@ -372,8 +372,8 @@ class SettingsConnector:
                 game_path_valid = True
 
         if game_path_valid:
-            audio_dir = game_data_path / "StreamingAssets" / "Audio" / "Windows" / "Full"
-            persistent_dir = game_data_path / "Persistent" / "Audio" / "Windows" / "Full"
+            audio_dir = game_data_path.joinpath(*AUDIO_SUBPATH)
+            persistent_dir = game_data_path.joinpath("Persistent", *AUDIO_SUBPATH[1:])
             settings["game_audio_dir"] = str(audio_dir)
             settings["persistent_audio_dir"] = str(persistent_dir)
             print(f"[Settings] Game audio dir: {audio_dir}")
@@ -622,8 +622,8 @@ class SettingsConnector:
             game_dir = self.welcome_dialog.property("gameDirectory")
             if game_dir:
                 game_data_path = Path(game_dir)
-                audio_dir = game_data_path / "StreamingAssets" / "Audio" / "Windows" / "Full"
-                persistent_dir = game_data_path / "Persistent" / "Audio" / "Windows" / "Full"
+                audio_dir = game_data_path.joinpath(*AUDIO_SUBPATH)
+                persistent_dir = game_data_path.joinpath("Persistent", *AUDIO_SUBPATH[1:])
                 settings["game_audio_dir"] = str(audio_dir)
                 settings["persistent_audio_dir"] = str(persistent_dir)
 

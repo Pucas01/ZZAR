@@ -28,6 +28,14 @@ if BUILD_TARGET == "ZZAR":
 
     GAME_DATA_FOLDER_SEARCH = "ZenlessZoneZero_Data"
 
+    # Audio path layout
+    AUDIO_SUBPATH        = ("StreamingAssets", "Audio", "Windows", "Full")
+    SOUNDBANK_PCK_GLOB   = "SoundBank_SFX_*.pck"
+    STREAMED_PCK_GLOB    = "Streamed_SFX_*.pck"
+    STREAMED_PCK_PREFIX  = "Streamed_SFX_"
+    SOUNDBANK_PCK_PREFIX = "SoundBank_SFX_"
+    LANGUAGE_FOLDERS     = {"En": "English", "Jp": "Japanese", "Kr": "Korean", "Cn": "Chinese"}
+
     ACCENT_COLOR        = "#d8fa00"
     ACCENT_COLOR_LIGHT  = "#e8ff33"
     ACCENT_COLOR_DARK   = "#a8c800"
@@ -64,6 +72,14 @@ elif BUILD_TARGET == "SRAR":
     GAME_INSTALL_HOME_SUBDIR = "Games/Honkai Star Rail Game"
 
     GAME_DATA_FOLDER_SEARCH = "StarRail_Data"
+
+    # Audio path layout
+    AUDIO_SUBPATH        = ("StreamingAssets", "Audio", "AudioPackage", "Windows")
+    SOUNDBANK_PCK_GLOB   = "Banks*.pck"
+    STREAMED_PCK_GLOB    = "Streamed*.pck"
+    STREAMED_PCK_PREFIX  = "Streamed"
+    SOUNDBANK_PCK_PREFIX = "Banks"
+    LANGUAGE_FOLDERS     = {"English": "English", "SFX": "SFX"}
 
     ACCENT_COLOR        = "#3f9ec3"
     ACCENT_COLOR_LIGHT  = "#62b8d8"

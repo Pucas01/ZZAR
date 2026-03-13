@@ -14,7 +14,11 @@ from PyQt5.QtCore import (
     QObject, pyqtSlot, pyqtSignal, QMetaObject, Qt, Q_ARG, QThread, QCoreApplication
 )
 
-from src.app_config import GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR, APP_NAME, DATA_SUBDIR
+from src.app_config import (
+    GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR, APP_NAME, DATA_SUBDIR,
+    AUDIO_SUBPATH, SOUNDBANK_PCK_GLOB, STREAMED_PCK_GLOB, STREAMED_PCK_PREFIX, SOUNDBANK_PCK_PREFIX,
+    LANGUAGE_FOLDERS,
+)
 from src.pck_indexer import PCKIndexer
 from src.bnk_indexer import BNKIndexer
 from src.temp_cache_manager import TempCacheManager
@@ -403,7 +407,7 @@ class AudioBrowserBridge(QObject):
             return
 
         self.game_root_dir = data_folder
-        full_folder = data_folder / "StreamingAssets" / "Audio" / "Windows" / "Full"
+        full_folder = data_folder.joinpath(*AUDIO_SUBPATH)
 
         if not full_folder.exists():
             self.errorOccurred.emit(QCoreApplication.translate("Application", "Invalid Directory"),
@@ -411,9 +415,7 @@ class AudioBrowserBridge(QObject):
             return
 
         self.language_folders = {}
-        language_mapping = {
-            "En": "English", "Jp": "Japanese", "Kr": "Korean", "Cn": "Chinese"
-        }
+        language_mapping = LANGUAGE_FOLDERS
 
         pck_files = list(full_folder.glob("*.pck"))
         if pck_files:
@@ -475,24 +477,24 @@ class AudioBrowserBridge(QObject):
 
     def _check_missing_streaming_threaded(self, full_folder):
         try:
-            soundbank_files = sorted(full_folder.glob("SoundBank_SFX_*.pck"))
-            streamed_files = sorted(full_folder.glob("Streamed_SFX_*.pck"))
+            soundbank_files = sorted(full_folder.glob(SOUNDBANK_PCK_GLOB))
+            streamed_files = sorted(full_folder.glob(STREAMED_PCK_GLOB))
 
-            print(f"[File Check] Found {len(soundbank_files)} SoundBank_SFX PCK(s), "
-                  f"{len(streamed_files)} Streamed_SFX PCK(s) in {full_folder.name}/")
+            print(f"[File Check] Found {len(soundbank_files)} soundbank PCK(s), "
+                  f"{len(streamed_files)} streamed PCK(s) in {full_folder.name}/")
 
             if not soundbank_files:
-                print("[File Check] No SoundBank_SFX files found, skipping check")
+                print("[File Check] No soundbank files found, skipping check")
                 return
 
             if not streamed_files:
-                print("[File Check] WARNING: Missing all Streamed_SFX PCK files!")
+                print("[File Check] WARNING: Missing all streamed PCK files!")
                 QMetaObject.invokeMethod(
                     self, "_emitStreamingAlert",
                     Qt.QueuedConnection,
                     Q_ARG(str, QCoreApplication.translate("Application", "Missing Streaming Audio Files")),
                     Q_ARG(str,
-                        QCoreApplication.translate("Application", "No Streamed_SFX PCK files were found in the game's audio folder.\n\n"
+                        QCoreApplication.translate("Application", "No streamed PCK files were found in the game's audio folder.\n\n"
                         "This means your game installation is incomplete or corrupted. "
                         "Audio mods may not work correctly without these files.\n\n"
                         "Please repair your game files through the game launcher.")
@@ -504,8 +506,8 @@ class AudioBrowserBridge(QObject):
 
             missing_pairs = []
             for sb_file in soundbank_files:
-                suffix = sb_file.name.replace("SoundBank_SFX_", "", 1)
-                expected_streamed = f"Streamed_SFX_{suffix}"
+                suffix = sb_file.name.replace(SOUNDBANK_PCK_PREFIX, "", 1)
+                expected_streamed = f"{STREAMED_PCK_PREFIX}{suffix}"
                 if expected_streamed not in streamed_names:
                     missing_pairs.append((sb_file.name, expected_streamed))
                     print(f"[File Check] WARNING: {sb_file.name} has no matching {expected_streamed}")
@@ -636,12 +638,12 @@ class AudioBrowserBridge(QObject):
         items = []
         for pck_file in pck_files:
 
-            if self.merge_wem_enabled and pck_file.name.startswith("Streamed_SFX_"):
+            if self.merge_wem_enabled and pck_file.name.startswith(STREAMED_PCK_PREFIX):
                 continue
 
             is_language_folder = self.current_language_folder not in ["Full", "Common"]
             if self.hide_useless_pck_enabled and is_language_folder:
-                if not pck_file.name.startswith("SoundBank_"):
+                if not pck_file.name.startswith(SOUNDBANK_PCK_PREFIX):
                     continue
 
             pck_path = str(pck_file)
@@ -841,7 +843,7 @@ class AudioBrowserBridge(QObject):
             streaming_wem_data = {}
             if self.merge_wem_enabled:
                 pck_dir = Path(bnk_data["pck_path"]).parent
-                for streamed_pck in pck_dir.glob("Streamed_SFX_*.pck"):
+                for streamed_pck in pck_dir.glob(STREAMED_PCK_GLOB):
                     try:
                         si = PCKIndexer(str(streamed_pck))
                         si.build_index()
@@ -1192,7 +1194,7 @@ class AudioBrowserBridge(QObject):
 
         if self.merge_wem_enabled and matches:
             matches = [m for m in matches
-                       if not Path(m["pckPath"]).name.startswith("Streamed_SFX_")]
+                       if not Path(m["pckPath"]).name.startswith(STREAMED_PCK_PREFIX)]
 
         if matches:
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Found %1 match(es) for '%2'").replace("%1", str(len(matches))).replace("%2", query))
@@ -1209,14 +1211,14 @@ class AudioBrowserBridge(QObject):
             self.statusUpdate.emit(QCoreApplication.translate("Application", "Cannot navigate to file %1").replace("%1", str(file_id)))
             return
 
-        if self.merge_wem_enabled and Path(pck_path).name.startswith("Streamed_SFX_"):
+        if self.merge_wem_enabled and Path(pck_path).name.startswith(STREAMED_PCK_PREFIX):
             print(f"[Navigate] Streamed_SFX detected with merge enabled, looking up file_id_index")
             file_id_int = int(file_id) if file_id.isdigit() else file_id
             locs = self.file_id_index.get(file_id_int, [])
 
             alt_loc = None
             for loc in locs:
-                if loc.get("type") == "wem_embedded" and not Path(loc["pck_path"]).name.startswith("Streamed_SFX_"):
+                if loc.get("type") == "wem_embedded" and not Path(loc["pck_path"]).name.startswith(STREAMED_PCK_PREFIX):
                     alt_loc = loc
                     break
             if alt_loc:
@@ -1513,7 +1515,7 @@ class AudioBrowserBridge(QObject):
 
             if self.game_root_dir:
                 try:
-                    streaming_path = Path(self.game_root_dir) / "StreamingAssets" / "Audio" / "Windows" / "Full"
+                    streaming_path = Path(self.game_root_dir).joinpath(*AUDIO_SUBPATH)
                     persistent_path = Path(str(streaming_path).replace("StreamingAssets", "Persistent"))
 
                     if persistent_path.exists():
@@ -1562,7 +1564,7 @@ class AudioBrowserBridge(QObject):
 
             for pck_filename, files in replacements.items():
 
-                streaming_base = Path(self.game_root_dir) / "StreamingAssets" / "Audio" / "Windows" / "Full"
+                streaming_base = Path(self.game_root_dir).joinpath(*AUDIO_SUBPATH)
                 pck_file_path = streaming_base / pck_filename
 
                 if not pck_file_path.exists():
@@ -1790,14 +1792,14 @@ class AudioBrowserBridge(QObject):
 
         if not pck_path:
 
-            base_path = Path(self.game_root_dir) / "StreamingAssets" / "Audio" / "Windows" / "Full"
+            base_path = Path(self.game_root_dir).joinpath(*AUDIO_SUBPATH)
 
             potential_path = base_path / pck_filename
             if potential_path.exists():
                 pck_path = str(potential_path)
 
             if not pck_path:
-                for lang_dir in ["En", "Jp", "Kr", "Cn"]:
+                for lang_dir in LANGUAGE_FOLDERS:
                     potential_path = base_path / lang_dir / pck_filename
                     if potential_path.exists():
                         pck_path = str(potential_path)

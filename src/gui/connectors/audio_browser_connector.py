@@ -6,6 +6,7 @@ from pathlib import Path
 from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 
 from gui.backend.native_dialogs import NativeDialogs
+from src.app_config import AUDIO_SUBPATH
 
 
 class AudioBrowserConnector:
@@ -317,9 +318,9 @@ class AudioBrowserConnector:
             return
 
         if folder_type == "streaming":
-            folder = Path(game_dir) / "StreamingAssets" / "Audio" / "Windows" / "Full"
+            folder = Path(game_dir).joinpath(*AUDIO_SUBPATH)
         else:
-            folder = Path(game_dir) / "Persistent" / "Audio" / "Windows" / "Full"
+            folder = Path(game_dir).joinpath("Persistent", *AUDIO_SUBPATH[1:])
 
         if not folder.exists():
             print(f"[Audio Browser] Folder does not exist: {folder}")
