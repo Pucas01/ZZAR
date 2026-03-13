@@ -10,7 +10,7 @@ import urllib.error
 import urllib.parse
 from pathlib import Path
 from PyQt5.QtCore import QObject, pyqtSlot, pyqtSignal, QThread
-from src.app_config import FLATPAK_ENV_VAR, GAMEBANANA_GAME_ID, CONFIG_DIR_NAME
+from src.app_config import FLATPAK_ENV_VAR, GAMEBANANA_GAME_ID, CONFIG_DIR_NAME, MOD_FILE_EXT
 
 if os.environ.get(FLATPAK_ENV_VAR):
     _BASE_DIR = Path(os.environ.get('XDG_DATA_HOME', Path.home() / '.local' / 'share')) / CONFIG_DIR_NAME
@@ -473,14 +473,14 @@ class FetchMiscZZARModsWorker(QThread):
     def _tree_has_zzar(self, tree):
         if isinstance(tree, list):
             for item in tree:
-                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                if isinstance(item, str) and item.lower().endswith(MOD_FILE_EXT):
                     return True
                 elif isinstance(item, (dict, list)):
                     if self._tree_has_zzar(item):
                         return True
         elif isinstance(tree, dict):
             for key, value in tree.items():
-                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                if isinstance(key, str) and key.lower().endswith(MOD_FILE_EXT):
                     return True
                 if self._tree_has_zzar(value):
                     return True
@@ -728,14 +728,14 @@ class FetchModDetailsWorker(QThread):
     def _tree_has_zzar(self, tree):
         if isinstance(tree, list):
             for item in tree:
-                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                if isinstance(item, str) and item.lower().endswith(MOD_FILE_EXT):
                     return True
                 elif isinstance(item, (dict, list)):
                     if self._tree_has_zzar(item):
                         return True
         elif isinstance(tree, dict):
             for key, value in tree.items():
-                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                if isinstance(key, str) and key.lower().endswith(MOD_FILE_EXT):
                     return True
                 if self._tree_has_zzar(value):
                     return True
@@ -897,14 +897,14 @@ class FetchZZARSupportWorker(QThread):
     def _tree_has_zzar(self, tree):
         if isinstance(tree, list):
             for item in tree:
-                if isinstance(item, str) and item.lower().endswith('.zzar'):
+                if isinstance(item, str) and item.lower().endswith(MOD_FILE_EXT):
                     return True
                 elif isinstance(item, (dict, list)):
                     if self._tree_has_zzar(item):
                         return True
         elif isinstance(tree, dict):
             for key, value in tree.items():
-                if isinstance(key, str) and key.lower().endswith('.zzar'):
+                if isinstance(key, str) and key.lower().endswith(MOD_FILE_EXT):
                     return True
                 if self._tree_has_zzar(value):
                     return True
@@ -994,10 +994,10 @@ class InstallModWorker(QThread):
             archive, namelist_fn, read_fn = _open_archive(self.archive_path)
             with archive:
                 all_names = namelist_fn()
-                zzar_entries = [n for n in all_names if n.lower().endswith('.zzar')]
+                zzar_entries = [n for n in all_names if n.lower().endswith(MOD_FILE_EXT)]
 
             if not zzar_entries:
-                self.finished.emit(False, "No .zzar files found in the downloaded archive")
+                self.finished.emit(False, f"No {MOD_FILE_EXT} files found in the downloaded archive")
                 return
 
             if self.chosen_zzar is None and len(zzar_entries) > 1:

@@ -7,7 +7,7 @@ from PyQt5.QtCore import QObject, QMetaObject, Q_ARG, Qt
 from PyQt5.QtWidgets import QApplication
 
 from gui.backend.native_dialogs import NativeDialogs
-from src.app_config import GAME_DATA_FOLDER, AUDIO_SUBPATH
+from src.app_config import GAME_DATA_FOLDER, AUDIO_SUBPATH, ASSETS_DIR
 
 
 class SettingsConnector:

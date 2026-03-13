@@ -471,6 +471,7 @@ Item {
 
                             Row {
                                 spacing: Theme.spacingSmall
+                                visible: appName !== "SRAR"
 
                                 Rectangle {
                                     width: 20

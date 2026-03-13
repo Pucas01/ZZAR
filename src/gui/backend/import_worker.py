@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from src.app_config import SOUNDBANK_PCK_PREFIX, STREAMED_PCK_PREFIX, MOD_FILE_EXT, MOD_FILE_EXT_UPPER
 
 class ImportWorker(QThread):
 
@@ -131,9 +132,9 @@ class ImportWorker(QThread):
                         indexer.build_index()
 
                         game_pck_name = game_pck_path.name
-                        if game_pck_name.startswith('SoundBank'):
+                        if game_pck_name.startswith(SOUNDBANK_PCK_PREFIX):
                             priority = 1
-                        elif game_pck_name.startswith('Streamed'):
+                        elif game_pck_name.startswith(STREAMED_PCK_PREFIX):
                             priority = 0
                         else:
                             priority = 0
@@ -238,9 +239,9 @@ class ImportWorker(QThread):
                         indexer.build_index()
 
                         pck_name = pck_path.name
-                        if pck_name.startswith('SoundBank'):
+                        if pck_name.startswith(SOUNDBANK_PCK_PREFIX):
                             priority = 1
-                        elif pck_name.startswith('Streamed'):
+                        elif pck_name.startswith(STREAMED_PCK_PREFIX):
                             priority = 0
                         else:
                             priority = 0
@@ -326,7 +327,7 @@ class ImportWorker(QThread):
                 for pck_name, pck_files in replacements.items():
                     self.progress.emit(f"  {pck_name}: {len(pck_files)} file(s)")
 
-            self.progress.emit("Creating .zzar package...")
+            self.progress.emit(f"Creating {MOD_FILE_EXT} package...")
             self.progressPercent.emit(70)
 
             metadata_content = {
@@ -362,7 +363,7 @@ class ImportWorker(QThread):
             shutil.rmtree(temp_dir)
             temp_dir = None
 
-            self.progress.emit(f"Created .zzar package: {save_path.name}")
+            self.progress.emit(f"Created {MOD_FILE_EXT} package: {save_path.name}")
             self.progressPercent.emit(85)
 
             self.progress.emit("Installing mod...")

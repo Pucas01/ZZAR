@@ -613,7 +613,7 @@ Item {
                                     anchors.fill: parent
                                     color: {
                                         if (model.enabled) {
-                                            return toggleMouse.pressed ? "#72ca00" : toggleMouse.containsMouse ? "#a2ff22" : Theme.accentDark
+                                            return toggleMouse.pressed ? "#72ca00" : toggleMouse.containsMouse ? Theme.accentDark : "#a2ff22"
                                         } else {
                                             return toggleMouse.pressed ? "#666666" : toggleMouse.containsMouse ? "#999999" : "#808080"
                                         }
@@ -838,7 +838,7 @@ Item {
                                 Rectangle {
                                     anchors.fill: parent
                                     color: {
-                                        if (model.enabled) return gridToggleBtn.pressed ? "#72ca00" : gridToggleBtn.containsMouse ? "#a2ff22" : Theme.accentDark
+                                        if (model.enabled) return gridToggleBtn.pressed ? "#72ca00" : gridToggleBtn.containsMouse ? Theme.accentDark : "#a2ff22"
                                         else return gridToggleBtn.pressed ? "#666666" : gridToggleBtn.containsMouse ? "#999999" : "#808080"
                                     }
                                     radius: 16

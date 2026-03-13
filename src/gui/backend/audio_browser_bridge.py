@@ -17,7 +17,7 @@ from PyQt5.QtCore import (
 from src.app_config import (
     GAME_DATA_FOLDER, MOD_FILE_EXT, MOD_FILE_EXT_UPPER, ASSETS_DIR, APP_NAME, DATA_SUBDIR,
     AUDIO_SUBPATH, SOUNDBANK_PCK_GLOB, STREAMED_PCK_GLOB, STREAMED_PCK_PREFIX, SOUNDBANK_PCK_PREFIX,
-    LANGUAGE_FOLDERS,
+    LANGUAGE_FOLDERS, BUILD_TARGET, AUDIO_ROOT_FRIENDLY_NAME, SUBFOLDER_SORT_PRIORITY,
 )
 from src.pck_indexer import PCKIndexer
 from src.bnk_indexer import BNKIndexer
@@ -299,7 +299,7 @@ class AudioBrowserBridge(QObject):
         self.language_folders = {}
         self.current_language_folder = ""
         self.merge_wem_enabled = True
-        self.hide_useless_pck_enabled = True
+        self.hide_useless_pck_enabled = BUILD_TARGET != "SRAR"
         self.hide_empty_bnk_enabled = True
         self.normalize_audio_enabled = True
 
@@ -421,7 +421,7 @@ class AudioBrowserBridge(QObject):
         if pck_files:
             self.language_folders["Full"] = {
                 "path": full_folder,
-                "friendly_name": "SFX/Music",
+                "friendly_name": AUDIO_ROOT_FRIENDLY_NAME,
                 "pck_count": len(pck_files),
             }
 
@@ -454,7 +454,7 @@ class AudioBrowserBridge(QObject):
             return
 
         sorted_folders = sorted(self.language_folders.keys(),
-                                key=lambda x: (x != "Full", x))
+                                key=lambda x: (0, "") if x == "Full" else (1, str(SUBFOLDER_SORT_PRIORITY.get(x, 99)).zfill(3) + x))
 
         tabs = []
         for folder_name in sorted_folders:
@@ -589,7 +589,7 @@ class AudioBrowserBridge(QObject):
     def _load_language_tab(self, index):
 
         sorted_folders = sorted(self.language_folders.keys(),
-                                key=lambda x: (x != "Full", x))
+                                key=lambda x: (0, "") if x == "Full" else (1, str(SUBFOLDER_SORT_PRIORITY.get(x, 99)).zfill(3) + x))
         if index < 0 or index >= len(sorted_folders):
             return
 
@@ -2289,7 +2289,7 @@ class AudioBrowserBridge(QObject):
     def importZzarForEditing(self, zzar_path):
 
         try:
-            self.statusUpdate.emit(QCoreApplication.translate("Application", "Importing .zzar mod for editing..."))
+            self.statusUpdate.emit(QCoreApplication.translate("Application", "Importing %1 mod for editing...").replace("%1", MOD_FILE_EXT))
 
             if self.mod_manager.get_all_replacements():
                 print("[Audio Browser] Clearing existing changes before importing new mod")
@@ -2409,10 +2409,10 @@ class AudioBrowserBridge(QObject):
                     raise
 
         except Exception as e:
-            self.statusUpdate.emit(QCoreApplication.translate("Application", "Failed to import .zzar"))
+            self.statusUpdate.emit(QCoreApplication.translate("Application", "Failed to import %1").replace("%1", MOD_FILE_EXT))
             self.errorOccurred.emit(
                 QCoreApplication.translate("Application", "Import Error"),
-                QCoreApplication.translate("Application", "Failed to import .zzar mod for editing:\n\n%1").replace("%1", str(e))
+                QCoreApplication.translate("Application", "Failed to import %1 mod for editing:\n\n%2").replace("%1", MOD_FILE_EXT).replace("%2", str(e))
             )
             import traceback
             traceback.print_exc()
