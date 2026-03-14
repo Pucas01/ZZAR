@@ -1623,7 +1623,7 @@ class AudioBrowserBridge(QObject):
                     print(f"[Apply] Replacing file_id={file_id}, lang_id={repl_info['lang_id']}, type={repl_info['file_type']}")
 
                     if repl_info["file_type"] == "wem":
-                        packer.replace_file(int(file_id) if len(str(file_id)) != 16 else int(str(file_id), 16), str(repl_wem), repl_info["lang_id"])
+                        packer.replace_file(int(file_id), str(repl_wem), repl_info["lang_id"])
                     else:
                         repl_bnk_id = repl_info.get("bnk_id")
                         if repl_bnk_id:
@@ -2383,7 +2383,7 @@ class AudioBrowserBridge(QObject):
 
                             self.mod_manager.add_replacement(
                                 pck_name,
-                                int(file_id) if len(file_id) != 16 else int(file_id, 16),
+                                int(file_id),
                                 str(permanent_wem),
                                 file_type,
                                 lang_id,

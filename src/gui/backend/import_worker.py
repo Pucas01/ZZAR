@@ -49,9 +49,9 @@ class ImportWorker(QThread):
 
             replacements = {}
             import_mode = self.data['import_mode']
-            files = self.data['files']
 
             if import_mode in ['pck_file', 'pck_folder']:
+                files = self.data['files']
                 self.progress.emit("Extracting audio from PCK files...")
                 self.progressPercent.emit(5)
 
@@ -224,6 +224,8 @@ class ImportWorker(QThread):
                     self.progress.emit(f"  {pck_name}: {len(pck_files_map)} file(s)")
 
             elif import_mode in ['wem_file', 'wem_folder']:
+                # Convert IDs so we don't have to worry about them later
+                files = {k if len(k) != 16 else str(int(k,16)): self.data['files'][k] for k in self.data['files']}
 
                 self.progress.emit("Processing WEM files...")
                 self.progressPercent.emit(5)
@@ -238,7 +240,7 @@ class ImportWorker(QThread):
                 target_id_to_key = {}
                 for fid in files.keys():
                     try:
-                        int_id = int(fid) if len(str(fid)) != 16 else int(str(fid), 16)
+                        int_id = int(fid)
                         target_id_to_key[int_id] = fid
                     except (ValueError, TypeError):
                         pass
@@ -341,7 +343,8 @@ class ImportWorker(QThread):
                             pck_name = str(candidates[0])
                         else:
                             pck_name = "Unknown.pck"
-                        bnk_id = None
+                        # Get bnk ID from path if it exists in path
+                        bnk_id = wem_path.split('_bnk')[0].split('/')[1] if '_bnk' in wem_path else None
                         lang_id = 0
                         self.progress.emit(f"Warning: File ID {file_id} not found in any game PCK")
 
