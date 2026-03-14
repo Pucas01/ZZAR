@@ -238,7 +238,7 @@ class ImportWorker(QThread):
                 target_id_to_key = {}
                 for fid in files.keys():
                     try:
-                        int_id = int(fid) if str(fid).isdigit() else int(str(fid), 16)
+                        int_id = int(fid) if len(str(fid)) != 16 else int(str(fid), 16)
                         target_id_to_key[int_id] = fid
                     except (ValueError, TypeError):
                         pass
@@ -331,7 +331,16 @@ class ImportWorker(QThread):
                         location_str = f" in BNK {bnk_id}" if bnk_id else ""
                         self.progress.emit(f"File {file_id} -> {pck_name}{priority_str}{location_str} (lang {lang_id})")
                     else:
-                        pck_name = "Unknown.pck"
+                        # Check for pck name in path
+                        all_game_pcks = [i.relative_to(game_audio_dir) for i in game_audio_dir.rglob('*.pck')]
+                        candidates = [i for i in all_game_pcks if i.stem in wem_path]
+                        if len(candidates) > 1:
+                            # If there's duplicates, prioritize language folders
+                            candidates = [i for i in candidates if 'SFX' not in i and '/' in i]
+                        if len(candidates) == 1:
+                            pck_name = str(candidates[0])
+                        else:
+                            pck_name = "Unknown.pck"
                         bnk_id = None
                         lang_id = 0
                         self.progress.emit(f"Warning: File ID {file_id} not found in any game PCK")

@@ -582,7 +582,7 @@ class ModPackageManager:
                     for key, file_info in resolved[pck_name].items():
                         raw = file_info.get('file_id') or (str(key).split('|')[-1] if '|' in str(key) else key)
                         try:
-                            target_int_ids.add(int(raw) if str(raw).isdigit() else int(str(raw), 16))
+                            target_int_ids.add(int(raw) if len(str(raw)) != 16 else int(str(raw), 16))
                         except (ValueError, TypeError):
                             pass
 
@@ -636,7 +636,7 @@ class ModPackageManager:
 
                     # key is always compound "bnk_id|wem_id" now; file_info['file_id'] has plain wem_id for v2.0
                     raw_id = file_info.get('file_id') or (str(key).split('|')[-1] if '|' in str(key) else key)
-                    actual_wem_id = int(raw_id) if str(raw_id).isdigit() else int(str(raw_id), 16)
+                    actual_wem_id = int(raw_id) if len(str(raw_id)) != 16 else int(str(raw_id), 16)
                     lang_id = file_info.get('lang_id', 0)
 
                     if file_info.get('bnk_id'):
