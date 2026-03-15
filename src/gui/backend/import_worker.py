@@ -49,9 +49,9 @@ class ImportWorker(QThread):
 
             replacements = {}
             import_mode = self.data['import_mode']
-            files = self.data['files']
 
             if import_mode in ['pck_file', 'pck_folder']:
+                files = self.data['files']
                 self.progress.emit("Extracting audio from PCK files...")
                 self.progressPercent.emit(5)
 
@@ -224,6 +224,8 @@ class ImportWorker(QThread):
                     self.progress.emit(f"  {pck_name}: {len(pck_files_map)} file(s)")
 
             elif import_mode in ['wem_file', 'wem_folder']:
+                # Convert IDs so we don't have to worry about them later
+                files = {k if len(k) != 16 else str(int(k,16)): self.data['files'][k] for k in self.data['files']}
 
                 self.progress.emit("Processing WEM files...")
                 self.progressPercent.emit(5)
@@ -238,7 +240,7 @@ class ImportWorker(QThread):
                 target_id_to_key = {}
                 for fid in files.keys():
                     try:
-                        int_id = int(fid) if str(fid).isdigit() else int(str(fid), 16)
+                        int_id = int(fid)
                         target_id_to_key[int_id] = fid
                     except (ValueError, TypeError):
                         pass
@@ -331,8 +333,18 @@ class ImportWorker(QThread):
                         location_str = f" in BNK {bnk_id}" if bnk_id else ""
                         self.progress.emit(f"File {file_id} -> {pck_name}{priority_str}{location_str} (lang {lang_id})")
                     else:
-                        pck_name = "Unknown.pck"
-                        bnk_id = None
+                        # Check for pck name in path
+                        all_game_pcks = [i.relative_to(game_audio_dir) for i in game_audio_dir.rglob('*.pck')]
+                        candidates = [i for i in all_game_pcks if i.stem in wem_path]
+                        if len(candidates) > 1:
+                            # If there's duplicates, prioritize language folders
+                            candidates = [i for i in candidates if 'SFX' not in i and '/' in i]
+                        if len(candidates) == 1:
+                            pck_name = str(candidates[0])
+                        else:
+                            pck_name = "Unknown.pck"
+                        # Get bnk ID from path if it exists in path
+                        bnk_id = wem_path.split('_bnk')[0].split('/')[1] if '_bnk' in wem_path else None
                         lang_id = 0
                         self.progress.emit(f"Warning: File ID {file_id} not found in any game PCK")
 
